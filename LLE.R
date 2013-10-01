@@ -7,7 +7,7 @@ solve.sing <- function(x, y) {
     return(b.min)
 }
 
-null_space <- function(M, k, symmetric = TRUE) {
+null_space <- function(M, d, symmetric = TRUE) {
     n <- nrow(M)
     eig_appx = eigen(M, symmetric)
     to_select = c((n - d):(n-1))
@@ -28,7 +28,7 @@ tr <- function(mat) {
     }
 }
 
-LLE_ <- function(data, d, k) {
+LLE <- function(data, d, k) {
     x = data
     cat("\nForming Euclidean Neighborhoods...")
     L = as.matrix((nnwhich(data, k = c(1:k))))
@@ -66,7 +66,7 @@ LLE_ <- function(data, d, k) {
     cat("Done.\n")
     to_select = c((n - d):(n-1))
 #     return(eig_appx$vectors[, to_select])
-    list(Y = eig_appx$vectors[, to_select],
+    list(Y = null_space(M, d),
          X = x,
          k = k,
          d = d) 
