@@ -1,4 +1,3 @@
-library(spatstat)
 solve_singular <- function(x, y) {
     # solves:  x %*% b = y
     d = svd(x)
