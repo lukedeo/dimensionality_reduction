@@ -104,17 +104,3 @@ lin_embed.formula <- function(formula, data=list(), d, k, scale = TRUE,...)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
