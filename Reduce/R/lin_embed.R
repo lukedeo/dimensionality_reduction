@@ -6,6 +6,13 @@ solve_singular <- function(x, y) {
     return(b.min)
 }
 
+
+M_times_v <- function(v, extra = NULL){
+    W <- extra
+    return((v - W %*% v) - t(W) %*% (v - W %*% v))
+}
+
+
 null_space <- function(M, d, symmetric = TRUE) {
     n <- nrow(M)
     eig_appx = eigen(M, symmetric)
@@ -63,7 +70,6 @@ LLE <- function(data, d, k) {
     cat("\nComputing eigen-decomposition...")
     eig_appx = eigen(M, symmetric=TRUE)
     cat("Done.\n")
-    to_select = c((n - d):(n-1))
 #     return(eig_appx$vectors[, to_select])
     list(Y = null_space(M, d),
          X = x,
