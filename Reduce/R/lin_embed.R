@@ -99,7 +99,7 @@ mat_sqrt <- function(A){
 
 LEIGENMAP <- function(X, d, k){
     n <- nrow(X)
-    L <- as.matrix((nnwhich(data, k = c(1:k))))
+    L <- as.matrix((nnwhich(X, k = c(1:k))))
     A <- adjacency(L)
     D <- diag(rowSums(A))
     L <- D - A
@@ -153,7 +153,7 @@ LLE <- function(data, d, k) {
          d = d) 
 }
 
-manifold <- function(x, d, k, method = ""scale = TRUE,...) UseMethod("manifold")
+manifold <- function(x, d, k, method = "standard", scale = TRUE,...) UseMethod("manifold")
 
 manifold.default <- function(x, d, k, method = "normal", scale = TRUE,...){
     methods <- c("hessian", "standard", "normal", "laplacian")
