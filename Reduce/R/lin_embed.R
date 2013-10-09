@@ -47,13 +47,31 @@ adjacency <- function(neighbor_list){
     for(i in 1:n){
         A[i, L[i, ]] <- 1
     }
+    A <- (A + t(A)) > 0
     return(A)
 }
 
+mat_sqrt <- function(A){
+    e <- eigen(A)
+    V <- e$vectors
+    B <- V %*% diag(sqrt(e$values)) %*% t(V)
+    return(B)
+}
+
 LEIGENMAP <- function(X, d, k){
+    n <- nrow(X)
     L <- as.matrix((nnwhich(data, k = c(1:k))))
     A <- adjacency(L)
     D <- diag(rowSums(A))
+    L <- D - A
+    L <- diag_inverse(D) %*% L
+    eigs <- eigen(L)
+    to_select <- c((n - d):(n-1))
+    Y <- eigs$vectors[, to_select] 
+    list(Y = Y,
+         X = X,
+         k = k,
+         d = d) 
 }
 
 LLE <- function(data, d, k) {
