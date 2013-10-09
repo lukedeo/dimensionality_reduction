@@ -6,6 +6,19 @@ solve_singular <- function(x, y) {
     return(b.min)
 }
 
+dot <- function(x, y){
+    return(sum(x * y))
+}
+
+diag_inverse <- function(A)
+{
+    for(i in 1:nrow(A))
+    {
+        A[i, i] <- 1 / A[i, i]
+    }
+    return(A)
+}
+
 null_space <- function(M, d, symmetric = TRUE) {
     n <- nrow(M)
     eig_appx = eigen(M, symmetric)
@@ -25,6 +38,22 @@ tr <- function(mat) {
     else{
         cat("\nInvalid Dims\n")
     }
+}
+
+adjacency <- function(neighbor_list){
+    L <- neighbor_list
+    n <- nrow(L)
+    A <- matrix(0, n, n)
+    for(i in 1:n){
+        A[i, L[i, ]] <- 1
+    }
+    return(A)
+}
+
+LEIGENMAP <- function(X, d, k){
+    L <- as.matrix((nnwhich(data, k = c(1:k))))
+    A <- adjacency(L)
+    D <- diag(rowSums(A))
 }
 
 LLE <- function(data, d, k) {
