@@ -13,11 +13,17 @@ M_times_v <- function(v, extra = NULL){
 }
 
 
-null_space <- function(M, d, symmetric = TRUE) {
-    n <- nrow(M)
-    eig_appx = eigen(M, symmetric)
-    to_select = c((n - d):(n-1))
-    eig_appx$vectors[, to_select]
+# computes the d major eigenvectors from a local reconstruction matrix W
+# avoids explicit computation of W^T %*% W using ARPACK
+null_space <- function(W, d) { 
+    options = list(n=nrow(W), nev=d, ncv=n, sym=TRUE, which="LM", maxiter=200)
+    eig_vectors <- arpack(M_times_v, extra = W, sym = TRUE, options = options)
+    return(eig_vectors$vectors)
+#     
+#     n <- nrow(M)
+#     eig_appx = eigen(M, symmetric)
+#     to_select = c((n - d):(n-1))
+#     eig_appx$vectors[, to_select]
 }
 
 tr <- function(mat) {
@@ -40,8 +46,11 @@ LLE <- function(data, d, k) {
     L = as.matrix((nnwhich(data, k = c(1:k))))
     cat("Done.")
     n = nrow(data)
-    W = matrix(0, n, n)
-    G = matrix(0, k, k)
+    
+#     W = Matrix(0, nrow = n, ncol = n, sparse = TRUE) # this is very, very sparse.
+    W = matrix(0, nrow = n, ncol = n) # this is very, very sparse.
+    
+    G = matrix(0, k, k) # this is not.
     ones = matrix(1, k, 1)
     cat("\nBuilding Local Reconstructions...\n")
     for(i in 1:n) 
@@ -57,21 +66,15 @@ LLE <- function(data, d, k) {
         }    
         w = solve_singular(G, ones)
         w = w / sum(w)
-        W[i, L[i, ]] = w
+        W[i, L[i, ]] = -w
         cat(sprintf("\r%.2f%% complete.", (i / n*100)))
     }
-    W = -W
+#     W = -W
     for(i in 1:n) {
         W[i, i] = W[i, i] + 1
     }
-    cat("\nForming Objective Functional...")
-    M = t(W)%*%(W)
-    cat("Done.")
-    cat("\nComputing eigen-decomposition...")
-    eig_appx = eigen(M, symmetric=TRUE)
-    cat("Done.\n")
 #     return(eig_appx$vectors[, to_select])
-    list(Y = null_space(M, d),
+    list(Y = null_space(W, d),
          X = x,
          k = k,
          d = d) 
