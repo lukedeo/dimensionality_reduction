@@ -10,8 +10,47 @@ dot <- function(x, y){
     return(sum(x * y))
 }
 
-diag_inverse <- function(A)
-{
+fuzzy_match <- function(keyword, base){
+    match <- ifelse(isTRUE(agrep(keyword, base, ignore.case=TRUE)), TRUE, FALSE)
+    if(match)
+    {
+        return(TRUE)
+    }
+    else if(nchar(keyword) > floor(nchar(base) / 3))
+    {
+        match <- grep(keyword, base, ignore.case=TRUE)
+        match <- match == TRUE
+        if(!isTRUE(match))
+        {
+            return(FALSE)
+        }
+        else
+        {
+            return(TRUE)    
+        }
+        
+    }
+    return(FALSE)
+}
+
+method_match <- function(methods, keyword){
+    choice <- NULL
+    for(name in methods)
+    {
+        if(fuzzy_match(keyword, name))
+        {
+            choice <- cbind(name, choice)
+        }
+    }
+    if((choice == NULL) | (length(choice) > 1))
+    {
+        cat("Error in matching.")
+        return(FALSE)
+    }
+    return(choice)
+}
+
+diag_inverse <- function(A){
     for(i in 1:nrow(A))
     {
         A[i, i] <- 1 / A[i, i]
@@ -107,10 +146,6 @@ LLE <- function(data, d, k) {
     cat("\nForming Objective Functional...")
     M = t(W)%*%(W)
     cat("Done.")
-    cat("\nComputing eigen-decomposition...")
-    eig_appx = eigen(M, symmetric=TRUE)
-    cat("Done.\n")
-    to_select = c((n - d):(n-1))
 #     return(eig_appx$vectors[, to_select])
     list(Y = null_space(M, d),
          X = x,
@@ -118,9 +153,10 @@ LLE <- function(data, d, k) {
          d = d) 
 }
 
-lin_embed <- function(x, d, k, scale = TRUE,...) UseMethod("lin_embed")
+manifold <- function(x, d, k, method = ""scale = TRUE,...) UseMethod("manifold")
 
-lin_embed.default <- function(x, d, k, scale = TRUE,...){
+manifold.default <- function(x, d, k, scale = TRUE,...){
+    methods <- c("hessian", "standard", "normal", "laplacian")
     if(scale)
     {
         x <- scale(as.matrix(x))
@@ -131,16 +167,15 @@ lin_embed.default <- function(x, d, k, scale = TRUE,...){
     }
     reduction <- LLE(x, d, k)
     reduction$call <- match.call()
-    class(reduction) <- "lin_embed"
+    class(reduction) <- "manifold"
     reduction
 }
 
-lin_embed.formula <- function(formula, data=list(), d, k, scale = TRUE,...)
+manifold.formula <- function(formula, data=list(), d, k, scale = TRUE,...)
 {
     mf <- model.frame(formula=formula, data=data)
     x <- model.matrix(attr(mf, "terms"), data=mf)
-    
-    est <- lin_embed.default(x, d, k, scale = TRUE,...)
+    est <- manifold.default(x, d, k, scale = TRUE,...)
     est$call <- match.call()
     est$formula <- formula
     est
