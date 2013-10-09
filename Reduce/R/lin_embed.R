@@ -10,45 +10,45 @@ dot <- function(x, y){
     return(sum(x * y))
 }
 
-fuzzy_match <- function(keyword, base){
-    match <- ifelse(isTRUE(agrep(keyword, base, ignore.case=TRUE)), TRUE, FALSE)
-    if(match)
-    {
-        return(TRUE)
-    }
-    else if(nchar(keyword) > floor(nchar(base) / 3))
-    {
-        match <- grep(keyword, base, ignore.case=TRUE)
-        match <- match == TRUE
-        if(!isTRUE(match))
-        {
-            return(FALSE)
-        }
-        else
-        {
-            return(TRUE)    
-        }
-        
-    }
-    return(FALSE)
-}
-
-method_match <- function(methods, keyword){
-    choice <- NULL
-    for(name in methods)
-    {
-        if(fuzzy_match(keyword, name))
-        {
-            choice <- cbind(name, choice)
-        }
-    }
-    if((choice == NULL) | (length(choice) > 1))
-    {
-        cat("Error in matching.")
-        return(FALSE)
-    }
-    return(choice)
-}
+# fuzzy_match <- function(keyword, base){
+#     match <- ifelse((agrep(keyword, base, ignore.case=TRUE)) == 1, TRUE, FALSE)
+#     if(match)
+#     {
+#         return(TRUE)
+#     }
+#     else if(nchar(keyword) > floor(nchar(base) / 3))
+#     {
+#         match <- grep(keyword, base, ignore.case=TRUE)
+#         match <- match == TRUE
+#         if(!isTRUE(match))
+#         {
+#             return(FALSE)
+#         }
+#         else
+#         {
+#             return(TRUE)    
+#         }
+#         
+#     }
+#     return(FALSE)
+# }
+# 
+# method_match <- function(methods, keyword){
+#     choice <- NULL
+#     for(name in methods)
+#     {
+#         if(fuzzy_match(keyword, name))
+#         {
+#             choice <- cbind(name, choice)
+#         }
+#     }
+#     if((isTRUE(choice == NULL)) | (length(choice) > 1))
+#     {
+#         cat("Error in matching.")
+#         return(FALSE)
+#     }
+#     return(choice)
+# }
 
 diag_inverse <- function(A){
     for(i in 1:nrow(A))
@@ -155,7 +155,7 @@ LLE <- function(data, d, k) {
 
 manifold <- function(x, d, k, method = ""scale = TRUE,...) UseMethod("manifold")
 
-manifold.default <- function(x, d, k, scale = TRUE,...){
+manifold.default <- function(x, d, k, method = "normal", scale = TRUE,...){
     methods <- c("hessian", "standard", "normal", "laplacian")
     if(scale)
     {
@@ -165,7 +165,14 @@ manifold.default <- function(x, d, k, scale = TRUE,...){
     {
         x <- as.matrix(x)
     }
-    reduction <- LLE(x, d, k)
+    if((method == "normal") | (method == "standard"))
+    {
+        reduction <- LLE(x, d, k)
+    }
+    if(method == "laplacian")
+    {
+        reduction <- LEIGENMAP(x, d, k)
+    }
     reduction$call <- match.call()
     class(reduction) <- "manifold"
     reduction
