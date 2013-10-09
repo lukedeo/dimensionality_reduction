@@ -15,7 +15,7 @@ data = scale(as.matrix(cbind(x, y, z)))
 
 data <- data.frame(x=x, y=y, z=z)
 
-new_data <- lin_embed(data, 2, 3) # not using formulas
+new_data <- lin_embed(data, 2, 8) # not using formulas
 new_data <- lin_embed(~x + y + z - 1, data, 2, 8) #working with formulas
 plot(new_data$Y, pch=19, col=rainbow(N, start=0, end = .7))
 

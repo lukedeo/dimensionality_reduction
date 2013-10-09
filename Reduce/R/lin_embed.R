@@ -9,21 +9,22 @@ solve_singular <- function(x, y) {
 
 M_times_v <- function(v, extra = NULL){
     W <- extra
-    return((v - W %*% v) - t(W) %*% (v - W %*% v))
+    return((v - extra %*% v) - t(extra) %*% (v - extra %*% v))
 }
 
 
 # computes the d major eigenvectors from a local reconstruction matrix W
 # avoids explicit computation of W^T %*% W using ARPACK
 null_space <- function(W, d) { 
-    options = list(n=nrow(W), nev=d, ncv=n, sym=TRUE, which="LM", maxiter=200)
-    eig_vectors <- arpack(M_times_v, extra = W, sym = TRUE, options = options)
-    return(eig_vectors$vectors)
+#     options = list(n=nrow(W), nev=d, ncv=n, sym=TRUE, which="LM", maxiter=200)
+#     eig_vectors <- arpack(M_times_v, extra = W, sym = TRUE, options = options)
+#     return(eig_vectors$vectors)
 #     
-#     n <- nrow(M)
+    n <- nrow(W)
 #     eig_appx = eigen(M, symmetric)
-#     to_select = c((n - d):(n-1))
-#     eig_appx$vectors[, to_select]
+    decomp <- svd(W)
+    to_select = c((n - d):(n-1))
+    decomp$u[, to_select]
 }
 
 tr <- function(mat) {
