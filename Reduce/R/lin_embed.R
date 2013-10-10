@@ -10,46 +10,6 @@ dot <- function(x, y){
     return(sum(x * y))
 }
 
-# fuzzy_match <- function(keyword, base){
-#     match <- ifelse((agrep(keyword, base, ignore.case=TRUE)) == 1, TRUE, FALSE)
-#     if(match)
-#     {
-#         return(TRUE)
-#     }
-#     else if(nchar(keyword) > floor(nchar(base) / 3))
-#     {
-#         match <- grep(keyword, base, ignore.case=TRUE)
-#         match <- match == TRUE
-#         if(!isTRUE(match))
-#         {
-#             return(FALSE)
-#         }
-#         else
-#         {
-#             return(TRUE)    
-#         }
-#         
-#     }
-#     return(FALSE)
-# }
-# 
-# method_match <- function(methods, keyword){
-#     choice <- NULL
-#     for(name in methods)
-#     {
-#         if(fuzzy_match(keyword, name))
-#         {
-#             choice <- cbind(name, choice)
-#         }
-#     }
-#     if((isTRUE(choice == NULL)) | (length(choice) > 1))
-#     {
-#         cat("Error in matching.")
-#         return(FALSE)
-#     }
-#     return(choice)
-# }
-
 diag_inverse <- function(A){
     for(i in 1:nrow(A))
     {
