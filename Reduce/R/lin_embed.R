@@ -10,6 +10,35 @@ dot <- function(x, y){
     return(sum(x * y))
 }
 
+mat.sqrt<-function(A)
+{
+    ei<-eigen(A)
+    d<-ei$values
+    d<-(d+abs(d))/2
+    d2<-sqrt(d)
+    ans<-ei$vectors %*% diag(d2) %*% t(ei$vectors)
+    return(ans)
+}
+
+mgs <- function(A){
+    n <- ncol(A)
+    R <- matrix(0, nrow = n, ncol = n)
+    for(i in 1:(n-1))
+    {
+        R[i,i] = norm(A[ ,i])
+        A[,i] = A[,i]/R[i,i] 
+        for(j in (i+1):n)
+        {
+            R[i,j] = t(A[,i]) %*% A[,j]
+            A[,j] = A[,j] - R[i,j] * A[,i]
+        }
+    }
+    R[n,n] = norm(A[,n])
+    A[,n] = A[,n]/R[n,n]
+    Q = A
+    return(Q)
+}
+
 diag_inverse <- function(A){
     for(i in 1:nrow(A))
     {
@@ -71,6 +100,56 @@ LEIGENMAP <- function(X, d, k){
          X = X,
          k = k,
          d = d) 
+}
+
+HLLE <- function(X, d, k){
+    r <- ((d + 2) * (d + 1)) / 2
+    if(k < r){
+        stop("Error: formation of Hessian required k >= ((d + 2)(d + 1)) / 2.")
+    }
+    n <- nrow(X)
+    k_orig <- k
+    L <- as.matrix((nnwhich(X, k = c(1:k))))
+    A <- adjacency(L)
+    G <- matrix(0, n, n)
+    mse <- rep(0, n)
+    k <- rep(0, n)
+    for(i in 1:n)
+    {
+        idx <- which(A[i, ])
+        k[i] <- length(idx)
+        thisX <- t(X[idx, ])
+        thisX <- thisX - rowMeans(thisX)
+        decomp <- svd(thisX)
+        vals <- (decomp$d)
+        D <- diag(vals)
+        mse[i] <- sum(vals[(d+1):length(vals)])
+        Vpr <- decomp$v
+        V <- Vpr[, 1:d]
+        Yi <- matrix(1, k[i], r)
+        Yi[, 2:(d+1)] <- V
+        ct <- d + 1
+        for(mm in 1:d)
+        {
+            nn <- c(1:(d + 1 - mm))
+            Yi[, ct+nn] <- V[, nn] * V[, mm:d]
+            ct <- ct + d - mm + 1
+        }
+        Yt <- qr(Yi)$qr
+        Pi <- Yt[, (d+2):(ncol(Yt))]
+        G[idx, idx] <- G[idx, idx] + Pi %*% t(Pi)
+    }
+    eigs <- eigen(G, symmetric=TRUE)
+    Y <- eigs$vectors
+    to_select <- c((n - d + 1):(n))
+    Y <- t(Y[, to_select]) * sqrt(n)
+    R <- t(Y) %*% Y
+    R2 <- mat.sqrt(R)
+    Y <- Y %*% R2
+    plot(t(Y), pch=19, col=rainbow(N, start=0, end = .7))
+    
+    
+    
 }
 
 LLE <- function(data, d, k) {

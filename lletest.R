@@ -4,8 +4,8 @@ source("Reduce/R/lin_embed.R")
 N = 1000
 r = seq(0, 1, length.out=N)
 t = (3*pi/2)*(1+2*r)
-x = t*cos(t) + rnorm(N, 0, 1) #add noise
-y = t*sin(t) + rnorm(N, 0, 1) #add noise
+x = t*cos(t)# + rnorm(N, 0, 1) #add noise
+y = t*sin(t)# + rnorm(N, 0, 1) #add noise
 z <- c(10 * runif(N/2, 0, 1), 20 * runif(N/2, 0, 1))
 #z <- 20 * runif(N, 0, 1)
 
@@ -23,11 +23,13 @@ data <- data.frame(x=x, y=y, z=z)
 
 X <- scale(X)
 new_data <- manifold(X, 2,6, method="laplacian", scale = TRUE) # not using formulas
-new_data <- manifold(X, 2, 6, method="normal") # not using formulas
+new_data <- manifold(X, 2, 10, method="normal") # not using formulas
 new_data <- manifold(~x + y + z - 1, data, 2, 8) #working with formulas
 plot(new_data$Y, pch=19, col=rainbow(N, start=0, end = .7))
 rd <- LEIGENMAP(X, 2, 10)
 plot(rd$Y, pch=19, col=rainbow(N, start=0, end = .7))
+
+plot(t(Y), pch=19, col=rainbow(N, start=0, end = .7))
 
 
 
