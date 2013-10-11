@@ -22,10 +22,11 @@ mat.sqrt<-function(A)
 
 mgs <- function(A){
     n <- ncol(A)
+    A <- as.matrix(A)
     R <- matrix(0, nrow = n, ncol = n)
     for(i in 1:(n-1))
     {
-        R[i,i] = norm(A[ ,i])
+        R[i,i] = norm(as.matrix(A[ ,i]))
         A[,i] = A[,i]/R[i,i] 
         for(j in (i+1):n)
         {
@@ -33,7 +34,7 @@ mgs <- function(A){
             A[,j] = A[,j] - R[i,j] * A[,i]
         }
     }
-    R[n,n] = norm(A[,n])
+    R[n,n] = norm(as.matrix(A[,n]))
     A[,n] = A[,n]/R[n,n]
     Q = A
     return(Q)
@@ -135,13 +136,14 @@ HLLE <- function(X, d, k){
             Yi[, ct+nn] <- V[, nn] * V[, mm:d]
             ct <- ct + d - mm + 1
         }
-        Yt <- qr(Yi)$qr
+#         Yt <- qr(Yi)$qr
+        Yt <- mgs(Yi)
         Pi <- Yt[, (d+2):(ncol(Yt))]
         G[idx, idx] <- G[idx, idx] + Pi %*% t(Pi)
     }
     eigs <- eigen(G, symmetric=TRUE)
     Y <- eigs$vectors
-    to_select <- c((n - d + 1):(n))
+    to_select <- c((n - d):(n-1))
     Y <- t(Y[, to_select]) * sqrt(n)
     R <- t(Y) %*% Y
     R2 <- mat.sqrt(R)
