@@ -95,30 +95,30 @@ mat_sqrt <- function(A){
     return(B)
 }
 
-LEIGENMAP <- function(X, d, k, hea){
+LEIGENMAP <- function(X, d, k, heat = 2.0){
     n <- nrow(X)
-    d <- pdist(X, X)
+    dist <- pdist(X, X)
+    dist_copy <- dist
     graph <- matrix(0, n, n)
     for(i in 1:n){
-        d[i, i] <- Inf
+        dist[i, i] <- Inf
         for(j in 1:k){
-            idx <- which.min(d[i, ])
+            idx <- which.min(dist[i, ])
             graph[i, idx] <- 1.0
             graph[idx, i] <- graph[i, idx]
-            d[i, idx] <- Inf
+            dist[i, idx] <- Inf
         }
     }
+    if(heat != 0){
+        non_zero <- graph>0
+        graph[non_zero] = graph[non_zero] * exp((-dist_copy[non_zero]) / heat)
+    }
+    weight <- diag(rowSums(graph))
+    laplacian <- weight - graph
     
-
-    L <- as.matrix((nnwhich(X, k = c(1:k))))
-    A <- adjacency(L)
-    D <- diag(rowSums(A))
-    L <- D - A
-#     L <- diag_inverse(D) %*% L
-    eigs <- eigen(solve(D) %*% L)
+    eigs <- eigen(solve(weight) %*% laplacian)
     to_select <- c((n - d):(n-1))
     Y <- eigs$vectors[, to_select] 
-    plot(Y, pch=19, col=colors)
     list(Y = Y,
          X = X,
          k = k,
