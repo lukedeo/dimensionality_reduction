@@ -1,3 +1,12 @@
+pdist <- function(A,B) {
+    an = apply(A, 1, function(rvec) crossprod(rvec,rvec))
+    bn = apply(B, 1, function(rvec) crossprod(rvec,rvec))
+    m = nrow(A)
+    n = nrow(B)
+    tmp = matrix(rep(an, n), nrow=m)
+    tmp = tmp +  matrix(rep(bn, m), nrow=m, byrow=TRUE)
+    sqrt( tmp - 2 * tcrossprod(A,B) )
+}
 solve_singular <- function(x, y) {
     # solves:  x %*% b = y
     d = svd(x)
@@ -10,8 +19,7 @@ dot <- function(x, y){
     return(sum(x * y))
 }
 
-mat.sqrt<-function(A)
-{
+mat.sqrt<-function(A){
     ei<-eigen(A)
     d<-ei$values
     d<-(d+abs(d))/2
@@ -87,16 +95,30 @@ mat_sqrt <- function(A){
     return(B)
 }
 
-LEIGENMAP <- function(X, d, k){
+LEIGENMAP <- function(X, d, k, hea){
     n <- nrow(X)
+    d <- pdist(X, X)
+    graph <- matrix(0, n, n)
+    for(i in 1:n){
+        d[i, i] <- Inf
+        for(j in 1:k){
+            idx <- which.min(d[i, ])
+            graph[i, idx] <- 1.0
+            graph[idx, i] <- graph[i, idx]
+            d[i, idx] <- Inf
+        }
+    }
+    
+
     L <- as.matrix((nnwhich(X, k = c(1:k))))
     A <- adjacency(L)
     D <- diag(rowSums(A))
     L <- D - A
-    L <- diag_inverse(D) %*% L
-    eigs <- eigen(L)
+#     L <- diag_inverse(D) %*% L
+    eigs <- eigen(solve(D) %*% L)
     to_select <- c((n - d):(n-1))
     Y <- eigs$vectors[, to_select] 
+    plot(Y, pch=19, col=colors)
     list(Y = Y,
          X = X,
          k = k,
@@ -219,8 +241,7 @@ manifold.default <- function(x, d, k, method = "normal", scale = TRUE,...){
     reduction
 }
 
-manifold.formula <- function(formula, data=list(), d, k, scale = TRUE,...)
-{
+manifold.formula <- function(formula, data=list(), d, k, scale = TRUE,...){
     mf <- model.frame(formula=formula, data=data)
     x <- model.matrix(attr(mf, "terms"), data=mf)
     est <- manifold.default(x, d, k, scale = TRUE,...)
