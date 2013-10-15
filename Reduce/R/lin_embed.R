@@ -216,9 +216,9 @@ LLE <- function(data, d, k) {
          d = d) 
 }
 
-manifold <- function(x, d, k, method = "standard", scale = TRUE,...) UseMethod("manifold")
+manifold <- function(x, d, k, method = "standard", scale = TRUE, heat = 2.0,...) UseMethod("manifold")
 
-manifold.default <- function(x, d, k, method = "normal", scale = TRUE,...){
+manifold.default <- function(x, d, k, method = "normal", scale = TRUE, heat = 2.0,...){
     methods <- c("hessian", "standard", "normal", "laplacian")
     if(scale)
     {
@@ -234,7 +234,7 @@ manifold.default <- function(x, d, k, method = "normal", scale = TRUE,...){
     }
     if(method == "laplacian")
     {
-        reduction <- LEIGENMAP(x, d, k)
+        reduction <- LEIGENMAP(x, d, k, heat)
     }
     reduction$call <- match.call()
     class(reduction) <- "manifold"
