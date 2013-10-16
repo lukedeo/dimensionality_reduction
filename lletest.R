@@ -15,11 +15,11 @@ library("spatstat")
 
 
 #Generate the Swiss-Roll
-N = 1000
+N = 1500
 r = seq(0, 1, length.out=N)
 t = (3*pi/2)*(1+2*r)
-x = t*cos(t) + rnorm(N, 0, 1) #add noise
-y = t*sin(t) + rnorm(N, 0, 1) #add noise
+x = t*cos(t) + rnorm(N, 0, .5) #add noise
+y = t*sin(t) + rnorm(N, 0, .5) #add noise
 # z <- c(10 * runif(N/2, 0, 1), 20 * runif(N/2, 0, 1))
 z <- 20 * runif(N, 0, 1)
 
@@ -38,7 +38,7 @@ data <- data.frame(x=x, y=y, z=z)
 
 
 X <- scale(X)
-new_data <- manifold(X, 2, 10, method="laplacian") # not using formulas
+new_data <- manifold(X, 2, 8, method="laplacian", heat = 5)
 new_data <- manifold(X, 2, 10, method="normal") # not using formulas
 # new_data <- manifold(~x + y + z - 1, data, 2, 8) #working with formulas
 plot(new_data$Y, pch=19, col=rainbow(N, start=0, end = .7))
@@ -54,7 +54,7 @@ plot(t(Y), pch=19, col=rainbow(N, start=0, end = .7))
 
 
 n = 3
-N = 10
+N = 1000
 
 
 X <-  matrix(0, ncol = 3, nrow = N)
@@ -66,8 +66,8 @@ t <- seq(0, 2, length.out=N)
 
 X[, 1] <- -cos(1.5 * pi * t)
 X[, 2] <- s
-X[t <= 1, 3] <- 2 * (-sin(1.5 * pi * t[t <= 1])) # + rnorm(N, 0, .2)[t <= 1])
-X[t > 1, 3] <- 2 * (2 + sin(1.5 * pi * t[t > 1])) # + rnorm(N, 0, .2)[t > 1])
+X[t <= 1, 3] <- 2 * (-sin(1.5 * pi * t[t <= 1]))  + rnorm(N, 0, .6)[t <= 1]
+X[t > 1, 3] <- 2 * (2 + sin(1.5 * pi * t[t > 1]))  + rnorm(N, 0, .6)[t > 1]
 
 
 idx <- sort(X[, 3], index.return = TRUE)$ix

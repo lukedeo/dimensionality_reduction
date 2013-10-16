@@ -125,11 +125,103 @@ LEIGENMAP <- function(X, d, k, heat = 2.0){
          d = d) 
 }
 
+DIFFMAP <- function(X, d, t = 1.0, sigma = 1.0){
+    n <- nrow(X)
+    sumX <- rowSums(X ^ 2)
+    
+    K <- X %*% t(X)
+    
+    for(i in 1:n){
+        K[i, ] <- (sumX - 2 * K[i, ]) / (2 * sigma ^ 2)
+    }
+    for(i in 1:n){
+        K[i, ] <- exp(-(K[i, ] + sumX[i]))
+    }
+    
+    
+    
+    
+    
+    
+}
+
 HLLE <- function(X, d, k){
     r <- ((d + 2) * (d + 1)) / 2
     if(k < r){
         stop("Error: formation of Hessian required k >= ((d + 2)(d + 1)) / 2.")
     }
+    
+    n <- nrow(X)
+    dist <- pdist(X, X)
+    diag(dist) <- Inf
+    neighborhood <- matrix(0, n, n)
+    for(i in 1:n){
+        neighborhood[i, ] <- sort.int(dist[i, ], index.return=TRUE)$ix
+    }
+    
+    dp <- d * (d + 1) / 2
+    
+    W <- matrix(0, n * dp, n)
+    G <- matrix(0, n, n)
+    for(i in 1:n){
+        tmp_ind <- neighborhood[i, 1:k]
+        thissrc <- X[tmp_ind, ]
+        thissrc <- t(thissrc - colMeans(thisX))
+        decomp <- svd(thissrc)
+        
+        U <- decomp$u
+        Vpr <- decomp$v
+        D <- decomp$d
+    
+        V <- Vpr[, 1:d]
+        
+        Yi <- matrix(1, k, r)
+        Yi[, 2:(d+1)] <- V
+        ct <- d + 1
+        for(mm in 1:d)
+        {
+            nn <- c(1:(d + 1 - mm))
+            Yi[, ct+nn] <- V[, nn] * V[, mm:d]
+            ct <- ct + d - mm + 1
+        }
+        Yt <- mgs(Yi)
+        Pii <- t(Yt[, (d+2):(ncol(Yt))])
+        
+        for(j in 1:dp)
+        {
+            if(sum(Pii[j, ]) > 0.0001)
+            {
+                tpp = Pii[j, ] / sum(Pii[j, ])
+            }
+            else
+            {
+                tpp = Pii[j, ]
+            }
+            G[tmp_ind, tmp_ind] <- G[tmp_ind, tmp_ind] + tpp %*% t(tpp)
+        }
+        
+    }
+
+    eigs <- eigen(G)    
+    
+    Y <- eigs$vectors
+    to_select <- c((n - d):(n-1))
+    Y <- (Y[, to_select]) * sqrt(n)
+    
+    plot(t(Y), pch=19, col=rainbow(N, start=0, end = .7))
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     n <- nrow(X)
     k_orig <- k
     L <- as.matrix((nnwhich(X, k = c(1:k))))
