@@ -127,8 +127,47 @@ LEIGENMAP <- function(X, d, k, heat = 2.0){
 
 DIFFMAP <- function(X, d, t = 1.0, sigma = 1.0){
     n <- nrow(X)
-    sumX <- rowSums(X ^ 2)
     
+    
+    
+    dist <- pdist(X, X)
+    alpha <- (max(dist))
+    alpha <- .09
+    K <- exp(-(dist * dist) / alpha)
+    
+#     diag(K) <- diag(K) - 1
+    
+    for(i in 1:n)
+    {
+        K[i, ] <- K[i, ] / sum(K[i, ])
+    }
+    
+    eigs <- eigen(K)
+    
+    decomp <- svd(K)
+    
+    Y <- Re(eigs$vectors[, 2:(d+1)])
+    
+    D <- diag(Re(eigs$values[2:(d+1)]) ^ t)
+    
+    
+    
+    plot((Y %*% D), pch=19, col=rainbow(N, start=0, end = .7))
+    plot(decomp$u[, 2:(d+1)], pch=19, col=rainbow(N, start=0, end = .7))
+    
+    
+    
+
+    
+    
+        
+        
+        
+        
+        
+    sumX <- rowSums(X * X)
+        
+        
     K <- X %*% t(X)
     
     for(i in 1:n){
@@ -138,11 +177,26 @@ DIFFMAP <- function(X, d, t = 1.0, sigma = 1.0){
         K[i, ] <- exp(-(K[i, ] + sumX[i]))
     }
     
+    p <- (as.matrix(colSums(K)))
+    
+    K <- K / ((p %*% t(p)) ^ t)
+    
+    p <- sqrt((as.matrix(colSums(K))))
+    
+    K <- K / ((p %*% t(p)))
+    
+    decomp <- svd(K)
     
     
+    U <- decomp$u 
     
-    
-    
+    for(i in 1:n){
+        U[i, ] <- U[i, ] / U[i, 1]
+    }
+    Y <- U[, 2:(d+1)] 
+
+    plot(decomp$u[, 2:3] , pch=19, col=rainbow(N, start=0, end = .7))
+    plot((Y), pch=19, col=rainbow(N, start=0, end = .7),)
 }
 
 HLLE <- function(X, d, k){
@@ -208,7 +262,7 @@ HLLE <- function(X, d, k){
     to_select <- c((n - d):(n-1))
     Y <- (Y[, to_select]) * sqrt(n)
     
-    plot(t(Y), pch=19, col=rainbow(N, start=0, end = .7))
+    plot((Y), pch=19, col=rainbow(N, start=0, end = .7))
     
     
     
