@@ -14,11 +14,9 @@ solve_singular <- function(x, y) {
     b.min = d$v %*% diag(1/d$d, length(d$d)) %*% t(d$u) %*% y[1:ncol(x)]
     return(b.min)
 }
-
 dot <- function(x, y){
     return(sum(x * y))
 }
-
 mat.sqrt<-function(A){
     ei<-eigen(A)
     d<-ei$values
@@ -27,7 +25,6 @@ mat.sqrt<-function(A){
     ans<-ei$vectors %*% diag(d2) %*% t(ei$vectors)
     return(ans)
 }
-
 mgs <- function(A){
     n <- ncol(A)
     A <- as.matrix(A)
@@ -47,7 +44,6 @@ mgs <- function(A){
     Q = A
     return(Q)
 }
-
 diag_inverse <- function(A){
     for(i in 1:nrow(A))
     {
@@ -55,14 +51,12 @@ diag_inverse <- function(A){
     }
     return(A)
 }
-
 null_space <- function(M, d, symmetric = TRUE) {
     n <- nrow(M)
     eig_appx = eigen(M, symmetric)
     to_select = c((n - d):(n-1))
     eig_appx$vectors[, to_select]
 }
-
 tr <- function(mat) {
     if(ncol(mat) == nrow(mat))
     {
@@ -76,7 +70,6 @@ tr <- function(mat) {
         cat("\nInvalid Dims\n")
     }
 }
-
 adjacency <- function(neighbor_list){
     L <- neighbor_list
     n <- nrow(L)
@@ -86,6 +79,20 @@ adjacency <- function(neighbor_list){
     }
     A <- (A + t(A)) > 0
     return(A)
+}
+
+LC_metacriterion <- function(embedding, k){
+    X <- embedding$X
+    Y <- embedding$Y
+    n <- nrow(X)
+    N_orig <- as.matrix((nnwhich(X, k = c(1:k))))
+    N_embed <- as.matrix((nnwhich(Y, k = c(1:k))))
+    N_union <- N_orig == N_embed
+    N_union <- rowSums(N_union)
+    N_k <- mean(N_union)
+    M_k <- N_k / k
+    M_k_adjusted <- M_k - (k / (n - 1))
+    return(M_k_adjusted)
 }
 
 mat_sqrt <- function(A){
@@ -125,79 +132,32 @@ LEIGENMAP <- function(X, d, k, heat = 2.0){
          d = d) 
 }
 
-DIFFMAP <- function(X, d, t = 1.0, sigma = 1.0){
+DIFFMAP <- function(X, d, t = 1.0, sigma = -1.0){
     n <- nrow(X)
-    
-    
-    
     dist <- pdist(X, X)
-    alpha <- (max(dist))
-    alpha <- .09
-    K <- exp(-(dist * dist) / alpha)
-    
-#     diag(K) <- diag(K) - 1
-    
+    if(sigma == -1)
+    {
+        sigma <- (max(dist))
+    }
+    K <- exp(-(dist * dist) / (2 * sigma ^ 2))
+
     for(i in 1:n)
     {
         K[i, ] <- K[i, ] / sum(K[i, ])
     }
     
-
-    eigs <- eigen(K)
+    K <- K %^% t
     
-    decomp <- svd(K)
+    eigs <- eigen(K)
     
     Y <- Re(eigs$vectors[, 2:(d+1)])
     
-    D <- diag(Re(eigs$values[2:(d+1)]) ^ 140)
-    
-    
-    
-    plot((Y), pch=19, col=rainbow(N, start=0, end = .7))
-    plot(decomp$u[, 2:(d+1)], pch=19, col=rainbow(N, start=0, end = .7))
-    
-    
-    
+    list(Y = Y,
+         X = X,
+         sigma = sigma,
+         t = t,
+         d = d) 
 
-    
-    
-        
-        
-        
-        
-        
-    sumX <- rowSums(X * X)
-        
-        
-    K <- X %*% t(X)
-    
-    for(i in 1:n){
-        K[i, ] <- (sumX - 2 * K[i, ]) / (2 * sigma ^ 2)
-    }
-    for(i in 1:n){
-        K[i, ] <- exp(-(K[i, ] + sumX[i]))
-    }
-    
-    p <- (as.matrix(colSums(K)))
-    
-    K <- K / ((p %*% t(p)) ^ t)
-    
-    p <- sqrt((as.matrix(colSums(K))))
-    
-    K <- K / ((p %*% t(p)))
-    
-    decomp <- svd(K)
-    
-    
-    U <- decomp$u 
-    
-    for(i in 1:n){
-        U[i, ] <- U[i, ] / U[i, 1]
-    }
-    Y <- U[, 2:(d+1)] 
-
-    plot(decomp$u[, 2:3] , pch=19, col=rainbow(N, start=0, end = .7))
-    plot((Y), pch=19, col=rainbow(N, start=0, end = .7),)
 }
 
 HLLE <- function(X, d, k){
@@ -363,9 +323,9 @@ LLE <- function(data, d, k) {
          d = d) 
 }
 
-manifold <- function(x, d, k, method = "standard", scale = TRUE, heat = 2.0,...) UseMethod("manifold")
+manifold <- function(x, d, k, method = "standard", scale = TRUE, heat = 1, sigma = -1, t = 3,...) UseMethod("manifold")
 
-manifold.default <- function(x, d, k, method = "normal", scale = TRUE, heat = 2.0,...){
+manifold.default <- function(x, d, k = 3, method = "normal", scale = TRUE, heat = 1, sigma = -1, t = 3,...){
     methods <- c("hessian", "standard", "normal", "laplacian")
     if(scale)
     {
@@ -377,11 +337,16 @@ manifold.default <- function(x, d, k, method = "normal", scale = TRUE, heat = 2.
     }
     if((method == "normal") | (method == "standard"))
     {
+        cat("Using standard Linear Embedding")
         reduction <- LLE(x, d, k)
     }
     if(method == "laplacian")
     {
         reduction <- LEIGENMAP(x, d, k, heat)
+    }
+    if(method == "diffusion")
+    {
+        reduction  <- DIFFMAP(x, d, t, sigma)
     }
     reduction$call <- match.call()
     class(reduction) <- "manifold"
