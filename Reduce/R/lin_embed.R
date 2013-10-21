@@ -142,17 +142,18 @@ DIFFMAP <- function(X, d, t = 1.0, sigma = 1.0){
         K[i, ] <- K[i, ] / sum(K[i, ])
     }
     
+
     eigs <- eigen(K)
     
     decomp <- svd(K)
     
     Y <- Re(eigs$vectors[, 2:(d+1)])
     
-    D <- diag(Re(eigs$values[2:(d+1)]) ^ t)
+    D <- diag(Re(eigs$values[2:(d+1)]) ^ 140)
     
     
     
-    plot((Y %*% D), pch=19, col=rainbow(N, start=0, end = .7))
+    plot((Y), pch=19, col=rainbow(N, start=0, end = .7))
     plot(decomp$u[, 2:(d+1)], pch=19, col=rainbow(N, start=0, end = .7))
     
     

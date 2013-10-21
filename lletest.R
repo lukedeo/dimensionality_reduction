@@ -20,8 +20,8 @@ r = seq(0, 1, length.out=N)
 t = (3*pi/2)*(1+2*r)
 x = t*cos(t) + rnorm(N, 0, .5) #add noise
 y = t*sin(t) + rnorm(N, 0, .5) #add noise
-z <- c(10 * runif(N/2, 0, 1), 20 * runif(N/2, 0, 1))
-# z <- 20 * runif(N, 0, 1)
+# z <- c(10 * runif(N/2, 0, 1), 20 * runif(N/2, 0, 1))
+z <- 20 * runif(N, 0, 1)
 
 plot3d(x, y, z, col = rainbow(N, start=0, end = .7), pch=19)
 
