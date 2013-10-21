@@ -82,18 +82,38 @@ adjacency <- function(neighbor_list){
 }
 
 LC_metacriterion <- function(embedding, k){
-    X <- embedding$X
-    Y <- embedding$Y
-    n <- nrow(X)
-    N_orig <- as.matrix((nnwhich(X, k = c(1:k))))
-    N_embed <- as.matrix((nnwhich(Y, k = c(1:k))))
-    N_union <- N_orig == N_embed
-    N_union <- rowSums(N_union)
-    N_k <- mean(N_union)
-    M_k <- N_k / k
-    M_k_adjusted <- M_k - (k / (n - 1))
-    return(M_k_adjusted)
+    if(length(k) == 1){
+        X <- embedding$X
+        Y <- embedding$Y
+        n <- nrow(X)
+        N_orig <- as.matrix((nnwhich(X, k = c(1:k))))
+        N_embed <- as.matrix((nnwhich(Y, k = c(1:k))))
+        N_union <- N_orig == N_embed
+        N_union <- rowSums(N_union)
+        N_k <- mean(N_union)
+        M_k <- N_k / k
+        M_k_adjusted <- M_k - (k / (n - 1))
+        return(M_k_adjusted)
+    }
+    else{
+        adjusted_vals <- k
+        idx <- 1
+        for(value in k){
+            adjusted_vals[idx] <- LC_metacriterion(embedding, value)
+            idx <- idx + 1
+        }
+        return(adjusted_vals)
+    }
 }
+
+
+
+
+
+
+
+
+
 
 mat_sqrt <- function(A){
     e <- eigen(A)

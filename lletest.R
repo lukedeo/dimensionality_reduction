@@ -9,10 +9,13 @@ library("spatstat")
 #samuel kou
 
 
+# for given methods, plot versus K'
 
 
 
 
+
+dists <- pdist(X, X)
 
 #Generate the Swiss-Roll
 N = 1000
@@ -39,16 +42,24 @@ data <- data.frame(x=x, y=y, z=z)
 
 X <- scale(X)
 
-new_data <- manifold(X, 2, sigma=.3, t=2, method = "diffusion")
-new_data <- manifold(X, 2, 10, method="laplacian")
+new_data <- manifold(X, 2, sigma=0.5, t=2, method = "diffusion")
+new_data <- manifold(X, 2, 6, method="laplacian")
 new_data <- manifold(X, d=2, k=10, method="normal") # not using formulas
 # new_data <- manifold(~x + y + z - 1, data, 2, 8) #working with formulas
 plot(new_data$Y, pch=19, col=rainbow(N, start=0, end = .7))
 rd <- LEIGENMAP(X, 2, 10)
-plot(reduction$Y, pch=19, col=rainbow(N, start=0, end = .7))
+plot(laplacian4$Y, pch=19, col=rainbow(N, start=0, end = .7))
+plot(laplacian6$Y, pch=19, col=rainbow(N, start=0, end = .7))
+plot(laplacian10$Y, pch=19, col=rainbow(N, start=0, end = .7))
 plot(rd$Y, pch=19, col=rainbow(N, start=0, end = .7))
 
 plot((Y), pch=19, col=rainbow(N, start=0, end = .7))
+
+laplacian4 <- manifold(X, 2, 4, method="laplacian", heat=0)
+laplacian6 <- manifold(X, 2, 6, method="laplacian", heat=4)
+laplacian10 <- manifold(X, 2, 10, method="laplacian", heat=4)
+
+kvals <- c(1:8, seq(10, 50, 5))
 
 
 
@@ -68,8 +79,8 @@ t <- seq(0, 2, length.out=N)
 
 X[, 1] <- -cos(1.5 * pi * t)
 X[, 2] <- s
-X[t <= 1, 3] <- 2 * (-sin(1.5 * pi * t[t <= 1]))  + rnorm(N, 0, .6)[t <= 1]
-X[t > 1, 3] <- 2 * (2 + sin(1.5 * pi * t[t > 1])) + rnorm(N, 0, .6)[t > 1]
+X[t <= 1, 3] <- 2 * (-sin(1.5 * pi * t[t <= 1]))  #+ rnorm(N, 0, .6)[t <= 1]
+X[t > 1, 3] <- 2 * (2 + sin(1.5 * pi * t[t > 1])) #+ rnorm(N, 0, .6)[t > 1]
 
 
 idx <- sort(X[, 3], index.return = TRUE)$ix
