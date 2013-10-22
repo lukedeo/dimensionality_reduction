@@ -80,7 +80,6 @@ adjacency <- function(neighbor_list){
     A <- (A + t(A)) > 0
     return(A)
 }
-
 randmat <- function(m, n, type = 1){
     if(type == 1) {
         A <- matrix(rnorm(m * n), m, n)
@@ -99,9 +98,6 @@ randmat <- function(m, n, type = 1){
         cat("Error: Matrix must be of type 1, 2, or 3.")
     }
 }
-
-
-
 LC_metacriterion <- function(embedding, k){
     if(length(k) == 1){
         X <- embedding$X
@@ -358,8 +354,6 @@ LLE <- function(X, d, k, symmetric = FALSE) {
     dist_copy <- dist
     graph <- matrix(0, n, n)
     W <- matrix(0, n, n)
-
-    
     for(i in 1:n) {
         dist[i, i] <- Inf
         for(j in 1:k){
@@ -371,50 +365,33 @@ LLE <- function(X, d, k, symmetric = FALSE) {
             dist[i, idx] <- Inf
         }
     }
+    graph <- graph>0
     for(i in 1:n) {
         one_vec <- matrix(1, sum(graph[i, ]), 1)
         Z <- t(X[graph[i, ], ]) - c(X[i, ])
         C <- t(Z) %*% Z
+        diag(C) <- diag(C) + 0.001 * tr(C)
         w <- solve_singular(C, one_vec)
-
-    }
-    
-    
-    x = data
-    cat("\nForming Euclidean Neighborhoods...")
-    L = as.matrix((nnwhich(data, k = c(1:k))))
-    cat("Done.")
-    n = nrow(data)
-    W = matrix(0, n, n)
-    G = matrix(0, k, k)
-    ones = matrix(1, k, 1)
-    cat("\nBuilding Local Reconstructions...\n")
-    for(i in 1:n) 
-    {
-        for(j in 1:k) 
+        w <- w / sum(w)
+        if(sum(is.nan(w))>0 | sum(is.infinite(w))>0){
+            print(i)
+            break
+        }
+        if(positive)
         {
-            ind_1 = L[i, j]
-            for(l in 1:k) 
-            {
-                ind_2 = L[i, l]
-                G[j, l] = t((x[i, ] - x[ind_1, ])) %*% (x[i, ] - x[ind_2, ])
-            }
-        }    
-        w = solve_singular(G, ones)
-        w = w / sum(w)
-        W[i, L[i, ]] = w
-        cat(sprintf("\r%.2f%% complete.", (i / n*100)))
+            w[w<0] <- 0
+            W[i, graph[i, ]] <- -w
+        }
+        else{
+            W[i, graph[i, ]] <- -w
+        }
     }
-    W = -W
-    for(i in 1:n) {
-        W[i, i] = W[i, i] + 1
-    }
-    cat("\nForming Objective Functional...")
-    M = t(W)%*%(W)
-    cat("Done.")
-#     return(eig_appx$vectors[, to_select])
-    list(Y = null_space(M, d),
-         X = x,
+    diag(W) <- 1
+    decomp <- svd(W)
+    selection = c((n - d):(n-1))
+    Y <- decomp$v[, selection]
+    list(Y = Y,
+         X = X,
          k = k,
          d = d) 
 }
