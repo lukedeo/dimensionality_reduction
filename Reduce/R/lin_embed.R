@@ -349,13 +349,37 @@ HLLE <- function(X, d, k){
     R <- t(Y) %*% Y
     R2 <- mat.sqrt(R)
     Y <- Y %*% R
-    plot(t(Y), pch=19, col=rainbow(N, start=0, end = .7))
-    
-    
-    
+    plot(t(Y), pch=19, col=rainbow(N, start=0, end = .7))  
 }
 
-LLE <- function(data, d, k) {
+LLE <- function(X, d, k, symmetric = FALSE) {
+    n <- nrow(X)
+    dist <- pdist(X, X)
+    dist_copy <- dist
+    graph <- matrix(0, n, n)
+    W <- matrix(0, n, n)
+
+    
+    for(i in 1:n) {
+        dist[i, i] <- Inf
+        for(j in 1:k){
+            idx <- which.min(dist[i, ])
+            graph[i, idx] <- 1.0
+            if(symmetric){
+                graph[idx, i] <- graph[i, idx]   
+            }
+            dist[i, idx] <- Inf
+        }
+    }
+    for(i in 1:n) {
+        one_vec <- matrix(1, sum(graph[i, ]), 1)
+        Z <- t(X[graph[i, ], ]) - c(X[i, ])
+        C <- t(Z) %*% Z
+        w <- solve_singular(C, one_vec)
+
+    }
+    
+    
     x = data
     cat("\nForming Euclidean Neighborhoods...")
     L = as.matrix((nnwhich(data, k = c(1:k))))
