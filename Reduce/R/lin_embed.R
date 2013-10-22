@@ -81,6 +81,27 @@ adjacency <- function(neighbor_list){
     return(A)
 }
 
+randmat <- function(m, n, type = 1){
+    if(type == 1) {
+        A <- matrix(rnorm(m * n), m, n)
+        return(A)
+    }
+    if(type == 2) {
+        A <- matrix(sample(c(1, -1), m * n, replace = TRUE), m, n)        
+        return(A)
+    }
+    if(type == 3) {
+        A <- matrix(sample(c(sqrt(3), 0, -sqrt(3)), prob=c(1/6, 2/3, 1/6), m * n, replace = TRUE), m, n)        
+        return(A)
+    }
+    else
+    {
+        cat("Error: Matrix must be of type 1, 2, or 3.")
+    }
+}
+
+
+
 LC_metacriterion <- function(embedding, k){
     if(length(k) == 1){
         X <- embedding$X
@@ -108,7 +129,28 @@ LC_metacriterion <- function(embedding, k){
 
 
 
-
+compare_reduction <- function(...){
+    candidates <- list(...)
+    kvals <- c(1:10, seq(15, 30, 5), 40, 50)
+    LC <- matrix(0, length(candidates), length(kvals))
+    idx <- 1
+    cols <- rainbow(length(candidates))
+    for(manifold in candidates){
+        LC[idx, ] <- LC_metacriterion(manifold, kvals)
+        idx <- idx + 1
+    }
+    idx <- 1
+    minval <- 1.14 * min(LC)
+    maxval <- 1.14 * max(LC)
+    
+    plot(kvals, LC[1, ], type = "l", xlim = c(1, 50), ylim = c(minval, maxval), col = cols[1], ylab = "Adjusted Criterion", xlab = "Neighborhood Size", log = "x", main = "Methods Comparison")
+    for(manifold in candidates){
+        if(idx != 1){
+            points(kvals, LC[idx, ], type = "l", col = cols[idx])
+        }
+        idx <- idx + 1    
+    } 
+}
 
 
 
@@ -120,6 +162,16 @@ mat_sqrt <- function(A){
     V <- e$vectors
     B <- V %*% diag(sqrt(e$values)) %*% t(V)
     return(B)
+}
+
+RANDOM_PROJECTION <- function(X, d, type = 1){
+    X_new <- t(X)
+    dim <- nrow(X_new)
+    R <- randmat(dim, d, type)
+    Y <- t(1 / sqrt(d) * t(R) %*% X_new)
+    list(Y = Y,
+         X = X_new,
+         d = d)
 }
 
 LEIGENMAP <- function(X, d, k, heat = 2.0){
@@ -296,7 +348,7 @@ HLLE <- function(X, d, k){
     Y <- t(Y[, to_select]) * sqrt(n)
     R <- t(Y) %*% Y
     R2 <- mat.sqrt(R)
-    Y <- Y %*% R2
+    Y <- Y %*% R
     plot(t(Y), pch=19, col=rainbow(N, start=0, end = .7))
     
     

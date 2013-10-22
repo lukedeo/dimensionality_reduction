@@ -21,8 +21,8 @@ dists <- pdist(X, X)
 N = 1000
 r = seq(0, 1, length.out=N)
 t = (3*pi/2)*(1+2*r)
-x = t*cos(t)# + rnorm(N, 0, .5) #add noise
-y = t*sin(t)# + rnorm(N, 0, .5) #add noise
+x = t*cos(t) + rnorm(N, 0, .5) #add noise
+y = t*sin(t) + rnorm(N, 0, .5) #add noise
 # z <- c(10 * runif(N/2, 0, 1), 20 * runif(N/2, 0, 1))
 z <- 20 * runif(N, 0, 1)
 
@@ -42,11 +42,31 @@ data <- data.frame(x=x, y=y, z=z)
 
 X <- scale(X)
 
-new_data <- manifold(X, 2, sigma=0.5, t=2, method = "diffusion")
+
+diffmap_local <- manifold(X, 2, sigma=0.3, t=2, method = "diffusion")
+diffmap_semiglobal <- manifold(X, 2, sigma=0.4, t=2, method = "diffusion")
+diffmap_global <- manifold(X, 2, sigma=0.9, t=2, method = "diffusion")
+
+plot(diffmap_local$Y, pch=19, col=rainbow(N, start=0, end = .7))
+plot(diffmap_semiglobal$Y, pch=19, col=rainbow(N, start=0, end = .7))
+plot(diffmap_global$Y, pch=19, col=rainbow(N, start=0, end = .7))
+
+
+lle_local <- manifold(X, d=2, k=5, method="normal")
+lle_semiglobal <- manifold(X, d=2, k=8, method="normal")
+lle_global <- manifold(X, d=2, k=16, method="normal")
+
+plot(lle_local$Y, pch=19, col=rainbow(N, start=0, end = .7))
+plot(lle_semiglobal$Y, pch=19, col=rainbow(N, start=0, end = .7))
+plot(lle_global$Y, pch=19, col=rainbow(N, start=0, end = .7))
+
+
+
+
 new_data <- manifold(X, 2, 6, method="laplacian")
-new_data <- manifold(X, d=2, k=10, method="normal") # not using formulas
+lle <- manifold(X, d=2, k=10, method="normal") # not using formulas
 # new_data <- manifold(~x + y + z - 1, data, 2, 8) #working with formulas
-plot(new_data$Y, pch=19, col=rainbow(N, start=0, end = .7))
+plot(diffmap$Y, pch=19, col=rainbow(N, start=0, end = .7))
 rd <- LEIGENMAP(X, 2, 10)
 plot(laplacian4$Y, pch=19, col=rainbow(N, start=0, end = .7))
 plot(laplacian6$Y, pch=19, col=rainbow(N, start=0, end = .7))
@@ -56,7 +76,7 @@ plot(rd$Y, pch=19, col=rainbow(N, start=0, end = .7))
 plot((Y), pch=19, col=rainbow(N, start=0, end = .7))
 
 laplacian4 <- manifold(X, 2, 4, method="laplacian", heat=0)
-laplacian6 <- manifold(X, 2, 6, method="laplacian", heat=4)
+laplacian6 <- manifold(X, 2, 6, method="laplacian", heat=0)
 laplacian10 <- manifold(X, 2, 10, method="laplacian", heat=4)
 
 kvals <- c(1:8, seq(10, 50, 5))
