@@ -47,6 +47,10 @@ diffmap_local <- manifold(X, 2, sigma=0.3, t=2, method = "diffusion")
 diffmap_semiglobal <- manifold(X, 2, sigma=0.4, t=2, method = "diffusion")
 diffmap_global <- manifold(X, 2, sigma=0.9, t=2, method = "diffusion")
 
+diffmap_local_t <- manifold(X, 2, sigma=0.3, t=5, method = "diffusion")
+diffmap_semiglobal_t <- manifold(X, 2, sigma=0.4, t=5, method = "diffusion")
+diffmap_global_t <- manifold(X, 2, sigma=0.9, t=5, method = "diffusion")
+
 plot(diffmap_local$Y, pch=19, col=rainbow(N, start=0, end = .7))
 plot(diffmap_semiglobal$Y, pch=19, col=rainbow(N, start=0, end = .7))
 plot(diffmap_global$Y, pch=19, col=rainbow(N, start=0, end = .7))

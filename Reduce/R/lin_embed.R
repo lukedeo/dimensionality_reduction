@@ -89,13 +89,9 @@ randmat <- function(m, n, type = 1){
         A <- matrix(sample(c(1, -1), m * n, replace = TRUE), m, n)        
         return(A)
     }
-    if(type == 3) {
-        A <- matrix(sample(c(sqrt(3), 0, -sqrt(3)), prob=c(1/6, 2/3, 1/6), m * n, replace = TRUE), m, n)        
-        return(A)
-    }
     else
     {
-        cat("Error: Matrix must be of type 1, 2, or 3.")
+        cat("Error: Matrix must be of type 1 or 2.")
     }
 }
 LC_metacriterion <- function(embedding, k){
@@ -139,13 +135,24 @@ compare_reduction <- function(...){
     minval <- 1.14 * min(LC)
     maxval <- 1.14 * max(LC)
     
-    plot(kvals, LC[1, ], type = "l", xlim = c(1, 50), ylim = c(minval, maxval), col = cols[1], ylab = "Adjusted Criterion", xlab = "Neighborhood Size", log = "x", main = "Methods Comparison")
+    plot(kvals, LC[1, ], type = "b", xlim = c(1, 50), ylim = c(minval, maxval), col = cols[1], ylab = "Adjusted Criterion", xlab = "Neighborhood Size", log = "x", main = "Methods Comparison")
     for(manifold in candidates){
         if(idx != 1){
-            points(kvals, LC[idx, ], type = "l", col = cols[idx])
+            points(kvals, LC[idx, ], type = "b", col = cols[idx])
         }
         idx <- idx + 1    
     } 
+    names <- NULL
+    coresp_colors <- NULL
+    idx <- 1
+    lty <- NULL
+    for(manifold in candidates){
+        names <- cbind(names, manifold$description)
+        coresp_colors <- cbind(coresp_colors, cols[idx])
+        lty<-cbind(lty, 1)
+        idx <- idx + 1
+    }
+    legend("topright", cex = 0.8, legend=names, col=coresp_colors, lty=lty)
 }
 
 
@@ -165,9 +172,12 @@ RANDOM_PROJECTION <- function(X, d, type = 1){
     dim <- nrow(X_new)
     R <- randmat(dim, d, type)
     Y <- t(1 / sqrt(d) * t(R) %*% X_new)
+    if(type==1){proj="Gaussian"}
+    if(type==2){proj="+/- 1 Uniform"}
     list(Y = Y,
          X = X_new,
-         d = d)
+         d = d,
+         description = paste("Random Projection,", proj))
 }
 
 LEIGENMAP <- function(X, d, k, heat = 2.0){
@@ -197,6 +207,7 @@ LEIGENMAP <- function(X, d, k, heat = 2.0){
     list(Y = Y,
          X = X,
          k = k,
+         description = paste("Laplacian Eigenmap, k = ", k, ", heat = ", heat, sep = ""),
          d = d) 
 }
 
@@ -224,6 +235,7 @@ DIFFMAP <- function(X, d, t = 1.0, sigma = -1.0){
          X = X,
          sigma = sigma,
          t = t,
+         description = paste("Diffusion Map, t = ", t, ", sigma = ", sigma, sep = ""),
          d = d) 
 
 }
@@ -348,7 +360,7 @@ HLLE <- function(X, d, k){
     plot(t(Y), pch=19, col=rainbow(N, start=0, end = .7))  
 }
 
-LLE <- function(X, d, k, symmetric = FALSE) {
+LLE <- function(X, d, k, symmetric = FALSE, positive = FALSE) {
     n <- nrow(X)
     dist <- pdist(X, X)
     dist_copy <- dist
@@ -388,18 +400,21 @@ LLE <- function(X, d, k, symmetric = FALSE) {
     }
     diag(W) <- 1
     decomp <- svd(W)
+    if(!symmetric){sym="non-"}
+    else{sym=""}
     selection = c((n - d):(n-1))
     Y <- decomp$v[, selection]
     list(Y = Y,
          X = X,
          k = k,
+         description = paste("LLE, k = ", k, ", ", sym, "symmetrized adjacency.", sep = ""),
          d = d) 
 }
 
 manifold <- function(x, d, k, method = "standard", scale = TRUE, heat = 1, sigma = -1, t = 3,...) UseMethod("manifold")
 
 manifold.default <- function(x, d, k = 3, method = "normal", scale = TRUE, heat = 1, sigma = -1, t = 3,...){
-    methods <- c("hessian", "standard", "normal", "laplacian")
+    methods <- c("hessian", "standard", "normal", "laplacian", "projection")
     if(scale)
     {
         x <- scale(as.matrix(x))
@@ -410,7 +425,6 @@ manifold.default <- function(x, d, k = 3, method = "normal", scale = TRUE, heat 
     }
     if((method == "normal") | (method == "standard"))
     {
-        cat("Using standard Linear Embedding")
         reduction <- LLE(x, d, k)
     }
     if(method == "laplacian")
@@ -420,6 +434,10 @@ manifold.default <- function(x, d, k = 3, method = "normal", scale = TRUE, heat 
     if(method == "diffusion")
     {
         reduction  <- DIFFMAP(x, d, t, sigma)
+    }
+    if(method == "projection")
+    {
+        reduction <- RANDOM_PROJECTION(X=X, d=1)
     }
     reduction$call <- match.call()
     class(reduction) <- "manifold"
