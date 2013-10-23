@@ -240,125 +240,113 @@ DIFFMAP <- function(X, d, t = 1.0, sigma = -1.0){
 
 }
 
-HLLE <- function(X, d, k){
-    r <- ((d + 2) * (d + 1)) / 2
-    if(k < r){
-        stop("Error: formation of Hessian required k >= ((d + 2)(d + 1)) / 2.")
-    }
-    
-    n <- nrow(X)
-    dist <- pdist(X, X)
-    diag(dist) <- Inf
-    neighborhood <- matrix(0, n, n)
-    for(i in 1:n){
-        neighborhood[i, ] <- sort.int(dist[i, ], index.return=TRUE)$ix
-    }
-    
-    dp <- d * (d + 1) / 2
-    
-    W <- matrix(0, n * dp, n)
-    G <- matrix(0, n, n)
-    for(i in 1:n){
-        tmp_ind <- neighborhood[i, 1:k]
-        thissrc <- X[tmp_ind, ]
-        thissrc <- t(thissrc - colMeans(thisX))
-        decomp <- svd(thissrc)
-        
-        U <- decomp$u
-        Vpr <- decomp$v
-        D <- decomp$d
-    
-        V <- Vpr[, 1:d]
-        
-        Yi <- matrix(1, k, r)
-        Yi[, 2:(d+1)] <- V
-        ct <- d + 1
-        for(mm in 1:d)
-        {
-            nn <- c(1:(d + 1 - mm))
-            Yi[, ct+nn] <- V[, nn] * V[, mm:d]
-            ct <- ct + d - mm + 1
-        }
-        Yt <- mgs(Yi)
-        Pii <- t(Yt[, (d+2):(ncol(Yt))])
-        
-        for(j in 1:dp)
-        {
-            if(sum(Pii[j, ]) > 0.0001)
-            {
-                tpp = Pii[j, ] / sum(Pii[j, ])
-            }
-            else
-            {
-                tpp = Pii[j, ]
-            }
-            G[tmp_ind, tmp_ind] <- G[tmp_ind, tmp_ind] + tpp %*% t(tpp)
-        }
-        
-    }
+# HLLE <- function(X, d, k){
+#     r <- ((d + 2) * (d + 1)) / 2
+#     if(k < r){
+#         stop("Error: formation of Hessian required k >= ((d + 2)(d + 1)) / 2.")
+#     } 
+#     
+#     n <- nrow(X)
+#     dist <- pdist(X, X)
+#     diag(dist) <- Inf
+#     neighborhood <- matrix(0, n, n)
+#     for(i in 1:n){
+#         neighborhood[i, ] <- sort.int(dist[i, ], index.return=TRUE)$ix
+#     }
+#     
+#     dp <- d * (d + 1) / 2
+#     
+#     W <- matrix(0, n * dp, n)
+#     G <- matrix(0, n, n)
+#     for(i in 1:n){
+#         tmp_ind <- neighborhood[i, 1:k]
+#         thissrc <- X[tmp_ind, ]
+#         thissrc <- t(thissrc - colMeans(thisX))
+#         decomp <- svd(thissrc)
+#         
+#         U <- decomp$u
+#         Vpr <- decomp$v
+#         D <- decomp$d
+#     
+#         V <- Vpr[, 1:d]
+#         
+#         Yi <- matrix(1, k, r)
+#         Yi[, 2:(d+1)] <- V
+#         ct <- d + 1
+#         for(mm in 1:d)
+#         {
+#             nn <- c(1:(d + 1 - mm))
+#             Yi[, ct+nn] <- V[, nn] * V[, mm:d]
+#             ct <- ct + d - mm + 1
+#         }
+#         Yt <- mgs(Yi)
+#         Pii <- t(Yt[, (d+2):(ncol(Yt))])
+#         
+#         for(j in 1:dp)
+#         {
+#             if(sum(Pii[j, ]) > 0.0001)
+#             {
+#                 tpp = Pii[j, ] / sum(Pii[j, ])
+#             }
+#             else
+#             {
+#                 tpp = Pii[j, ]
+#             }
+#             G[tmp_ind, tmp_ind] <- G[tmp_ind, tmp_ind] + tpp %*% t(tpp)
+#         }
+#         
+#     }
+# 
+#     eigs <- eigen(G)    
+#     
+#     Y <- eigs$vectors
+#     to_select <- c((n - d):(n-1))
+#     Y <- (Y[, to_select]) * sqrt(n)
+#     
+#     plot((Y), pch=19, col=rainbow(N, start=0, end = .7))
 
-    eigs <- eigen(G)    
-    
-    Y <- eigs$vectors
-    to_select <- c((n - d):(n-1))
-    Y <- (Y[, to_select]) * sqrt(n)
-    
-    plot((Y), pch=19, col=rainbow(N, start=0, end = .7))
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    n <- nrow(X)
-    k_orig <- k
-    L <- as.matrix((nnwhich(X, k = c(1:k))))
-    A <- adjacency(L)
-    G <- matrix(0, n, n)
-    mse <- rep(0, n)
-    k <- rep(0, n)
-    for(i in 1:n)
-    {
-        idx <- which(A[i, ])
-        k[i] <- length(idx)
-        thisX <- t(X[idx, ])
-        thisX <- thisX - rowMeans(thisX)
-        decomp <- svd(thisX)
-        vals <- (decomp$d)
-        D <- diag(vals)
-        mse[i] <- sum(vals[(d+1):length(vals)])
-        Vpr <- decomp$v
-        V <- Vpr[, 1:d]
-        Yi <- matrix(1, k[i], r)
-        Yi[, 2:(d+1)] <- V
-        ct <- d + 1
-        for(mm in 1:d)
-        {
-            nn <- c(1:(d + 1 - mm))
-            Yi[, ct+nn] <- V[, nn] * V[, mm:d]
-            ct <- ct + d - mm + 1
-        }
-#         Yt <- qr(Yi)$qr
-        Yt <- mgs(Yi)
-        Pi <- Yt[, (d+2):(ncol(Yt))]
-        G[idx, idx] <- G[idx, idx] + Pi %*% t(Pi)
-    }
-    eigs <- eigen(G, symmetric=TRUE)
-    Y <- eigs$vectors
-    to_select <- c((n - d):(n-1))
-    Y <- t(Y[, to_select]) * sqrt(n)
-    R <- t(Y) %*% Y
-    R2 <- mat.sqrt(R)
-    Y <- Y %*% R
-    plot(t(Y), pch=19, col=rainbow(N, start=0, end = .7))  
-}
+#     n <- nrow(X)
+#     k_orig <- k
+#     L <- as.matrix((nnwhich(X, k = c(1:k))))
+#     A <- adjacency(L)
+#     G <- matrix(0, n, n)
+#     mse <- rep(0, n)
+#     k <- rep(0, n)
+#     for(i in 1:n)
+#     {
+#         idx <- which(A[i, ])
+#         k[i] <- length(idx)
+#         thisX <- t(X[idx, ])
+#         thisX <- thisX - rowMeans(thisX)
+#         decomp <- svd(thisX)
+#         vals <- (decomp$d)
+#         D <- diag(vals)
+#         mse[i] <- sum(vals[(d+1):length(vals)])
+#         Vpr <- decomp$v
+#         V <- Vpr[, 1:d]
+#         Yi <- matrix(1, k[i], r)
+#         Yi[, 2:(d+1)] <- V
+#         ct <- d + 1
+#         for(mm in 1:d)
+#         {
+#             nn <- c(1:(d + 1 - mm))
+#             Yi[, ct+nn] <- V[, nn] * V[, mm:d]
+#             ct <- ct + d - mm + 1
+#         }
+# #         Yt <- qr(Yi)$qr
+#         Yt <- mgs(Yi)
+#         Pi <- Yt[, (d+2):(ncol(Yt))]
+#         G[idx, idx] <- G[idx, idx] + Pi %*% t(Pi)
+#     }
+#     eigs <- eigen(G, symmetric=TRUE)
+#     Y <- eigs$vectors
+#     to_select <- c((n - d):(n-1))
+#     Y <- t(Y[, to_select]) * sqrt(n)
+#     R <- t(Y) %*% Y
+#     R2 <- mat.sqrt(R)
+#     Y <- Y %*% R
+#     plot(t(Y), pch=19, col=rainbow(N, start=0, end = .7))  
+# }
 
 LLE <- function(X, d, k, symmetric = FALSE, positive = FALSE) {
     n <- nrow(X)
@@ -411,9 +399,9 @@ LLE <- function(X, d, k, symmetric = FALSE, positive = FALSE) {
          d = d) 
 }
 
-manifold <- function(x, d, k, method = "standard", scale = TRUE, heat = 1, sigma = -1, t = 3,...) UseMethod("manifold")
+manifold <- function(x, d, k, method = "standard", scale = TRUE, heat = 1, sigma = -1, t = 3, symmetric = FALSE,...) UseMethod("manifold")
 
-manifold.default <- function(x, d, k = 3, method = "normal", scale = TRUE, heat = 1, sigma = -1, t = 3,...){
+manifold.default <- function(x, d, k = 3, method = "normal", scale = TRUE, heat = 1, sigma = -1, t = 3, symmetric = FALSE,...){
     methods <- c("hessian", "standard", "normal", "laplacian", "projection")
     if(scale)
     {
@@ -425,7 +413,7 @@ manifold.default <- function(x, d, k = 3, method = "normal", scale = TRUE, heat 
     }
     if((method == "normal") | (method == "standard"))
     {
-        reduction <- LLE(x, d, k)
+        reduction <- LLE(x, d, k, symmetric=symmetric)
     }
     if(method == "laplacian")
     {
@@ -437,7 +425,7 @@ manifold.default <- function(x, d, k = 3, method = "normal", scale = TRUE, heat 
     }
     if(method == "projection")
     {
-        reduction <- RANDOM_PROJECTION(X=X, d=1)
+        reduction <- RANDOM_PROJECTION(X=X, d=d)
     }
     reduction$call <- match.call()
     class(reduction) <- "manifold"
