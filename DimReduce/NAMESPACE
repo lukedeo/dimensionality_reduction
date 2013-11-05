@@ -1,0 +1,5 @@
+useDynLib(DimReduce)
+exportPattern("^[[:alpha:]]+")
+exportClasses(
+    "AUTOENCODER" 
+)
