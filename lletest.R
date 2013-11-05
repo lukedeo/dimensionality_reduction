@@ -11,13 +11,10 @@ library("spatstat")
 
 # for given methods, plot versus K'
 
-
-
-
-
 vars <- c("significance3d", "nVTX", "nTracksAtVtx", "nSingleTracks", "nTracks", "deltaphi", "deltaeta", "meanTrackRapidity", "meanTrackPtRel", "minTrackRapidity", "minTrackPtRel", "maxTrackRapidity", "maxTrackPtRel", "maxSecondaryVertexRho", "maxSecondaryVertexZ", "subMaxSecondaryVertexRho", "subMaxSecondaryVertexZ", "SVInfoPlus_mass", "SVInfoPlus_energyfrac", "SVInfoPlus_normdist", "n_SVInfoPlus_gt_jet", "n_SVInfoPlus_gt_svx","n_SVInfoPlus_2t")
 
 dists <- pdist(X, X)
+dist <- pdist(X, X)
 
 #Generate the Swiss-Roll
 N = 1000
@@ -40,6 +37,9 @@ data = scale(as.matrix(cbind(x, y, z)))
 X = data
 
 data <- data.frame(x=x, y=y, z=z)
+
+
+net <- nnet(X, X, size=2)
 
 
 
@@ -93,6 +93,11 @@ laplacian6 <- manifold(X, 2, 6, method="laplacian", heat=2)
 laplacian10 <- manifold(X, 2, 10, method="laplacian", heat=4)
 
 kvals <- c(1:8, seq(10, 50, 5))
+
+
+kprin <- kpca(X)
+Y <- kprin@pcv[, 1:2]
+ksv <- list(X=X, Y=Y, description="Kernel PCA")
 
 
 

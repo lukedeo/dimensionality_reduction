@@ -1,0 +1,13 @@
+Package: DimReduce
+Type: Package
+Title: What the package does (short line)
+Version: 1.0
+Date: 2013-11-04
+Author: Who wrote it
+Maintainer: Who to complain to <yourfault@somewhere.net>
+Description: More about what it does (maybe more than one line)
+License: What Licence is it under ?
+Depends: methods
+Depends: Rcpp (>= 0.10.3), RcppArmadillo (>= 0.2.0)
+LinkingTo: Rcpp, RcppArmadillo
+ 
