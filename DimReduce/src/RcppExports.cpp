@@ -7,13 +7,14 @@
 using namespace Rcpp;
 
 // BOXCOX
-SEXP BOXCOX(SEXP dist, SEXP adjacency, SEXP X1 = 0, int random_start = 1, int d = 3, double lambda = 1, double mu = 1, double nu = 0, double tau = 1, int niter = 1000);
-RcppExport SEXP DimReduce_BOXCOX(SEXP distSEXP, SEXP adjacencySEXP, SEXP X1SEXP, SEXP random_startSEXP, SEXP dSEXP, SEXP lambdaSEXP, SEXP muSEXP, SEXP nuSEXP, SEXP tauSEXP, SEXP niterSEXP) {
+SEXP BOXCOX(arma::mat D, arma::mat A, arma::mat X1, int cmds_start = 1, int random_start = 0, int d = 3, double lambda = 1, double mu = 1, double nu = 0, double tau = 1, int niter = 1000);
+RcppExport SEXP DimReduce_BOXCOX(SEXP DSEXP, SEXP ASEXP, SEXP X1SEXP, SEXP cmds_startSEXP, SEXP random_startSEXP, SEXP dSEXP, SEXP lambdaSEXP, SEXP muSEXP, SEXP nuSEXP, SEXP tauSEXP, SEXP niterSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope __rngScope;
-    SEXP dist = Rcpp::as<SEXP >(distSEXP);
-    SEXP adjacency = Rcpp::as<SEXP >(adjacencySEXP);
-    SEXP X1 = Rcpp::as<SEXP >(X1SEXP);
+    arma::mat D = Rcpp::as<arma::mat >(DSEXP);
+    arma::mat A = Rcpp::as<arma::mat >(ASEXP);
+    arma::mat X1 = Rcpp::as<arma::mat >(X1SEXP);
+    int cmds_start = Rcpp::as<int >(cmds_startSEXP);
     int random_start = Rcpp::as<int >(random_startSEXP);
     int d = Rcpp::as<int >(dSEXP);
     double lambda = Rcpp::as<double >(lambdaSEXP);
@@ -21,7 +22,18 @@ BEGIN_RCPP
     double nu = Rcpp::as<double >(nuSEXP);
     double tau = Rcpp::as<double >(tauSEXP);
     int niter = Rcpp::as<int >(niterSEXP);
-    SEXP __result = BOXCOX(dist, adjacency, X1, random_start, d, lambda, mu, nu, tau, niter);
+    SEXP __result = BOXCOX(D, A, X1, cmds_start, random_start, d, lambda, mu, nu, tau, niter);
+    return Rcpp::wrap(__result);
+END_RCPP
+}
+// cmds
+SEXP cmds(arma::mat D, double d);
+RcppExport SEXP DimReduce_cmds(SEXP DSEXP, SEXP dSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope __rngScope;
+    arma::mat D = Rcpp::as<arma::mat >(DSEXP);
+    double d = Rcpp::as<double >(dSEXP);
+    SEXP __result = cmds(D, d);
     return Rcpp::wrap(__result);
 END_RCPP
 }

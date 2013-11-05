@@ -1,4 +1,4 @@
-source("Reduce/R/lin_embed.R")
+source("../Reduce/R/lin_embed.R")
 library("rgl")
 library("spatstat")
 
@@ -86,7 +86,7 @@ plot(laplacian6$Y, pch=19, col=rainbow(N, start=0, end = .7))
 plot(laplacian10$Y, pch=19, col=rainbow(N, start=0, end = .7))
 plot(rd$Y, pch=19, col=rainbow(N, start=0, end = .7))
 
-plot((Y), pch=19, col=rainbow(N, start=0, end = .7))
+plot((cm$vectors[, c(1,2)]), pch=19, col=rainbow(N, start=0, end = .7))
 
 laplacian4 <- manifold(X, 2, 4, method="laplacian", heat=0)
 laplacian6 <- manifold(X, 2, 6, method="laplacian", heat=2)
