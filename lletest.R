@@ -13,17 +13,31 @@ library("spatstat")
 
 vars <- c("significance3d", "nVTX", "nTracksAtVtx", "nSingleTracks", "nTracks", "deltaphi", "deltaeta", "meanTrackRapidity", "meanTrackPtRel", "minTrackRapidity", "minTrackPtRel", "maxTrackRapidity", "maxTrackPtRel", "maxSecondaryVertexRho", "maxSecondaryVertexZ", "subMaxSecondaryVertexRho", "subMaxSecondaryVertexZ", "SVInfoPlus_mass", "SVInfoPlus_energyfrac", "SVInfoPlus_normdist", "n_SVInfoPlus_gt_jet", "n_SVInfoPlus_gt_svx","n_SVInfoPlus_2t")
 
-dists <- pdist(X, X)
+Do <- pdist(X, X)
 dist <- pdist(X, X)
 
 #Generate the Swiss-Roll
-N = 1000
+N = 10
 r = seq(0, 1, length.out=N)
 t = (3*pi/2)*(1+2*r)
 x = t*cos(t) #+ rnorm(N, 0, .5) #add noise
 y = t*sin(t) #+ rnorm(N, 0, .5) #add noise
 # z <- c(10 * runif(N/2, 0, 1), 20 * runif(N/2, 0, 1))
 z <- 20 * runif(N, 0, 1)
+data = scale(as.matrix(cbind(x, y, z)))
+X = data
+X <- scale(X)
+Do <- pdist(X, X)
+Daux <- apply(Do,2,sort)[k+1,]
+Inb <- ifelse(Do>Daux, 0, 1)
+X_init <- X[, c(1, 2)]
+
+cm <- boxcox(dist=Do, Adj=Inb, X1 = X_init, random.start=0)
+cm <- BOXCOX(D=Do, A=Inb, X1=X_init, cmds_start=0, random_start=0)
+
+
+
+
 
 plot3d(x, y, z, col = rainbow(N, start=0, end = .7), pch=19)
 
