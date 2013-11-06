@@ -17,7 +17,7 @@ Do <- pdist(X, X)
 dist <- pdist(X, X)
 
 #Generate the Swiss-Roll
-N = 10
+N = 200
 r = seq(0, 1, length.out=N)
 t = (3*pi/2)*(1+2*r)
 x = t*cos(t) #+ rnorm(N, 0, .5) #add noise
@@ -32,8 +32,13 @@ Daux <- apply(Do,2,sort)[k+1,]
 Inb <- ifelse(Do>Daux, 0, 1)
 X_init <- X[, c(1, 2)]
 
-cm <- boxcox(dist=Do, Adj=Inb, X1 = X_init, random.start=0)
+cm1 <- boxcox(dist=Do, Adj=Inb, X1 = X_init, random.start=0)
 cm <- BOXCOX(D=Do, A=Inb, X1=X_init, cmds_start=0, random_start=0)
+
+
+
+plot(cm1$X, pch=19, col=rainbow(N, start=0, end = .7))
+plot(cm$embedding, pch=19, col=rainbow(N, start=0, end = .7))
 
 
 
