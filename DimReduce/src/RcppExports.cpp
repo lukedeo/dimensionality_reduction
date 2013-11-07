@@ -7,8 +7,8 @@
 using namespace Rcpp;
 
 // BOXCOX
-SEXP BOXCOX(arma::mat D, arma::umat A, arma::mat X1, int cmds_start = 1, int random_start = 0, int d = 3, double lambda = 1, double mu = 1, double nu = 0, double tau = 1, int niter = 1000, int sample_rate = 100);
-RcppExport SEXP DimReduce_BOXCOX(SEXP DSEXP, SEXP ASEXP, SEXP X1SEXP, SEXP cmds_startSEXP, SEXP random_startSEXP, SEXP dSEXP, SEXP lambdaSEXP, SEXP muSEXP, SEXP nuSEXP, SEXP tauSEXP, SEXP niterSEXP, SEXP sample_rateSEXP) {
+SEXP BOXCOX(arma::mat D, arma::umat A, arma::mat X1, int cmds_start = 1, int random_start = 0, int d = 3, double lambda = 1, double mu = 1, double nu = 0, double tau = 1, int niter = 1000, int sample_rate = 100, bool bfgs = 0);
+RcppExport SEXP DimReduce_BOXCOX(SEXP DSEXP, SEXP ASEXP, SEXP X1SEXP, SEXP cmds_startSEXP, SEXP random_startSEXP, SEXP dSEXP, SEXP lambdaSEXP, SEXP muSEXP, SEXP nuSEXP, SEXP tauSEXP, SEXP niterSEXP, SEXP sample_rateSEXP, SEXP bfgsSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope __rngScope;
     arma::mat D = Rcpp::as<arma::mat >(DSEXP);
@@ -23,7 +23,8 @@ BEGIN_RCPP
     double tau = Rcpp::as<double >(tauSEXP);
     int niter = Rcpp::as<int >(niterSEXP);
     int sample_rate = Rcpp::as<int >(sample_rateSEXP);
-    SEXP __result = BOXCOX(D, A, X1, cmds_start, random_start, d, lambda, mu, nu, tau, niter, sample_rate);
+    bool bfgs = Rcpp::as<bool >(bfgsSEXP);
+    SEXP __result = BOXCOX(D, A, X1, cmds_start, random_start, d, lambda, mu, nu, tau, niter, sample_rate, bfgs);
     return Rcpp::wrap(__result);
 END_RCPP
 }

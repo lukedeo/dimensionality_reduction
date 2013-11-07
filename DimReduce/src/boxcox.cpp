@@ -2,13 +2,16 @@
 #include "fastPdist.h"
 #include "neighbor_graph.h"
 #include "fast_scale.h"
+#include "bfgs_helper.h"
+#include "boxcox_helper.h"
 
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 
 SEXP BOXCOX(arma::mat D, arma::umat A, arma::mat X1,int cmds_start = 1,
             int random_start = 0, int d = 3, double lambda = 1, 
-            double mu = 1, double nu = 0, double tau = 1, int niter = 1000, int sample_rate = 100)
+            double mu = 1, double nu = 0, double tau = 1, int niter = 1000, 
+            int sample_rate = 100, bool bfgs = 0)
 {
 
 
@@ -32,6 +35,7 @@ SEXP BOXCOX(arma::mat D, arma::umat A, arma::mat X1,int cmds_start = 1,
               not_A(n, n), 
               X_best(n, d),
               repulsion(n, n);
+
 
     arma::umat A_sym = A;
 
@@ -152,11 +156,6 @@ SEXP BOXCOX(arma::mat D, arma::umat A, arma::mat X1,int cmds_start = 1,
 
     X1 = (X1 * arma::norm(D, 2)) / arma::norm(D1, 2);
 
-
-
-    // std::cout << "arma::norm(D, 2)" << arma::norm(D, 2) <<  "arma::norm(D1, 2)" << arma::norm(D1, 2) << std::endl;
-
-    // std::cout << D << D1 << std::endl;
     arma::mat X0 = X1;
 
     double s1 = 999999999.0, 
@@ -164,79 +163,157 @@ SEXP BOXCOX(arma::mat D, arma::umat A, arma::mat X1,int cmds_start = 1,
            stepsize = 0.1;
     int i = 0;
 
-    while ((stepsize > 1e-5) && (i < niter))
-    {
-        if ((s1 >= s0) && (i > 1))
-        {
-            stepsize *= 0.5;
-            X1 = X0 - stepsize * Gradient;
-        }
-        else 
-        {
-            stepsize *= 1.05;
-            X0 = X1;
 
-            D_mu_emb = arma::pow(D1, (mu - 2));
+    if (bfgs)
+    {
+        std::cout << "Using BFGS optimization." << std::endl;
+        arma::vec s(n*d), y(n*d), search_direction(n*d), gradient_vector(n*d), gradient_vector_old(n*d);
+        arma::mat B_inv(n*d, n*d);
+        B_inv.eye();
+        while ((stepsize > 1e-6) && (i < (niter - 1)))
+        {
+            X0 = X1;
+            gradient_dump(X0, D1, D_nu, D_nu_lambda, repulsion, D_mu_emb, D_mu_lambda_emb, column_sum, M, Gradient, mu, lambda);
+            gradient_vector = (to_vec(Gradient, n, d));
+
+            if (i > 0)
+            {
+                y = gradient_vector - gradient_vector_old;
+
+                double sTy = arma::dot(s, y);
+
+                arma::mat ysT = y * s.t();
+
+                B_inv = B_inv + ((sTy + arma::dot(y.t() * B_inv, y)) * (s * s.t())) / (sTy * sTy) - (B_inv * ysT + ysT.t() * B_inv) / sTy;
+            }
+            // Line search
+            //----------------------------------------------------------------------------
+            double base_stress = stress(D_mu_emb, D1, D_mu_lambda_emb, not_A, D_nu, D_nu_lambda, t, mu, lambda);
+            double gamma = 0.2, c = 0.09;
+            
+            search_direction = -1 * B_inv * gradient_vector;
+            double grad_dot_dir = c * arma::dot(gradient_vector.t(), search_direction);
+
+            stepsize = 1;
+            s = search_direction;
+            X1 = X0 + to_mat(s, n, d);
+            D1 = fastPdist(X1,X1);
+            double new_stress = stress(D_mu_emb, D1, D_mu_lambda_emb, not_A, D_nu, D_nu_lambda, t, mu, lambda);
+            int itermax = 30, iter = 0;
+            while((new_stress > (base_stress + stepsize * grad_dot_dir)) && (iter < itermax))
+            {
+                stepsize *= gamma;
+                s = stepsize * search_direction;
+                X1 = X0 + to_mat(s, n, d);
+                D1 = fastPdist(X1,X1);
+                new_stress = stress(D_mu_emb, D1, D_mu_lambda_emb, not_A, D_nu, D_nu_lambda, t, mu, lambda);
+                ++iter;
+            }
+            gradient_vector_old = gradient_vector;
+
+            ++i;
+            s0 = s1;
+            D1 = fastPdist(X1,X1);
+            s1 = stress(D_mu_emb, D1, D_mu_lambda_emb, not_A, D_nu, D_nu_lambda, t, mu, lambda);
+            if (((i + 1) % sample_rate) == 0)
+            {
+                A_reduced = neighbor_graph(D1, k_avg);
+                A_reduced = A_reduced % A_pure;
+                arma::vec Nk = (arma::sum(A_reduced, 1) - 1);
+                Nk = Nk / (k_avg - 1);
+                Mka = (double)arma::sum(Nk) / n - k_avg/n;
+                if ((Mka >= Mka_best) && (i > 1))
+                {
+                    X_best = X1;
+                    Mka_best = Mka;
+                }
+                std::cout << "Iteration Number: " << i + 1 << ", Stress: " << s1 << ", Mk_adj: " << Mka << std::endl;
+            }
+        }
+    }
+    else
+    {
+        std::cout << "Using standard gradient descent optimization." << std::endl;
+        while ((stepsize > 1e-6) && (i < niter))
+        {
+            if ((s1 >= s0) && (i > 1))
+            {
+                stepsize *= 0.5;
+                X1 = X0 - stepsize * Gradient;
+            }
+            else 
+            {
+                stepsize *= 1.05;
+                X0 = X1;
+
+                D_mu_emb = arma::pow(D1, (mu - 2));
+                D_mu_emb.diag().fill(0.0);
+
+                D_mu_lambda_emb = arma::pow(D1, (mu + lambda - 2));
+                D_mu_lambda_emb.diag().fill(0.0);
+
+                M = D_nu % D_mu_lambda_emb - D_mu_emb % (D_nu_lambda + repulsion);
+                
+                column_sum = sum(M, 1);
+                Gradient.each_col() = column_sum;
+                Gradient = X0 % Gradient - M * X0;
+
+                Gradient = (norm(X0, 2) / norm(Gradient, 2)) * Gradient;
+
+                X1 = X0 - stepsize * Gradient;
+            }
+
+            ++i;
+            s0 = s1;
+            D1 = fastPdist(X1,X1);
+
+            D_mu_emb = arma::pow(D1, (mu));
             D_mu_emb.diag().fill(0.0);
 
-            D_mu_lambda_emb = arma::pow(D1, (mu + lambda - 2));
+            D_mu_lambda_emb = arma::pow(D1, (mu + lambda));
             D_mu_lambda_emb.diag().fill(0.0);
 
-            M = D_nu % D_mu_lambda_emb - D_mu_emb % (D_nu_lambda + repulsion);
-            
-            column_sum = sum(M, 1);
-            Gradient.each_col() = column_sum;
-            Gradient = X0 % Gradient - M * X0;
 
-            Gradient = (norm(X0, 2) / norm(Gradient, 2)) * Gradient;
-
-            X1 = X0 - stepsize * Gradient;
-        }
-
-        ++i;
-        s0 = s1;
-        D1 = fastPdist(X1,X1);
-
-        D_mu_emb = arma::pow(D1, (mu));
-        D_mu_emb.diag().fill(0.0);
-
-        D_mu_lambda_emb = arma::pow(D1, (mu + lambda));
-        D_mu_lambda_emb.diag().fill(0.0);
-
-
-        if ((mu + lambda) == 0)
-        {
-            D1.diag().fill(1.0);
-            D_mu_emb = D_mu_emb - 1;
-            s1 = arma::accu(D_nu % arma::log(D1)) - arma::accu((D_mu_emb) % D_nu_lambda) / mu - t * arma::accu((D_mu_emb) % (not_A)) / mu;
-        }
-        if (mu == 0)
-        {
-            D1.diag().fill(1.0);
-            s1 = arma::accu(D_nu % (D_mu_lambda_emb - 1)) / (mu + lambda) - arma::accu(arma::log(D1) % D_nu_lambda) - t * arma::accu(arma::log(D1) % (not_A));
-        }
-
-        if((mu != 0) & ((mu + lambda) != 0))
-        {
-            D_mu_emb = D_mu_emb - 1;
-            s1 = arma::accu(D_nu % (D_mu_lambda_emb - 1)) / (mu + lambda) - arma::accu((D_mu_emb) % D_nu_lambda)/mu-t*arma::accu((D_mu_emb) % (not_A)) / mu;
-        }
-        if (((i + 1) % sample_rate) == 0)
-        {
-            A_reduced = neighbor_graph(D1, k_avg);
-            A_reduced = A_reduced % A_pure;
-            arma::vec Nk = (arma::sum(A_reduced, 1) - 1);
-            Nk = Nk / (k_avg - 1);
-            Mka = (double)arma::sum(Nk) / n - k_avg/n;
-            if ((Mka >= Mka_best) && (i > 1))
+            if ((mu + lambda) == 0)
             {
-                X_best = X1;
-                Mka_best = Mka;
+                D1.diag().fill(1.0);
+                D_mu_emb = D_mu_emb - 1;
+                s1 = arma::accu(D_nu % arma::log(D1)) - arma::accu((D_mu_emb) % D_nu_lambda) / mu - t * arma::accu((D_mu_emb) % (not_A)) / mu;
             }
-            std::cout << "Iteration Number: " << i + 1 << ", Stress: " << s1 << ", Mk_adj: " << Mka << std::endl;
-        }
+            if (mu == 0)
+            {
+                D1.diag().fill(1.0);
+                s1 = arma::accu(D_nu % (D_mu_lambda_emb - 1)) / (mu + lambda) - arma::accu(arma::log(D1) % D_nu_lambda) - t * arma::accu(arma::log(D1) % (not_A));
+            }
 
+            if((mu != 0) & ((mu + lambda) != 0))
+            {
+                D_mu_emb = D_mu_emb - 1;
+                s1 = arma::accu(D_nu % (D_mu_lambda_emb - 1)) / (mu + lambda) - arma::accu((D_mu_emb) % D_nu_lambda)/mu-t*arma::accu((D_mu_emb) % (not_A)) / mu;
+            }
+            if (((i + 1) % sample_rate) == 0)
+            {
+                A_reduced = neighbor_graph(D1, k_avg);
+                A_reduced = A_reduced % A_pure;
+                arma::vec Nk = (arma::sum(A_reduced, 1) - 1);
+                Nk = Nk / (k_avg - 1);
+                Mka = (double)arma::sum(Nk) / n - k_avg/n;
+                if ((Mka >= Mka_best) && (i > 1))
+                {
+                    X_best = X1;
+                    Mka_best = Mka;
+                }
+                std::cout << "Iteration Number: " << i + 1 << ", Stress: " << s1 << ", Mk_adj: " << Mka << std::endl;
+            }
+        }
     }
+
+
+
+    
+
+
+    
     
     fast_scale(X1);
     fast_scale(X_best);

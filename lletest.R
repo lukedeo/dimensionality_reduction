@@ -32,13 +32,14 @@ Daux <- apply(Do,2,sort)[k+1,]
 Inb <- ifelse(Do>Daux, 0, 1)
 X_init <- X[, c(1, 2)]
 
-cm1 <- boxcox(dist=Do, Adj=Inb, X1 = X_init, random.start=0)
-cm <- BOXCOX(D=Do, A=Inb, X1=X_init, cmds_start=0, random_start=0)
+cm1 <- boxcox(dist=Do, Adj=Inb, X1 = X_init, random.start=0, d = 2)
+cm <- BOXCOX(D=Do, A=Inb, X1=X_init, cmds_start=0, random_start=0, d = 2)
 
 
 
 plot(cm1$X, pch=19, col=rainbow(N, start=0, end = .7))
 plot(cm$embedding, pch=19, col=rainbow(N, start=0, end = .7))
+plot(cm$best, pch=19, col=rainbow(N, start=0, end = .7))
 
 
 
