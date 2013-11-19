@@ -1,9 +1,11 @@
+#ifndef FAST_SCALE_H
+#define FAST_SCALE_H 
 #include <RcppArmadillo.h>
 
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 
-void fast_scale(arma::mat &X)
+inline void fast_scale(arma::mat &X)
 {
 	unsigned int n = X.n_rows;
 	unsigned int d = X.n_cols;
@@ -12,3 +14,4 @@ void fast_scale(arma::mat &X)
 	_mproxy.each_row() = arma::mean(X);
 	X = (X - _mproxy) / _sproxy;
 }
+#endif

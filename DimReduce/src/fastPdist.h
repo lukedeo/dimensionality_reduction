@@ -1,9 +1,12 @@
+#ifndef FASTPDIST_H
+#define FASTPDIST_H 
+
 #include <RcppArmadillo.h>
 
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 
-arma::mat fastPdist(arma::mat A, arma::mat B) 
+inline arma::mat fastPdist(arma::mat A, arma::mat B) 
 {
  
     arma::colvec An =  sum(square(A),1);
@@ -15,3 +18,4 @@ arma::mat fastPdist(arma::mat A, arma::mat B)
  
     return (sqrt(C)); 
 }
+#endif

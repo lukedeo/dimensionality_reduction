@@ -17,7 +17,7 @@ Do <- pdist(X, X)
 dist <- pdist(X, X)
 
 #Generate the Swiss-Roll
-N = 200
+N = 10
 r = seq(0, 1, length.out=N)
 t = (3*pi/2)*(1+2*r)
 x = t*cos(t) #+ rnorm(N, 0, .5) #add noise
@@ -30,18 +30,67 @@ X <- scale(X)
 Do <- pdist(X, X)
 Daux <- apply(Do,2,sort)[k+1,]
 Inb <- ifelse(Do>Daux, 0, 1)
-X_init <- X[, c(1, 2)]
+X_init <- X[, c(1, 3)]
 
-cm1 <- boxcox(dist=Do, Adj=Inb, X1 = X_init, random.start=0, d = 2)
+
+N = 300
+
+
+X <-  matrix(0, ncol = 3, nrow = N)
+s <- runif(N)
+t <- seq(0, 2, length.out=N)
+X[, 1] <- -cos(1.5 * pi * t)
+X[, 2] <- s
+X[t <= 1, 3] <- 2 * (-sin(1.5 * pi * t[t <= 1]))  #+ rnorm(N, 0, .3)[t <= 1]
+X[t > 1, 3] <- 2 * (2 + sin(1.5 * pi * t[t > 1]))# + rnorm(N, 0, .3)[t > 1]
+X <- scale(X)
+Do <- pdist(X, X)
+Daux <- apply(Do,2,sort)[k+1,]
+Inb <- ifelse(Do>Daux, 0, 1)
+X_init <- X[, c(1, 3)]
+
+linemb <- local_linear_embedding(X=X, k = 6, d = 2)
+plot(linemb$Y, pch=19, col=rainbow(N, start=0, end = .7))
+plot(decomp$v[,c(198, 199)], pch=19, col=rainbow(N, start=0, end = .7))
+
+
+cm1 <- boxcox(dist=Do, Adj=Inb, X1 = X_init, random.start=0, d = 2, niter=500)
+cm2 <- boxcox(dist=Do, Adj=Inb, X1 = cm1$X, random.start=0, d = 2, niter=500)
 cm <- BOXCOX(D=Do, A=Inb, X1=X_init, cmds_start=0, random_start=0, d = 2)
 
 
 
-plot(cm1$X, pch=19, col=rainbow(N, start=0, end = .7))
 plot(cm$embedding, pch=19, col=rainbow(N, start=0, end = .7))
 plot(cm$best, pch=19, col=rainbow(N, start=0, end = .7))
 
 
+plot(cm2$X, pch=19, col=rainbow(N, start=0, end = .7))
+
+
+cm_bfgs <- BOXCOX(D=Do, A=Inb, X1=X_init, cmds_start=1, random_start=0, d = 2, sample_rate=2, niter=30, bfgs=1, tau=1)
+
+cm_bfgs <- BOXCOX(D=Do, A=Inb, X1=X_init, cmds_start=1, random_start=0, d = 2, sample_rate=2, niter=40, bfgs=1, tau=1)
+
+cm_gd <- BOXCOX(D=Do, A=Inb, X1=cm_bfgs$embedding, cmds_start=0, random_start=0, d = 2, sample_rate=50, niter=300, bfgs=0, tau=1)
+
+cm_gd <- BOXCOX(D=Do, A=Inb, X1=X_init, cmds_start=1, random_start=0, d = 2, sample_rate=50, niter=1000, bfgs=0, tau=1)
+cm_gd_bt <- BOXCOX(D=Do, A=Inb, X1=X_init, cmds_start=1, random_start=0, d = 2, sample_rate=2, niter=1000, bfgs=0, tau=1, adaptive=0)
+
+
+plot(X_init, pch=19, col=rainbow(N, start=0, end = .7))
+
+plot(cm_gd$embedding, pch=19, col=rainbow(N, start=0, end = .7))
+plot(cm_gd$best, pch=19, col=rainbow(N, start=0, end = .7))
+
+plot(cm_gd_bt$embedding, pch=19, col=rainbow(N, start=0, end = .7))
+plot(cm_gd_bt$best, pch=19, col=rainbow(N, start=0, end = .7))
+
+plot(cm_bfgs$embedding, pch=19, col=rainbow(N, start=0, end = .7))
+plot(cm_bfgs$best, pch=19, col=rainbow(N, start=0, end = .7))
+
+
+
+cm_bfgs <- BOXCOX(D=Do, A=Inb, X1=cm_gd$embedding, cmds_start=0, random_start=0, d = 2, sample_rate=1, niter=30, bfgs=1, tau=1)
 
 
 
@@ -77,6 +126,12 @@ diffmap_local_t <- manifold(X, 2, sigma=0.3, t=5, method = "diffusion")
 diffmap_semiglobal_t <- manifold(X, 2, sigma=0.4, t=5, method = "diffusion")
 diffmap_global_t <- manifold(X, 2, sigma=0.9, t=5, method = "diffusion")
 
+diffmap_local_t <- DIFFMAP(X, 2, sigma = 0.3, t=2)
+plot(diffmap_local_t$Y, pch=19, col=rainbow(N, start=0, end = .7))
+
+diffmap_local_t <- diffusion_map(X, 2, t=2, sigma=0.3)
+plot(diffmap_local_t$Y, pch=19, col=rainbow(N, start=0, end = .7))
+
 plot(diffmap_local_t$Y, pch=19, col=rainbow(N, start=0, end = .7))
 plot(diffmap_semiglobal$Y, pch=19, col=rainbow(N, start=0, end = .7))
 plot(diffmap_global_t$Y, pch=19, col=rainbow(N, start=0, end = .7))
@@ -92,6 +147,13 @@ proj <- manifold(X, d=2, method="projection")
 plot(lle_local$Y, pch=19, col=rainbow(N, start=0, end = .7))
 plot(lle_semiglobal$Y, pch=19, col=rainbow(N, start=0, end = .7))
 plot(lle_global$Y, pch=19, col=rainbow(N, start=0, end = .7))
+
+
+laplacian4 <- manifold(X, 2, 4, method="laplacian", heat=2.0)
+plot(laplacian4$Y, pch=19, col=rainbow(N, start=0, end = .7))
+
+laplacian4 <- laplacian_eigenmap(X=X, 2, 4, heat=2.0)
+plot(laplacian4$Y[, c(30, 20)], pch=19, col=rainbow(N, start=0, end = .7))
 
 
 
