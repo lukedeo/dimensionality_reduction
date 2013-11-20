@@ -12,7 +12,7 @@
 // [[Rcpp::export]]
 
 
-SEXP BOXCOX(arma::mat D, arma::umat A, arma::mat X1,int cmds_start = 1,
+SEXP boxcox_mds(arma::mat D, arma::umat A, arma::mat X1,int cmds_start = 1,
             int random_start = 0, int d = 3, double lambda = 1, 
             double mu = 1, double nu = 0, double tau = 1, int niter = 1000, 
             int sample_rate = 100, bool bfgs = 0, bool adaptive = 1, bool scale_out = 1)
