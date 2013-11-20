@@ -1,12 +1,12 @@
 Package: DimReduce
 Type: Package
-Title: What the package does (short line)
+Title: DimReduce: Non-linear Dimensionality Reduction methods.
 Version: 1.0
 Date: 2013-11-04
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What Licence is it under ?
+Author: Luke de Oliveira, Lisha Chen
+Maintainer:<luke.deoliveira@yale.edu>
+Description: Non-linear Dimensionality reduction techniques that are applicable to data visualization, exploration, and mining. Includes standard spectral kernel methods and boxcox family stress functions for Multi-Dimensional scaling variants.
+License: GPL
 Depends: methods
 Depends: Rcpp (>= 0.10.3), RcppArmadillo (>= 0.2.0)
 LinkingTo: Rcpp, RcppArmadillo

@@ -187,7 +187,8 @@ LEIGENMAP <- function(X, d, k, heat = 2.0){
     graph <- matrix(0, n, n)
     for(i in 1:n){
         dist[i, i] <- Inf
-        for(j in 1:k){
+        for(j in 1:k)
+        {
             idx <- which.min(dist[i, ])
             graph[i, idx] <- 1.0
             graph[idx, i] <- graph[i, idx]
@@ -198,17 +199,20 @@ LEIGENMAP <- function(X, d, k, heat = 2.0){
         non_zero <- graph>0
         graph[non_zero] = graph[non_zero] * exp((-dist_copy[non_zero]) / heat)
     }
+
     weight <- diag(rowSums(graph))
     laplacian <- weight - graph
     
     eigs <- eigen(solve(weight) %*% laplacian)
+    # print(eigs$vectors)
     to_select <- c((n - d):(n-1))
     Y <- eigs$vectors[, to_select] 
-    list(Y = Y,
+    list(Y = eigs$vectors[, to_select],
          X = X,
          k = k,
          description = paste("Laplacian Eigenmap, k = ", k, ", heat = ", heat, sep = ""),
-         d = d) 
+         d = d, 
+         L =graph) 
 }
 
 DIFFMAP <- function(X, d, t = 1.0, sigma = -1.0){

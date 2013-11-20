@@ -3,11 +3,10 @@
 \alias{DimReduce}
 \docType{package}
 \title{
-What the package does (short line)
+Non-linear Dimensionality Reduction techniques.
 }
 \description{
-More about what it does (maybe more than one line)
-~~ A concise (1-5 lines) description of the package ~~
+Non-linear Dimensionality reduction techniques that are applicable to data visualization, exploration, and mining. Includes standard spectral kernel methods and boxcox family stress functions for Multi-Dimensional scaling variants.
 }
 \details{
 \tabular{ll}{
@@ -26,16 +25,18 @@ Who wrote it
 
 Maintainer: Who to complain to <yourfault@somewhere.net>
 }
-\references{
-~~ Literature or other references for background information ~~
-}
-~~ Optionally other standard keywords, one per line, from file KEYWORDS in ~~
-~~ the R documentation directory ~~
-\keyword{ package }
-\seealso{
-~~ Optional links to other man pages, e.g. ~~
-~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
-}
-\examples{
-%% ~~ simple examples of the most important functions ~~
-}
+% \references{
+% ~~ Literature or other references for background information ~~
+% }
+% ~~ Optionally other standard keywords, one per line, from file KEYWORDS in ~~
+% ~~ the R documentation directory ~~
+% \keyword{ package }
+% \seealso{
+% ~~ Optional links to other man pages, e.g. ~~
+% ~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
+% }
+% \examples{
+% %% ~~ simple examples of the most important functions ~~
+% }
+
+

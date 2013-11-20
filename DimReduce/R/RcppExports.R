@@ -9,8 +9,16 @@ cmds <- function(D, d) {
     .Call('DimReduce_cmds', PACKAGE = 'DimReduce', D, d)
 }
 
+diffusion_map <- function(X, d = 2L, t = 1.0, sigma = -1.0) {
+    .Call('DimReduce_diffusion_map', PACKAGE = 'DimReduce', X, d, t, sigma)
+}
+
 laplacian_eigenmap <- function(X, d, k, heat = 2.0) {
     .Call('DimReduce_laplacian_eigenmap', PACKAGE = 'DimReduce', X, d, k, heat)
+}
+
+local_linear_embedding <- function(X, k, d = 2L, verbose = FALSE) {
+    .Call('DimReduce_local_linear_embedding', PACKAGE = 'DimReduce', X, k, d, verbose)
 }
 
 rcpp_hello_world <- function() {

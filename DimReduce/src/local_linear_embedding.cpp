@@ -2,82 +2,8 @@
 #include "fastPdist.h"
 #include "neighbor_graph.h"
 
-
-
-
-
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
-
-
-SEXP laplacian_eigenmap(arma::mat X, int d, int k, double heat = 2.0)
-{
-	unsigned int n = X.n_rows;
-	arma::mat D = fastPdist(X, X);
-	arma::mat graph = neighbor_graph(D, k, true);
-	graph.diag().zeros();
-	if (heat != 0)
-	{
-		for (int i = 0; i < n; ++i)
-		{
-			for (int j = 0; j < i; ++j)
-			{
-				if (graph(i, j) > 0)
-				{
-					graph(i, j) = -exp((-D(i, j)) / heat);
-				}
-			}
-		}
-	}
-	arma::vec weight = (arma::sum(graph, 1));
-	arma::mat laplacian = graph;
-	laplacian.diag() = laplacian.diag() + weight;
-	for (int i = 0; i < n; ++i)
-	{
-		laplacian.row(i) = laplacian.row(i) / weight(i);
-	}
-
-	arma::cx_vec eigval;
-	arma::cx_mat eigvec;
-	arma::eig_gen(eigval, eigvec, laplacian);
-	// laplacian = arma::real(eigvec.cols((n - d - 1), n - 2));
-	laplacian = arma::real(eigvec);
-	return Rcpp::List::create(Rcpp::Named("Y") = laplacian);
-
-
-}
-
-
-
-
-
-// Standard Diffusion Map a la Coifman et al.
-
-SEXP diffusion_map(arma::mat X, unsigned int d = 2, double t = 1.0, double sigma = -1.0)
-{
-	unsigned int n = X.n_rows;
-	arma::mat D = fastPdist(X, X);
-	if (sigma == -1)
-	{
-		sigma = arma::max(arma::max(D, 1));
-	}
-
-	D = arma::exp(((-D % D) / (2 * (sigma * sigma))));
-	for (int i = 0; i < n; ++i)
-	{
-		D.row(i) = D.row(i) / arma::sum(D.row(i));
-	}
-	D = D * D;
-	arma::cx_vec eigval;
-	arma::cx_mat eigvec;
-	arma::eig_gen(eigval, eigvec, D);
-	D = arma::real(eigvec.cols(1, d));
-	return Rcpp::List::create(Rcpp::Named("Y") = D);
-}
-
-
-
-
 
 
 

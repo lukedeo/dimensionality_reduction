@@ -16,8 +16,11 @@ vars <- c("significance3d", "nVTX", "nTracksAtVtx", "nSingleTracks", "nTracks", 
 Do <- pdist(X, X)
 dist <- pdist(X, X)
 
+
+# Generate Datasets -------------------------------------------------------
 #Generate the Swiss-Roll
 N = 10
+N = 150
 r = seq(0, 1, length.out=N)
 t = (3*pi/2)*(1+2*r)
 x = t*cos(t) #+ rnorm(N, 0, .5) #add noise
@@ -33,8 +36,7 @@ Inb <- ifelse(Do>Daux, 0, 1)
 X_init <- X[, c(1, 3)]
 
 
-N = 300
-
+N = 500
 
 X <-  matrix(0, ncol = 3, nrow = N)
 s <- runif(N)
@@ -49,9 +51,15 @@ Daux <- apply(Do,2,sort)[k+1,]
 Inb <- ifelse(Do>Daux, 0, 1)
 X_init <- X[, c(1, 3)]
 
-linemb <- local_linear_embedding(X=X, k = 6, d = 2)
+
+# New LLE -----------------------------------------------------------------
+
+linemb <- local_linear_embedding(X=X, k = 11, d = 2)
 plot(linemb$Y, pch=19, col=rainbow(N, start=0, end = .7))
 plot(decomp$v[,c(198, 199)], pch=19, col=rainbow(N, start=0, end = .7))
+
+
+# Doing LMDS --------------------------------------------------------------
 
 
 cm1 <- boxcox(dist=Do, Adj=Inb, X1 = X_init, random.start=0, d = 2, niter=500)
@@ -71,7 +79,7 @@ cm_bfgs <- BOXCOX(D=Do, A=Inb, X1=X_init, cmds_start=1, random_start=0, d = 2, s
 
 cm_bfgs <- BOXCOX(D=Do, A=Inb, X1=X_init, cmds_start=1, random_start=0, d = 2, sample_rate=2, niter=40, bfgs=1, tau=1)
 
-cm_gd <- BOXCOX(D=Do, A=Inb, X1=cm_bfgs$embedding, cmds_start=0, random_start=0, d = 2, sample_rate=50, niter=300, bfgs=0, tau=1)
+cm_gd <- BOXCOX(D=Do, A=Inb, X1=cm_bfgs$embedding, cmds_start=0, random_start=0, d = 2, sample_rate=50, niter=700, bfgs=0, tau=1)
 
 cm_gd <- BOXCOX(D=Do, A=Inb, X1=X_init, cmds_start=1, random_start=0, d = 2, sample_rate=50, niter=1000, bfgs=0, tau=1)
 cm_gd_bt <- BOXCOX(D=Do, A=Inb, X1=X_init, cmds_start=1, random_start=0, d = 2, sample_rate=2, niter=1000, bfgs=0, tau=1, adaptive=0)
@@ -118,6 +126,11 @@ lle_local_quark <- manifold(X_p, d=2, k=10, method="normal")
 
 cmds <- list(X=X, Y=cmdscale(dists, 2), description="CMDS")
 
+
+
+# Diffusion Map -----------------------------------------------------------
+
+
 diffmap_local <- manifold(X, 2, sigma=0.3, t=2, method = "diffusion")
 diffmap_semiglobal <- manifold(X, 2, sigma=0.4, t=2, method = "diffusion")
 diffmap_global <- manifold(X, 2, sigma=0.9, t=2, method = "diffusion")
@@ -129,12 +142,16 @@ diffmap_global_t <- manifold(X, 2, sigma=0.9, t=5, method = "diffusion")
 diffmap_local_t <- DIFFMAP(X, 2, sigma = 0.3, t=2)
 plot(diffmap_local_t$Y, pch=19, col=rainbow(N, start=0, end = .7))
 
-diffmap_local_t <- diffusion_map(X, 2, t=2, sigma=0.3)
-plot(diffmap_local_t$Y, pch=19, col=rainbow(N, start=0, end = .7))
+diffmap_local <- diffusion_map(X, 2, t=2, sigma=0.3)
+plot(diffmap_local$Y, pch=19, col=rainbow(N, start=0, end = .7))
 
 plot(diffmap_local_t$Y, pch=19, col=rainbow(N, start=0, end = .7))
 plot(diffmap_semiglobal$Y, pch=19, col=rainbow(N, start=0, end = .7))
 plot(diffmap_global_t$Y, pch=19, col=rainbow(N, start=0, end = .7))
+
+
+# LLe ---------------------------------------------------------------------
+
 
 
 lle_local <- manifold(X, d=2, k=5, method="normal")
@@ -149,12 +166,24 @@ plot(lle_semiglobal$Y, pch=19, col=rainbow(N, start=0, end = .7))
 plot(lle_global$Y, pch=19, col=rainbow(N, start=0, end = .7))
 
 
-laplacian4 <- manifold(X, 2, 4, method="laplacian", heat=2.0)
+
+# Laplacian ---------------------------------------------------------------
+
+
+laplacian5 <- manifold(X, 2, 4, method="laplacian", heat=0)
+plot(laplacian5$Y, pch=19, col=rainbow(N, start=0, end = .7))
+
+laplacian4 <- laplacian_eigenmap(X=X, 2, 4, heat=400)
 plot(laplacian4$Y, pch=19, col=rainbow(N, start=0, end = .7))
 
-laplacian4 <- laplacian_eigenmap(X=X, 2, 4, heat=2.0)
-plot(laplacian4$Y[, c(30, 20)], pch=19, col=rainbow(N, start=0, end = .7))
+old <- laplacian4$Y
+new <- laplacian4$Y
+plot(double(dec$vectors[, 298:297]), pch=19, col=rainbow(N, start=0, end = .7))
 
+
+
+dec4 <- eigen(laplacian4$L)
+dec5 <- eigen(laplacian5$L)
 
 
 

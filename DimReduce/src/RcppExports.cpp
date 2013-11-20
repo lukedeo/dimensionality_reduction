@@ -41,6 +41,19 @@ BEGIN_RCPP
     return Rcpp::wrap(__result);
 END_RCPP
 }
+// diffusion_map
+SEXP diffusion_map(arma::mat X, unsigned int d = 2, double t = 1.0, double sigma = -1.0);
+RcppExport SEXP DimReduce_diffusion_map(SEXP XSEXP, SEXP dSEXP, SEXP tSEXP, SEXP sigmaSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope __rngScope;
+    arma::mat X = Rcpp::as<arma::mat >(XSEXP);
+    unsigned int d = Rcpp::as<unsigned int >(dSEXP);
+    double t = Rcpp::as<double >(tSEXP);
+    double sigma = Rcpp::as<double >(sigmaSEXP);
+    SEXP __result = diffusion_map(X, d, t, sigma);
+    return Rcpp::wrap(__result);
+END_RCPP
+}
 // laplacian_eigenmap
 SEXP laplacian_eigenmap(arma::mat X, int d, int k, double heat = 2.0);
 RcppExport SEXP DimReduce_laplacian_eigenmap(SEXP XSEXP, SEXP dSEXP, SEXP kSEXP, SEXP heatSEXP) {
@@ -51,6 +64,19 @@ BEGIN_RCPP
     int k = Rcpp::as<int >(kSEXP);
     double heat = Rcpp::as<double >(heatSEXP);
     SEXP __result = laplacian_eigenmap(X, d, k, heat);
+    return Rcpp::wrap(__result);
+END_RCPP
+}
+// local_linear_embedding
+SEXP local_linear_embedding(arma::mat X, int k, int d = 2, bool verbose = false);
+RcppExport SEXP DimReduce_local_linear_embedding(SEXP XSEXP, SEXP kSEXP, SEXP dSEXP, SEXP verboseSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope __rngScope;
+    arma::mat X = Rcpp::as<arma::mat >(XSEXP);
+    int k = Rcpp::as<int >(kSEXP);
+    int d = Rcpp::as<int >(dSEXP);
+    bool verbose = Rcpp::as<bool >(verboseSEXP);
+    SEXP __result = local_linear_embedding(X, k, d, verbose);
     return Rcpp::wrap(__result);
 END_RCPP
 }
