@@ -20,7 +20,7 @@ dist <- pdist(X, X)
 # Generate Datasets -------------------------------------------------------
 #Generate the Swiss-Roll
 N = 10
-N = 700
+N = 400
 r = seq(0, 1, length.out=N)
 t = (3*pi/2)*(1+2*r)
 x = t*cos(t) #+ rnorm(N, 0, .5) #add noise
@@ -36,7 +36,7 @@ Inb <- ifelse(Do>Daux, 0, 1)
 X_init <- X[, c(1, 3)]
 
 
-N = 500
+N = 1000
 
 X <-  matrix(0, ncol = 3, nrow = N)
 s <- runif(N)
@@ -54,15 +54,15 @@ X_init <- X[, c(1, 3)]
 
 # New LLE -----------------------------------------------------------------
 
-linemb <- local_linear_embedding(X=X, k = 7, d = 2)
+linemb <- local_linear_embedding(X=X, k = 7, d = 2, verbose = TRUE)
 plot(linemb$Y, pch=19, col=rainbow(N, start=0, end = .7))
 plot(decomp$v[,c(198, 199)], pch=19, col=rainbow(N, start=0, end = .7))
 
 
 # Isomap ------------------------------------------------------------------
 iso <- embedding(X=X, k = 6, d = 2, verbose=TRUE, method="isomap", mode = "classical", weighted = FALSE)
-iso <- isomap(X=X, k = 6, d = 2, verbose=TRUE, weighted=FALSE)
-plot(iso, pch=19, col=rainbow(N, start=0, end = .7))
+iso <- isomap(X=X, k = 10, d = 2, verbose=TRUE, weighted=TRUE)
+plot(iso$Y, pch=19, col=rainbow(N, start=0, end = .7))
 
 
 
@@ -110,9 +110,20 @@ plot(X_init, pch=19, col=rainbow(N, start=0, end = .7))
 
 
 cm_gd <- boxcox(D=Do, A=Inb, d=3, tau = .2, niter=120)
-plot(cm_gd$Y, pch=19, col=rainbow(N, start=0, end = .7), main = cm_gd$description)
+
+
+#adaptive lambda
+
+lmds <- boxcox(D=Do, A=Inb, d = 2, tau = 1, niter = 500, verbose = TRUE)
+
+
+
+plot(lmds$Y, pch=19, col=rainbow(N, start=0, end = .7), main = lmds$description)
+plot(lmds$best, pch=19, col=rainbow(N, start=0, end = .7), main = lmds$description)
+
+
 plot(cm_gd$best, pch=19, col=rainbow(N, start=0, end = .7))
-Y=iso$Y
+Y=lmds$Y
 plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19)
 
 plot(cm_gd_bt$embedding, pch=19, col=rainbow(N, start=0, end = .7))
