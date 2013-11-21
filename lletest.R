@@ -20,7 +20,7 @@ dist <- pdist(X, X)
 # Generate Datasets -------------------------------------------------------
 #Generate the Swiss-Roll
 N = 10
-N = 150
+N = 700
 r = seq(0, 1, length.out=N)
 t = (3*pi/2)*(1+2*r)
 x = t*cos(t) #+ rnorm(N, 0, .5) #add noise
@@ -54,7 +54,7 @@ X_init <- X[, c(1, 3)]
 
 # New LLE -----------------------------------------------------------------
 
-linemb <- local_linear_embedding(X=X, k = 11, d = 2)
+linemb <- local_linear_embedding(X=X, k = 7, d = 2)
 plot(linemb$Y, pch=19, col=rainbow(N, start=0, end = .7))
 plot(decomp$v[,c(198, 199)], pch=19, col=rainbow(N, start=0, end = .7))
 
@@ -87,8 +87,12 @@ cm_gd_bt <- BOXCOX(D=Do, A=Inb, X1=X_init, cmds_start=1, random_start=0, d = 2, 
 
 plot(X_init, pch=19, col=rainbow(N, start=0, end = .7))
 
-plot(cm_gd$embedding, pch=19, col=rainbow(N, start=0, end = .7))
+
+cm_gd <- boxcox(D=Do, A=Inb, d=2)
+plot(cm_gd$Y, pch=19, col=rainbow(N, start=0, end = .7), main = cm_gd$description)
 plot(cm_gd$best, pch=19, col=rainbow(N, start=0, end = .7))
+Y=cm_gd$Y
+plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19)
 
 plot(cm_gd_bt$embedding, pch=19, col=rainbow(N, start=0, end = .7))
 plot(cm_gd_bt$best, pch=19, col=rainbow(N, start=0, end = .7))
@@ -142,7 +146,7 @@ diffmap_global_t <- manifold(X, 2, sigma=0.9, t=5, method = "diffusion")
 diffmap_local_t <- DIFFMAP(X, 2, sigma = 0.3, t=2)
 plot(diffmap_local_t$Y, pch=19, col=rainbow(N, start=0, end = .7))
 
-diffmap_local <- diffusion_map(X, 2, t=2, sigma=0.3)
+diffmap_local <- diffusion_map(X, 2, t=2, sigma=0.8)
 plot(diffmap_local$Y, pch=19, col=rainbow(N, start=0, end = .7))
 
 plot(diffmap_local_t$Y, pch=19, col=rainbow(N, start=0, end = .7))

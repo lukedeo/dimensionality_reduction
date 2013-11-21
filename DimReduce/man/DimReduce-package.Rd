@@ -14,16 +14,15 @@ Package: \tab DimReduce\cr
 Type: \tab Package\cr
 Version: \tab 1.0\cr
 Date: \tab 2013-11-04\cr
-License: \tab What license is it under?\cr
-Depends: \tab methods\cr
+License: \tab GPL\cr
+Depends: \tab Rcpp (>= 0.10.3), RcppArmadillo (>= 0.2.0)\cr
 }
-~~ An overview of how to use the package, including the most important ~~
-~~ functions ~~
+This package provides an implementation of many spectral kernel methods, as well as Multidimensional Scaling via the Boxcox family of stress functions. Uses RcppArmadillo for efficient linear algebra.
 }
 \author{
-Who wrote it
+Luke de Oliveira
 
-Maintainer: Who to complain to <yourfault@somewhere.net>
+Maintainer: Luke de Oliveira <luke.deoliveira@yale.edu>
 }
 % \references{
 % ~~ Literature or other references for background information ~~
