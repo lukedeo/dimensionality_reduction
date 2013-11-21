@@ -59,6 +59,27 @@ plot(linemb$Y, pch=19, col=rainbow(N, start=0, end = .7))
 plot(decomp$v[,c(198, 199)], pch=19, col=rainbow(N, start=0, end = .7))
 
 
+# Isomap ------------------------------------------------------------------
+iso <- embedding(X=X, k = 6, d = 2, verbose=TRUE, method="isomap", mode = "classical", weighted = FALSE)
+iso <- isomap(X=X, k = 6, d = 2, verbose=TRUE, weighted=FALSE)
+plot(iso, pch=19, col=rainbow(N, start=0, end = .7))
+
+
+
+
+
+
+
+
+
+
+
+
+plot(princomp(iso$Y)$scores[, 1:2], pch=19, col=rainbow(N, start=0, end = .7), main =iso$description)
+plot(iso$Y, pch=19, col=rainbow(N, start=0, end = .7), main =iso$description)
+plot(A, pch=19, col=rainbow(N, start=0, end = .7), main =A$description)
+
+
 # Doing LMDS --------------------------------------------------------------
 
 
@@ -88,10 +109,10 @@ cm_gd_bt <- BOXCOX(D=Do, A=Inb, X1=X_init, cmds_start=1, random_start=0, d = 2, 
 plot(X_init, pch=19, col=rainbow(N, start=0, end = .7))
 
 
-cm_gd <- boxcox(D=Do, A=Inb, d=2)
+cm_gd <- boxcox(D=Do, A=Inb, d=3, tau = .2, niter=120)
 plot(cm_gd$Y, pch=19, col=rainbow(N, start=0, end = .7), main = cm_gd$description)
 plot(cm_gd$best, pch=19, col=rainbow(N, start=0, end = .7))
-Y=cm_gd$Y
+Y=iso$Y
 plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19)
 
 plot(cm_gd_bt$embedding, pch=19, col=rainbow(N, start=0, end = .7))
@@ -104,6 +125,7 @@ plot(cm_bfgs$best, pch=19, col=rainbow(N, start=0, end = .7))
 
 cm_bfgs <- BOXCOX(D=Do, A=Inb, X1=cm_gd$embedding, cmds_start=0, random_start=0, d = 2, sample_rate=1, niter=30, bfgs=1, tau=1)
 
+plot(emb$Y, pch=19, col=rainbow(N, start=0, end = .7), main = emb$description)
 
 
 plot3d(x, y, z, col = rainbow(N, start=0, end = .7), pch=19)
@@ -177,7 +199,7 @@ plot(lle_global$Y, pch=19, col=rainbow(N, start=0, end = .7))
 laplacian5 <- manifold(X, 2, 4, method="laplacian", heat=0)
 plot(laplacian5$Y, pch=19, col=rainbow(N, start=0, end = .7))
 
-laplacian4 <- laplacian_eigenmap(X=X, 2, 4, heat=400)
+laplacian4 <- laplacian_eigenmap(X=X, 2, 7, heat=.5)
 plot(laplacian4$Y, pch=19, col=rainbow(N, start=0, end = .7))
 
 old <- laplacian4$Y

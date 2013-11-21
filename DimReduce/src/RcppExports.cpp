@@ -7,8 +7,8 @@
 using namespace Rcpp;
 
 // INTERNAL_BOXCOX
-SEXP INTERNAL_BOXCOX(arma::mat D, arma::umat A, arma::mat X1, int cmds_start = 1, int random_start = 0, int d = 3, double lambda = 1, double mu = 1, double nu = 0, double tau = 1, int niter = 1000, int sample_rate = 100, bool bfgs = 0, bool adaptive = 1, bool scale_out = 1);
-RcppExport SEXP DimReduce_INTERNAL_BOXCOX(SEXP DSEXP, SEXP ASEXP, SEXP X1SEXP, SEXP cmds_startSEXP, SEXP random_startSEXP, SEXP dSEXP, SEXP lambdaSEXP, SEXP muSEXP, SEXP nuSEXP, SEXP tauSEXP, SEXP niterSEXP, SEXP sample_rateSEXP, SEXP bfgsSEXP, SEXP adaptiveSEXP, SEXP scale_outSEXP) {
+SEXP INTERNAL_BOXCOX(arma::mat D, arma::umat A, arma::mat X1, int cmds_start = 1, int random_start = 0, int d = 3, double lambda = 1, double mu = 1, double nu = 0, double tau = 1, int niter = 1000, int sample_rate = 100, bool bfgs = 0, bool adaptive = 1, bool scale_out = 1, bool verbose = false);
+RcppExport SEXP DimReduce_INTERNAL_BOXCOX(SEXP DSEXP, SEXP ASEXP, SEXP X1SEXP, SEXP cmds_startSEXP, SEXP random_startSEXP, SEXP dSEXP, SEXP lambdaSEXP, SEXP muSEXP, SEXP nuSEXP, SEXP tauSEXP, SEXP niterSEXP, SEXP sample_rateSEXP, SEXP bfgsSEXP, SEXP adaptiveSEXP, SEXP scale_outSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope __rngScope;
     arma::mat D = Rcpp::as<arma::mat >(DSEXP);
@@ -26,49 +26,65 @@ BEGIN_RCPP
     bool bfgs = Rcpp::as<bool >(bfgsSEXP);
     bool adaptive = Rcpp::as<bool >(adaptiveSEXP);
     bool scale_out = Rcpp::as<bool >(scale_outSEXP);
-    SEXP __result = INTERNAL_BOXCOX(D, A, X1, cmds_start, random_start, d, lambda, mu, nu, tau, niter, sample_rate, bfgs, adaptive, scale_out);
+    bool verbose = Rcpp::as<bool >(verboseSEXP);
+    SEXP __result = INTERNAL_BOXCOX(D, A, X1, cmds_start, random_start, d, lambda, mu, nu, tau, niter, sample_rate, bfgs, adaptive, scale_out, verbose);
     return Rcpp::wrap(__result);
 END_RCPP
 }
 // cmds
-SEXP cmds(arma::mat D, double d);
-RcppExport SEXP DimReduce_cmds(SEXP DSEXP, SEXP dSEXP) {
+SEXP cmds(arma::mat D, double d, bool scale = true, bool verbose = false);
+RcppExport SEXP DimReduce_cmds(SEXP DSEXP, SEXP dSEXP, SEXP scaleSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope __rngScope;
     arma::mat D = Rcpp::as<arma::mat >(DSEXP);
     double d = Rcpp::as<double >(dSEXP);
-    SEXP __result = cmds(D, d);
+    bool scale = Rcpp::as<bool >(scaleSEXP);
+    bool verbose = Rcpp::as<bool >(verboseSEXP);
+    SEXP __result = cmds(D, d, scale, verbose);
     return Rcpp::wrap(__result);
 END_RCPP
 }
 // diffusion_map
-SEXP diffusion_map(arma::mat X, unsigned int d = 2, double t = 1.0, double sigma = -1.0);
-RcppExport SEXP DimReduce_diffusion_map(SEXP XSEXP, SEXP dSEXP, SEXP tSEXP, SEXP sigmaSEXP) {
+SEXP diffusion_map(arma::mat X, unsigned int d = 2, double t = 1.0, double sigma = -1.0, bool verbose = false);
+RcppExport SEXP DimReduce_diffusion_map(SEXP XSEXP, SEXP dSEXP, SEXP tSEXP, SEXP sigmaSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope __rngScope;
     arma::mat X = Rcpp::as<arma::mat >(XSEXP);
     unsigned int d = Rcpp::as<unsigned int >(dSEXP);
     double t = Rcpp::as<double >(tSEXP);
     double sigma = Rcpp::as<double >(sigmaSEXP);
-    SEXP __result = diffusion_map(X, d, t, sigma);
+    bool verbose = Rcpp::as<bool >(verboseSEXP);
+    SEXP __result = diffusion_map(X, d, t, sigma, verbose);
+    return Rcpp::wrap(__result);
+END_RCPP
+}
+// fastPdist
+arma::mat fastPdist(arma::mat A, arma::mat B);
+RcppExport SEXP DimReduce_fastPdist(SEXP ASEXP, SEXP BSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope __rngScope;
+    arma::mat A = Rcpp::as<arma::mat >(ASEXP);
+    arma::mat B = Rcpp::as<arma::mat >(BSEXP);
+    arma::mat __result = fastPdist(A, B);
     return Rcpp::wrap(__result);
 END_RCPP
 }
 // laplacian_eigenmap
-SEXP laplacian_eigenmap(arma::mat X, int d, int k, double heat = 2.0);
-RcppExport SEXP DimReduce_laplacian_eigenmap(SEXP XSEXP, SEXP dSEXP, SEXP kSEXP, SEXP heatSEXP) {
+SEXP laplacian_eigenmap(arma::mat X, int d, int k, double heat = 2.0, bool verbose = false);
+RcppExport SEXP DimReduce_laplacian_eigenmap(SEXP XSEXP, SEXP dSEXP, SEXP kSEXP, SEXP heatSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope __rngScope;
     arma::mat X = Rcpp::as<arma::mat >(XSEXP);
     int d = Rcpp::as<int >(dSEXP);
     int k = Rcpp::as<int >(kSEXP);
     double heat = Rcpp::as<double >(heatSEXP);
-    SEXP __result = laplacian_eigenmap(X, d, k, heat);
+    bool verbose = Rcpp::as<bool >(verboseSEXP);
+    SEXP __result = laplacian_eigenmap(X, d, k, heat, verbose);
     return Rcpp::wrap(__result);
 END_RCPP
 }
 // local_linear_embedding
-SEXP local_linear_embedding(arma::mat X, int k, int d = 2, bool verbose = false);
+SEXP local_linear_embedding(arma::mat X, int k = 6, int d = 2, bool verbose = false);
 RcppExport SEXP DimReduce_local_linear_embedding(SEXP XSEXP, SEXP kSEXP, SEXP dSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope __rngScope;
@@ -80,12 +96,26 @@ BEGIN_RCPP
     return Rcpp::wrap(__result);
 END_RCPP
 }
-// rcpp_hello_world
-List rcpp_hello_world();
-RcppExport SEXP DimReduce_rcpp_hello_world() {
+// neighbor_graph
+arma::mat neighbor_graph(arma::mat D, int k, bool sym);
+RcppExport SEXP DimReduce_neighbor_graph(SEXP DSEXP, SEXP kSEXP, SEXP symSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope __rngScope;
-    List __result = rcpp_hello_world();
+    arma::mat D = Rcpp::as<arma::mat >(DSEXP);
+    int k = Rcpp::as<int >(kSEXP);
+    bool sym = Rcpp::as<bool >(symSEXP);
+    arma::mat __result = neighbor_graph(D, k, sym);
+    return Rcpp::wrap(__result);
+END_RCPP
+}
+// weighted_neighbor_graph
+arma::mat weighted_neighbor_graph(arma::mat D, int k = 4);
+RcppExport SEXP DimReduce_weighted_neighbor_graph(SEXP DSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope __rngScope;
+    arma::mat D = Rcpp::as<arma::mat >(DSEXP);
+    int k = Rcpp::as<int >(kSEXP);
+    arma::mat __result = weighted_neighbor_graph(D, k);
     return Rcpp::wrap(__result);
 END_RCPP
 }

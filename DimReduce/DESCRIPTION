@@ -4,10 +4,10 @@ Title: DimReduce: Non-linear Dimensionality Reduction methods.
 Version: 1.0
 Date: 2013-11-04
 Author: Luke de Oliveira, Lisha Chen
-Maintainer:<luke.deoliveira@yale.edu>
+Maintainer:Luke de Oliveira <luke.deoliveira@yale.edu>
 Description: Non-linear Dimensionality reduction techniques that are applicable to data visualization, exploration, and mining. Includes standard spectral kernel methods and boxcox family stress functions for Multi-Dimensional scaling variants.
 License: GPL
 Depends: methods
-Depends: Rcpp (>= 0.10.3), RcppArmadillo (>= 0.2.0)
-LinkingTo: Rcpp, RcppArmadillo
+Depends: Rcpp (>= 0.10.3), RcppArmadillo (>= 0.2.0), igraph
+LinkingTo: Rcpp, RcppArmadillo, igraph
  

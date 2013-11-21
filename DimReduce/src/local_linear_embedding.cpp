@@ -7,7 +7,7 @@
 
 
 
-SEXP local_linear_embedding(arma::mat X, int k, int d = 2, bool verbose = false)
+SEXP local_linear_embedding(arma::mat X, int k = 6, int d = 2, bool verbose = false)
 {
 	unsigned int n = X.n_rows;
 	unsigned int p = X.n_cols;
@@ -73,7 +73,12 @@ SEXP local_linear_embedding(arma::mat X, int k, int d = 2, bool verbose = false)
 	{
 		std::cout << "Done." << std::endl;
 	}
+	std::stringstream ss;
+	ss << "Locally Linear Embedding, k = " << k;
 
-    return Rcpp::List::create(Rcpp::Named("Y") = W);
+	std::string desc = ss.str();
+
+    return Rcpp::List::create(Rcpp::Named("Y") = W,
+					    	  Rcpp::Named("description") = desc);
 
 }

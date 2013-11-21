@@ -10,13 +10,18 @@
 // [[Rcpp::export]]
 
 
-SEXP laplacian_eigenmap(arma::mat X, int d, int k, double heat = 2.0)
+SEXP laplacian_eigenmap(arma::mat X, int d, int k, double heat = 2.0, bool verbose = false)
 {
 	unsigned int n = X.n_rows;
-	std::cout << "Constructing heat kernel...";
+	if (verbose)
+	{
+		std::cout << "Constructing heat kernel...";
+	}
 	arma::mat D = fastPdist(X, X);
 	arma::mat graph = neighbor_graph(D, k, true);
 	graph.diag().zeros();
+
+	heat *= heat * 2;
 	if (heat != 0)
 	{
 		for (int i = 0; i < n; ++i)
@@ -25,19 +30,22 @@ SEXP laplacian_eigenmap(arma::mat X, int d, int k, double heat = 2.0)
 			{
 				if (graph(i, j) > 0)
 				{
-					graph(i, j) = exp((-D(i, j)) / heat);
+					graph(i, j) = exp((-(D(i, j) * D(i, j))) / (heat));
 				}
 			}
 			for (int j = (i + 1); j < n; ++j)
 			{
 				if (graph(i, j) > 0)
 				{
-					graph(i, j) = exp((-D(i, j)) / heat);
+					graph(i, j) = exp((-(D(i, j) * D(i, j))) / (heat));
 				}
 			}
 		}
 	}
-	std::cout << "Done.\nConstructing laplacian...";
+	if (verbose)
+	{
+		std::cout << "Done.\nConstructing laplacian...";
+	}
 	arma::vec weight = (arma::sum(graph, 1));
 	arma::mat laplacian = -graph;
 	laplacian.diag() = laplacian.diag() + weight;
@@ -45,7 +53,10 @@ SEXP laplacian_eigenmap(arma::mat X, int d, int k, double heat = 2.0)
 	{
 		laplacian.row(i) = laplacian.row(i) / weight(i);
 	}
-	std::cout << "Done. \nCreating embedding...";
+	if (verbose)
+	{
+		std::cout << "Done. \nCreating embedding...";
+	}
 	
 	arma::cx_vec cx_eigval;
 	arma::cx_mat cx_eigvec;
@@ -59,8 +70,19 @@ SEXP laplacian_eigenmap(arma::mat X, int d, int k, double heat = 2.0)
 	sorted = sorted.subvec(1, d);
 
 	arma::mat Y = (eigvec.cols(sorted));
-	std::cout << "Done." << std::endl;
-	return Rcpp::List::create(Rcpp::Named("Y") = Y);
+	if (verbose)
+	{
+		std::cout << "Done." << std::endl;
+	}
+
+
+	std::stringstream ss;
+	ss << "Laplacian Eigenmap, heat = " << heat;
+
+	std::string desc = ss.str();
+
+	return Rcpp::List::create(Rcpp::Named("Y") = Y, 
+							  Rcpp::Named("description") = desc);
 
 
 }

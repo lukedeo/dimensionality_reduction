@@ -12,13 +12,16 @@
 // [[Rcpp::export]]
 
 
-SEXP INTERNAL_BOXCOX(arma::mat D, arma::umat A, arma::mat X1,int cmds_start = 1,
+SEXP INTERNAL_BOXCOX(arma::mat D, arma::umat A, arma::mat X1, int cmds_start = 1,
             int random_start = 0, int d = 3, double lambda = 1, 
             double mu = 1, double nu = 0, double tau = 1, int niter = 1000, 
-            int sample_rate = 100, bool bfgs = 0, bool adaptive = 1, bool scale_out = 1)
+            int sample_rate = 100, bool bfgs = 0, bool adaptive = 1, bool scale_out = 1, bool verbose = false)
 {
 
-
+    if (verbose)
+    {
+        std::cout << "Preparing distance variants...";
+    }
     unsigned int n = D.n_rows;
     std::vector<double> median_holder;
 
@@ -112,6 +115,10 @@ SEXP INTERNAL_BOXCOX(arma::mat D, arma::umat A, arma::mat X1,int cmds_start = 1,
         }
         repulsion(i, i) = 0.0;
     }
+    if (verbose)
+    {
+        std::cout << "Done."<< std::endl;
+    }
 
     arma::mat Gradient(n, d);
 
@@ -122,6 +129,10 @@ SEXP INTERNAL_BOXCOX(arma::mat D, arma::umat A, arma::mat X1,int cmds_start = 1,
 
     if (cmds_start && (random_start == 0))
     {
+        if (verbose)
+        {
+            std::cout << "Performing Classical MDS as an initial embedding...";
+        }
         //Do CDMS here 
         // (don't use a function because this reduces overhead and eval time)
         //----------------------------------------------------------------------------
@@ -152,6 +163,10 @@ SEXP INTERNAL_BOXCOX(arma::mat D, arma::umat A, arma::mat X1,int cmds_start = 1,
                 X1(j, i) += adj_norm *  Rcpp::as<double>(Rcpp::rnorm(1));
             }
         }
+        if (verbose)
+        {
+            std::cout << "Done." << std::endl;
+        }
     }
 
     arma::mat D1 = fastPdist(X1, X1);
@@ -168,7 +183,10 @@ SEXP INTERNAL_BOXCOX(arma::mat D, arma::umat A, arma::mat X1,int cmds_start = 1,
 
     if (bfgs)
     {
-        std::cout << "Using BFGS optimization." << std::endl;
+        if (verbose)
+        {
+            std::cout << "Using BFGS optimization." << std::endl;
+        }
         arma::vec s(n*d), y(n*d), search_direction(n*d), gradient_vector(n*d), gradient_vector_old(n*d);
         arma::mat B_inv(n*d, n*d);
         B_inv.eye();
@@ -243,20 +261,32 @@ SEXP INTERNAL_BOXCOX(arma::mat D, arma::umat A, arma::mat X1,int cmds_start = 1,
                     Mka_best = Mka;
                 }
 
-                std::cout << "Iteration Number: " << i + 1 << ", Stress: " << s1 << ", Mk_adj: " << Mka << std::endl;
+                if (verbose)
+                {
+                    std::cout << "Iteration Number: " << i + 1 << ", Stress: " << s1 << ", Mk_adj: " << Mka << std::endl;
+                }
             }
         }
     }
     else
     {
-        std::cout << "Using standard gradient descent optimization";
+        if (verbose)
+        {
+            std::cout << "Using standard gradient descent optimization";
+        }
         if (adaptive)
         {
-            std::cout << " with adaptive stepsize." << std::endl;
+            if (verbose)
+            {
+                std::cout << " with adaptive stepsize." << std::endl;
+            }
         }
         else
         {
-            std::cout << " with backbracking line search stepsize." << std::endl;
+            if (verbose)
+            {
+                std::cout << " with backbracking line search stepsize." << std::endl;
+            }
         }
         while ((stepsize > 1e-5) && (i < niter))
         {
@@ -338,7 +368,10 @@ SEXP INTERNAL_BOXCOX(arma::mat D, arma::umat A, arma::mat X1,int cmds_start = 1,
                     X_best = X1;
                     Mka_best = Mka;
                 }
-                std::cout << "Iteration Number: " << i + 1 << ", Stress: " << s1 << ", Mk_adj: " << Mka << std::endl;
+                if (verbose)
+                {
+                    std::cout << "Iteration Number: " << i + 1 << ", Stress: " << s1 << ", Mk_adj: " << Mka << std::endl;
+                }
             }
         }
     }

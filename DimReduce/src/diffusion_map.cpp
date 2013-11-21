@@ -6,8 +6,12 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 
-SEXP diffusion_map(arma::mat X, unsigned int d = 2, double t = 1.0, double sigma = -1.0)
+SEXP diffusion_map(arma::mat X, unsigned int d = 2, double t = 1.0, double sigma = -1.0, bool verbose = false)
 {
+	if (verbose)
+	{
+		std::cout << "Forming transition kernel...";
+	}
 	unsigned int n = X.n_rows;
 	arma::mat D = fastPdist(X, X);
 	if (sigma == -1)
@@ -21,6 +25,10 @@ SEXP diffusion_map(arma::mat X, unsigned int d = 2, double t = 1.0, double sigma
 		D.row(i) = D.row(i) / arma::sum(D.row(i));
 	}
 	D = D * D;
+	if (verbose)
+	{
+		std::cout << "Done.\nForming Embedding...";
+	}
 	arma::cx_vec cx_eigval;
 	arma::cx_mat cx_eigvec;
 	arma::eig_gen(cx_eigval, cx_eigvec, D);
@@ -32,5 +40,16 @@ SEXP diffusion_map(arma::mat X, unsigned int d = 2, double t = 1.0, double sigma
 	sorted = sorted.subvec(1, d);
 
 	D =(eigvec.cols(sorted));
-	return Rcpp::List::create(Rcpp::Named("Y") = D);
+
+	std::stringstream ss;
+	ss << "Diffusion Map, t = " << t << ", sigma = " << sigma;
+
+	std::string desc = ss.str();
+	if (verbose)
+	{
+		std::cout << "Done." << std::endl;
+	}
+ 
+	return Rcpp::List::create(Rcpp::Named("Y") = D,
+							  Rcpp::Named("description") = desc);
 }
