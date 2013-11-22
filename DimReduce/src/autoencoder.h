@@ -97,7 +97,7 @@ public:
 	~layer();
 private:
 	arma::mat W_gradient, delta_W, W;
-	arma::vec b_gradient, delta_b, b, output;
+	arma::vec b_gradient, delta_b, b, output, delta;
 	double learning, momentum, regularizer;
 	int ctr, batch;
 };
@@ -170,6 +170,9 @@ void layer::update_weights()
 	b = b - learning * delta_b;
 }
 void layer::set_delta(arma::vec v)
+{
+	delta = 
+}
 arma::vec get_delta()
 arma::mat W()
 layer::~layer()

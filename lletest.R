@@ -43,26 +43,34 @@ s <- runif(N)
 t <- seq(0, 2, length.out=N)
 X[, 1] <- -cos(1.5 * pi * t)
 X[, 2] <- s
-X[t <= 1, 3] <- 2 * (-sin(1.5 * pi * t[t <= 1]))  #+ rnorm(N, 0, .3)[t <= 1]
-X[t > 1, 3] <- 2 * (2 + sin(1.5 * pi * t[t > 1]))# + rnorm(N, 0, .3)[t > 1]
+X[t <= 1, 3] <- 2 * (-sin(1.5 * pi * t[t <= 1]))  + rnorm(N, 0, .3)[t <= 1]
+X[t > 1, 3] <- 2 * (2 + sin(1.5 * pi * t[t > 1])) + rnorm(N, 0, .3)[t > 1]
 X <- scale(X)
 Do <- pdist(X, X)
 Daux <- apply(Do,2,sort)[k+1,]
 Inb <- ifelse(Do>Daux, 0, 1)
 X_init <- X[, c(1, 3)]
 
+plot3d(X[, 1], X[, 2], X[, 3], col = rainbow(N, start=0, end = .7), pch=19)
+
 
 # New LLE -----------------------------------------------------------------
 
-linemb <- local_linear_embedding(X=X, k = 7, d = 2, verbose = TRUE)
-plot(linemb$Y, pch=19, col=rainbow(N, start=0, end = .7))
+linemb <- local_linear_embedding(X=X, k = 11, d = 2, verbose = TRUE)
+plot(linemb$Y, pch=19, col=rainbow(N, start=0, end = .7), main = linemb$description)
 plot(decomp$v[,c(198, 199)], pch=19, col=rainbow(N, start=0, end = .7))
 
 
 # Isomap ------------------------------------------------------------------
 iso <- embedding(X=X, k = 6, d = 2, verbose=TRUE, method="isomap", mode = "classical", weighted = FALSE)
 iso <- isomap(X=X, k = 10, d = 2, verbose=TRUE, weighted=TRUE)
-plot(iso$Y, pch=19, col=rainbow(N, start=0, end = .7))
+plot(iso$Y, pch=19, col=rainbow(N, start=0, end = .7), main = iso$description)
+
+
+
+
+iso <- embedding(X=X, k = 6, d = 2, method = "lle")
+plot(iso,  col=rainbow(N, start=0, end = .7))
 
 
 
@@ -114,7 +122,12 @@ cm_gd <- boxcox(D=Do, A=Inb, d=3, tau = .2, niter=120)
 
 #adaptive lambda
 
-lmds <- boxcox(D=Do, A=Inb, d = 2, tau = 1, niter = 500, verbose = TRUE)
+lmds_pre <- boxcox(D=Do, A=Inb, d = 2, tau = .7, niter = 20, bfgs = TRUE, verbose = TRUE, sample_rate=1)
+
+lmds <- boxcox(D=Do, A=Inb, X1=lmds_pre$Y, d = 2, tau = 1, sample = 20, niter = 600, cmds_start=FALSE, verbose = TRUE)
+
+lmds_cg <- boxcox(D=Do, A=Inb, d = 2, tau = .5, sample = 20, niter = 600, cmds_start=FALSE, verbose = TRUE)
+
 
 
 
