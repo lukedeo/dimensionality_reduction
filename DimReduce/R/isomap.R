@@ -32,6 +32,11 @@ isomap <- function(X, k = 6, d = 2, mode = "classical", verbose = FALSE, weighte
 		cat("Done.\nFinding geodesic distances...")
 	}
 	A <- shortest.paths(G, mode="all")
+	if(sum(!is.finite(A)) > 0)
+	{
+		A[!is.finite(A)] <- 1.1* max(A[is.finite(A)])
+	}
+	
 	# A <- shortest.paths(G, mode="all")
 
 	if(verbose)

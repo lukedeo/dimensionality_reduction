@@ -34,7 +34,7 @@ Do <- pdist(X, X)
 Daux <- apply(Do,2,sort)[k+1,]
 Inb <- ifelse(Do>Daux, 0, 1)
 X_init <- X[, c(1, 3)]
-
+ng.i.digits <- ng_image_array_gray('USPS Handwritten Digits',p.digits,16,16,invert = TRUE,img_in_row = FALSE)
 
 N = 1000
 
@@ -54,17 +54,61 @@ X_init <- X[, c(1, 3)]
 plot3d(X[, 1], X[, 2], X[, 3], col = rainbow(N, start=0, end = .7), pch=19)
 
 
+data(digits)
+
+
+
+digits <- t(digits)
+
+labels <- cbind(rep("0", 1100), rep("1", 1100), rep("2", 1100), rep("3", 1100)
+                , rep("4", 1100), rep("5", 1100), rep("6", 1100), rep("7", 1100)
+                , rep("8", 1100), rep("9", 1100))
+N <- 10
+samp <- sort(sample(x=1:nrow(digits), size=N, replace=F))
+X <- scale(digits[samp, ])
+labs <- labels[samp]
+Do <- fastPdist(X, X)
+Daux <- apply(Do,2,sort)[k+1,]
+Inb <- ifelse(Do>Daux, 0, 1)
+X_init <- X[, c(1, 3)]
+
+
+data(frey)
+
+frey <- t(frey)
+
+frey_scaled <- scale(frey)
+N <- 1400
+X <- frey_scaled[sort(sample(x=1:nrow(frey), size=N, replace=F)), ]
+Do <- fastPdist(X, X)
+Daux <- apply(Do,2,sort)[k+1,]
+Inb <- ifelse(Do>Daux, 0, 1)
+X_init <- X[, c(1, 3)]
+
+
+
+frey_lle <- local_linear_embedding(X, k = 17, d = 3, verbose = TRUE)
+plot(frey_lle$Y, pch=19, col=rainbow(N, start=0, end = .7), main = frey_lle$description)
+Y=frey_lle$Y
+plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19, main = frey_lle$description)
+
 # New LLE -----------------------------------------------------------------
 
-linemb <- local_linear_embedding(X=X, k = 11, d = 2, verbose = TRUE)
+linemb <- local_linear_embedding(X = X, k = 15, d = 2, verbose = TRUE)
 plot(linemb$Y, pch=19, col=rainbow(N, start=0, end = .7), main = linemb$description)
 plot(decomp$v[,c(198, 199)], pch=19, col=rainbow(N, start=0, end = .7))
 
 
 # Isomap ------------------------------------------------------------------
-iso <- embedding(X=X, k = 6, d = 2, verbose=TRUE, method="isomap", mode = "classical", weighted = FALSE)
-iso <- isomap(X=X, k = 10, d = 2, verbose=TRUE, weighted=TRUE)
-plot(iso$Y, pch=19, col=rainbow(N, start=0, end = .7), main = iso$description)
+iso <- embedding(X=X, k = 11, d = 2, verbose=TRUE, method="isomap", mode = "classical", weighted = FALSE)
+
+iso <- isomap(X=X, k = 7, d = 3, verbose=TRUE, weighted=TRUE)
+plot(iso$Y, col=rainbow(N, start=0, end = .7), main = iso$description, pch = labs)
+Y=iso$Y
+
+
+
+plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=labs, main = frey_lle$description)
 
 
 
@@ -122,22 +166,36 @@ cm_gd <- boxcox(D=Do, A=Inb, d=3, tau = .2, niter=120)
 
 #adaptive lambda
 
-lmds_pre <- boxcox(D=Do, A=Inb, d = 2, tau = .7, niter = 20, bfgs = TRUE, verbose = TRUE, sample_rate=1)
+lmds_pre <- boxcox(D=Do, A=Inb, d = 2, tau = .6, niter = 5, bfgs = TRUE, verbose = TRUE, sample_rate=1)
 
-lmds <- boxcox(D=Do, A=Inb, X1=lmds_pre$Y, d = 2, tau = 1, sample = 20, niter = 600, cmds_start=FALSE, verbose = TRUE)
+lmds <- boxcox(D=Do, A=Inb, d = 2, tau = 1, sample = 20000, niter = 1, cmds_start=TRUE, verbose = TRUE)
 
-lmds_cg <- boxcox(D=Do, A=Inb, d = 2, tau = .5, sample = 20, niter = 600, cmds_start=FALSE, verbose = TRUE)
+t1 <- boxcox(D=Do, A=Inb, d = 3, tau = 6, sample_rate = 10, niter = 300, cmds_start=T, verbose = TRUE)
+t1 <- boxcox(D=Do, A=Inb, d = 3, tau = 1, sample_rate = 10, niter = 300, X1=t1$best,cmds_start=F, verbose = TRUE)
+t1 <- boxcox(D=Do, A=Inb, d = 3, tau = .7, sample_rate = 10, niter = 300,X1=t1$Y,cmds_start=F, verbose = TRUE)
+t1 <- boxcox(D=Do, A=Inb, d = 3, tau = .3, lambda = 2,cmds_start=F, sample_rate= 10, niter = 300, X1=t1$Y, verbose = TRUE)
 
 
 
+
+
+
+f
+t.5 <- boxcox(D=Do, A=Inb, d = 3, tau = .5, sample = 10, niter = 300, cmds_start=T, verbose = TRUE)
+t.1 <- boxcox(D=Do, A=Inb, d = 3, tau = .1, sample = 10, niter = 300, cmds_start=T, verbose = TRUE)
+
+
+
+lmds = t1
+lmds = t.5
+lmds = t.1
 
 plot(lmds$Y, pch=19, col=rainbow(N, start=0, end = .7), main = lmds$description)
 plot(lmds$best, pch=19, col=rainbow(N, start=0, end = .7), main = lmds$description)
 
 
-plot(cm_gd$best, pch=19, col=rainbow(N, start=0, end = .7))
-Y=lmds$Y
-plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19)
+Y=lmds$best
+plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19, size = 5)
 
 plot(cm_gd_bt$embedding, pch=19, col=rainbow(N, start=0, end = .7))
 plot(cm_gd_bt$best, pch=19, col=rainbow(N, start=0, end = .7))
