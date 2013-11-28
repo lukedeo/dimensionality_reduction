@@ -7,6 +7,8 @@ pdist <- function(A,B) {
     tmp = tmp +  matrix(rep(bn, m), nrow=m, byrow=TRUE)
     sqrt( tmp - 2 * tcrossprod(A,B) )
 }
+
+#minimum norm solution to linear system
 solve_singular <- function(x, y) {
     # solves:  x %*% b = y
     d = svd(x)
