@@ -20,7 +20,7 @@ dist <- pdist(X, X)
 # Generate Datasets -------------------------------------------------------
 #Generate the Swiss-Roll
 N = 10
-N = 400
+N = 150
 r = seq(0, 1, length.out=N)
 t = (3*pi/2)*(1+2*r)
 x = t*cos(t) #+ rnorm(N, 0, .5) #add noise
@@ -56,6 +56,8 @@ plot3d(X[, 1], X[, 2], X[, 3], col = rainbow(N, start=0, end = .7), pch=19)
 
 data(digits)
 
+X <- swiss_roll(n=N)
+
 
 
 digits <- t(digits)
@@ -63,9 +65,9 @@ digits <- t(digits)
 labels <- cbind(rep("0", 1100), rep("1", 1100), rep("2", 1100), rep("3", 1100)
                 , rep("4", 1100), rep("5", 1100), rep("6", 1100), rep("7", 1100)
                 , rep("8", 1100), rep("9", 1100))
-N <- 10
+N <- 600
 samp <- sort(sample(x=1:nrow(digits), size=N, replace=F))
-X <- scale(digits[samp, ])
+X <- (digits[samp, ]) / max(digits[samp, ])
 labs <- labels[samp]
 Do <- fastPdist(X, X)
 Daux <- apply(Do,2,sort)[k+1,]
@@ -87,9 +89,9 @@ X_init <- X[, c(1, 3)]
 
 
 
-frey_lle <- local_linear_embedding(X, k = 17, d = 3, verbose = TRUE)
+frey_lle <- local_linear_embedding(X, k = 17, d = 2, verbose = TRUE)
 plot(frey_lle$Y, pch=19, col=rainbow(N, start=0, end = .7), main = frey_lle$description)
-Y=frey_lle$Y
+xY=frey_lle$Y
 plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19, main = frey_lle$description)
 
 # New LLE -----------------------------------------------------------------
@@ -168,7 +170,7 @@ cm_gd <- boxcox(D=Do, A=Inb, d=3, tau = .2, niter=120)
 
 lmds_pre <- boxcox(D=Do, A=Inb, d = 2, tau = .6, niter = 5, bfgs = TRUE, verbose = TRUE, sample_rate=1)
 
-lmds <- boxcox(D=Do, A=Inb, d = 2, tau = 1, sample = 20000, niter = 1, cmds_start=TRUE, verbose = TRUE)
+lmds <- boxcox(D=Do, A=Inb, d = 2, tau = 1, sample = 20, niter = 500, cmds_start=TRUE, verbose = TRUE)
 
 t1 <- boxcox(D=Do, A=Inb, d = 3, tau = 6, sample_rate = 10, niter = 300, cmds_start=T, verbose = TRUE)
 t1 <- boxcox(D=Do, A=Inb, d = 3, tau = 1, sample_rate = 10, niter = 300, X1=t1$best,cmds_start=F, verbose = TRUE)
