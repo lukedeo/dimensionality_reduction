@@ -17,11 +17,11 @@ theorems-std
 \language_package default
 \inputencoding auto
 \fontencoding global
-\font_roman palatino
+\font_roman Adobe Caslon Pro
 \font_sans default
 \font_typewriter default
-\font_default_family rmdefault
-\use_non_tex_fonts false
+\font_default_family default
+\use_non_tex_fonts true
 \font_sc false
 \font_osf false
 \font_sf_scale 100
@@ -458,14 +458,7 @@ Local Multidimensional Scaling using the boxcox family of stress functions
 For each method, we benchmark qualitative performance using three datasets.
  First, we use the standard Swiss Roll and S-Curve data sets.
  In addition to these artificial manifolds, we also use the Frey Faces data
- set from 
-\begin_inset CommandInset citation
-LatexCommand cite
-key "CITE_NEEDED"
-
-\end_inset
-
-.
+ set from CITATION.
  In the Frey Faces dataset, embeddings that show similar colors along a
  rainbow spectrum indicate that images are similar to each other -- i.e.,
  they may represent a slight rotation of the head.
@@ -2578,6 +2571,13 @@ Description
 
 \begin_layout Subsubsection
 Global Stress Functions
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Global-Stress-Functions"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -2656,7 +2656,7 @@ Stress Function
  for the metric multidimensional scaling case can be written as
 \begin_inset Formula 
 \begin{equation}
-S\left(\{y_{i}\}_{i=1}^{N}\vert\Delta\right)=\sum_{i=1}^{n}\sum_{j=1}^{n}\Vert y_{i}-y_{j}\Vert{}^{2}-2\Vert y_{i}-y_{j}\Vert\Delta_{ij}.\label{eq:mmds stress}
+S\left(\{y_{i}\}_{i=1}^{N}\vert\Delta\right)=\sum_{i=1}^{n}\sum_{j=1}^{n}\Vert y_{i}-y_{j}\Vert{}^{2}-2\Vert y_{i}-y_{j}\Vert\Delta_{ij}.\label{eq:mmds_stress}
 \end{equation}
 
 \end_inset
@@ -2743,7 +2743,7 @@ attractive
  We can now write the more general (still global) stress function as 
 \begin_inset Formula 
 \begin{equation}
-S\left(\{y_{i}\}_{i=1}^{N}\vert\Delta\right)=\sum_{i=1}^{N}\sum_{j=1}^{N}\Delta_{ij}^{\nu}\left(\beta_{\mu+\lambda}\left(\rho(y_{i},y_{j})\right)-\Delta_{ij}^{\lambda}\beta_{\mu}\left(\rho(y_{i},y_{j})\right)\right).\label{eq:mmds boxcox}
+S\left(\{y_{i}\}_{i=1}^{N}\vert\Delta\right)=\sum_{i=1}^{N}\sum_{j=1}^{N}\Delta_{ij}^{\nu}\left(\underbrace{\beta_{\mu+\lambda}\left(\rho(y_{i},y_{j})\right)}_{\text{attractive force}}\overbrace{-\Delta_{ij}^{\lambda}\beta_{\mu}\left(\rho(y_{i},y_{j})\right)}^{\text{repulsive force}}\right).\label{eq:mmds_boxcox}
 \end{equation}
 
 \end_inset
@@ -2763,14 +2763,164 @@ Notice how for the case where
 , 
 \begin_inset CommandInset ref
 LatexCommand formatted
-reference "eq:mmds boxcox"
+reference "eq:mmds_boxcox"
 
 \end_inset
 
  reduces to 
 \begin_inset CommandInset ref
 LatexCommand formatted
-reference "eq:mmds stress"
+reference "eq:mmds_stress"
+
+\end_inset
+
+.
+ Notice that through the parameter 
+\begin_inset Formula $\nu$
+\end_inset
+
+, we can control -- to an extent -- where the stress function will focus
+ its reconstruction.
+ For example, a large positive value of 
+\begin_inset Formula $\nu$
+\end_inset
+
+ will make any optimization keep far points far, while a value of 
+\begin_inset Formula $\nu$
+\end_inset
+
+ less than zero will mean that any optimization procedure will emphasize
+ the preservation of local distances.
+ We can do better than this implicit neighborhood consideration -- we can
+ explicitly define neighborhoods on a dataset.
+\end_layout
+
+\begin_layout Subsubsection
+Local Stress Functions
+\end_layout
+
+\begin_layout Standard
+Consider a matrix 
+\begin_inset Formula $\Delta$
+\end_inset
+
+ that is partially filled.
+ That is, an entry 
+\begin_inset Formula $\Delta_{ij}$
+\end_inset
+
+ exists if and only if points 
+\begin_inset Formula $i$
+\end_inset
+
+ and 
+\begin_inset Formula $j$
+\end_inset
+
+ are considered to be neighbors.
+ This implicitly defines a graph on our dataset.
+ Let 
+\begin_inset Formula $G=(V,E)$
+\end_inset
+
+, where 
+\begin_inset Formula $V=\{1,\ldots,N\}$
+\end_inset
+
+, edges 
+\begin_inset Formula $(i,j)\in E$
+\end_inset
+
+ if and only if 
+\begin_inset Formula $\Delta_{ij}$
+\end_inset
+
+ exists.
+ If 
+\begin_inset Formula $(i,j)\notin E$
+\end_inset
+
+, then we assign that pair an arbitrarily sized, large dissimilarity --
+ call it 
+\begin_inset Formula $\Delta_{\infty}.$
+\end_inset
+
+ We now have the sum of two sets of terms -- terms for which 
+\begin_inset Formula $(i,j)\in E$
+\end_inset
+
+, and terms for which 
+\begin_inset Formula $(i,j)\notin E$
+\end_inset
+
+.
+ Formally, we have that 
+\begin_inset Formula 
+\begin{eqnarray}
+S\left(\{y_{i}\}_{i=1}^{N}\vert\Delta\right) & = & \sum_{(i.j)\in E}\Delta_{ij}^{\nu}\left(\beta_{\mu+\lambda}\left(\rho(y_{i},y_{j})\right)-\Delta_{ij}^{\lambda}\beta_{\mu}\left(\rho(y_{i},y_{j})\right)\right)\label{eq:localizedstress}\\
+ & + & \varphi\sum_{(i.j)\notin E}\Delta_{\infty}^{\nu}\left(\beta_{\mu+\lambda}\left(\rho(y_{i},y_{j})\right)-\Delta_{\infty}^{\lambda}\beta_{\mu}\left(\rho(y_{i},y_{j})\right)\right),\nonumber 
+\end{eqnarray}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where we choose 
+\begin_inset Formula $\varphi$
+\end_inset
+
+ such that 
+\begin_inset Formula $\varphi\Delta_{\infty}^{\nu+\lambda}=t^{\nu+\lambda}$
+\end_inset
+
+ for some 
+\begin_inset Formula $t\in\R$
+\end_inset
+
+.
+ As per CITATION, as we let 
+\begin_inset Formula $\Delta_{\infty}\longrightarrow\infty$
+\end_inset
+
+, we have that 
+\begin_inset CommandInset ref
+LatexCommand formatted
+reference "eq:localizedstress"
+
+\end_inset
+
+ reduces to 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+S\left(\{y_{i}\}_{i=1}^{N}\vert\Delta\right)=\underbrace{\sum_{(i.j)\in E}\Delta_{ij}^{\nu}\left(\underbrace{\beta_{\mu+\lambda}\left(\rho(y_{i},y_{j})\right)}_{\text{attractive force}}\overbrace{-\Delta_{ij}^{\lambda}\beta_{\mu}\left(\rho(y_{i},y_{j})\right)}^{\text{repulsive force}}\right)}_{\text{contrubution from implicit neighborhoods}}+\underbrace{t^{\nu+\lambda}\sum_{(i.j)\notin E}\beta_{\mu}\left(\rho(y_{i},y_{j})\right)}_{\text{contribution from non-neighbors}}.\label{eq:final_boxcox}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Notice that in the case where 
+\begin_inset Formula $E=V\times V$
+\end_inset
+
+, 
+\begin_inset CommandInset ref
+LatexCommand formatted
+reference "eq:final_boxcox"
+
+\end_inset
+
+ reduces to 
+\begin_inset CommandInset ref
+LatexCommand formatted
+reference "eq:mmds_boxcox"
 
 \end_inset
 
