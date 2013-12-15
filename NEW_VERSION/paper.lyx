@@ -17,11 +17,11 @@ theorems-std
 \language_package default
 \inputencoding auto
 \fontencoding global
-\font_roman Adobe Caslon Pro
+\font_roman palatino
 \font_sans default
 \font_typewriter default
-\font_default_family default
-\use_non_tex_fonts true
+\font_default_family rmdefault
+\use_non_tex_fonts false
 \font_sc false
 \font_osf false
 \font_sf_scale 100
@@ -265,6 +265,31 @@ times N}$
 
  chooses the rows corresponding to some vector of indices 
 \begin_inset Formula $v$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+In terms of notation, for two matricies 
+\begin_inset Formula $A$
+\end_inset
+
+ and 
+\begin_inset Formula $B$
+\end_inset
+
+, 
+\begin_inset Formula $A\odot B$
+\end_inset
+
+ represents the Hadamard Product.
+ For a matrix 
+\begin_inset Formula $A$
+\end_inset
+
+, 
+\begin_inset Formula $\mathsf{sum}(A)=\sum_{i}\sum_{j}[A]_{ij}$
 \end_inset
 
 .
@@ -2567,6 +2592,13 @@ Multidimensional Scaling with Boxcox Stress Functions
 
 \begin_layout Subsection
 Description
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:LMDSDescription"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsubsection
@@ -2928,18 +2960,297 @@ reference "eq:mmds_boxcox"
 \end_layout
 
 \begin_layout Standard
-Local Multidimensional Scaling is a member of a larger family of CMDS variants.
- Called the boxcox family, these methods have different parameters that
- 
-\begin_inset Formula $ $
-\end_inset
+TALK ABOUT INVARIANT AND GRADIENT
+\end_layout
 
-allow for different considerations of clustering, local influence, and global
- influence.
+\begin_layout Subsection
+Implementation
 \end_layout
 
 \begin_layout Standard
-INCLUDE ROUGH ALG HERE.
+Here, we provide an overview of the algorithm for finding an embedding within
+ the framework laid out in 
+\begin_inset CommandInset ref
+LatexCommand formatted
+reference "sub:LMDSDescription"
+
+\end_inset
+
+.
+ In this, we provide a matrix-efficient formulation of the problem.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+Input: A distance/dissimilarity matrix 
+\begin_inset Formula $ $
+\end_inset
+
+
+\begin_inset Formula $\Delta\in\R^{N\times N}$
+\end_inset
+
+, an adjacency matrix 
+\begin_inset Formula $A\in\{0,1\}^{N\times N}$
+\end_inset
+
+, and an embedding dimension 
+\begin_inset Formula $d$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Plain Layout
+Output: an embedding 
+\begin_inset Formula $Y\in\R^{N\times d}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+Form (In one loop): This can be done in 
+\begin_inset Formula $O\left(\frac{n^{2}-1}{2}\right)$
+\end_inset
+
+ time.
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+\begin_inset Formula $\Delta^{\nu}$
+\end_inset
+
+, 
+\begin_inset Formula $\Delta^{\nu+\frac{1}{\lambda}}$
+\end_inset
+
+, 
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $A_{sym}$
+\end_inset
+
+ where 
+\begin_inset Formula $\left(A_{sym}\right)_{ij}=\begin{cases}
+1 & \mbox{if }\left(A^{T}A\right)_{ij}>0\\
+0 & \mbox{otherwise}
+\end{cases}$
+\end_inset
+
+ .
+ Let 
+\begin_inset Formula $G=(V,E)$
+\end_inset
+
+ be associated with this adjacency matrix.
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $\overline{A}$
+\end_inset
+
+, where 
+\begin_inset Formula $\left(\overline{A}\right)_{ij}=1-(A_{sym})_{ij}$
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Let 
+\begin_inset Formula $t=\frac{\tau\times\mbox{median}\left(\Delta^{\nu+\frac{1}{\lambda}}\right)\left(|V|-N\right)}{N^{2}}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Let 
+\begin_inset Formula $\Omega\in\R^{N\times N}$
+\end_inset
+
+ be such that 
+\begin_inset Formula $\Omega=tA_{sym}$
+\end_inset
+
+.
+ This can be done in 
+\begin_inset Formula $O\left(\frac{n^{2}-1}{2}\right)$
+\end_inset
+
+ time.
+ This will be a repulsion matrix.
+\end_layout
+
+\begin_layout Enumerate
+Let 
+\begin_inset Formula $X_{0}$
+\end_inset
+
+ be the initial embedding, and let 
+\begin_inset Formula $D_{0}$
+\end_inset
+
+ be the matrix of pairwise Euclidean distances, 
+\begin_inset Formula $ $
+\end_inset
+
+
+\begin_inset Formula $k=0$
+\end_inset
+
+, 
+\begin_inset Formula $s_{k}=10^{6}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Until convergence:
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Form 
+\begin_inset Formula $D_{k}^{\mu-2}$
+\end_inset
+
+, with 
+\begin_inset Formula $\mathsf{diag}\left(D_{k}^{\mu-2}\right)=0$
+\end_inset
+
+.
+ Form 
+\begin_inset Formula $D_{k}^{\mu+\frac{1}{\lambda}-2}$
+\end_inset
+
+, with 
+\begin_inset Formula $\mathsf{diag}\left(D_{k}^{\mu+\frac{1}{\lambda}-2}\right)=0$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $M=\Delta^{\nu}\odot D_{k}^{\mu+\frac{1}{\lambda}-2}-D_{k}^{\mu-2}\odot\left(\Delta^{\nu+\frac{1}{\lambda}}+\Omega\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $\nabla S_{k}[:,i]=\textsf{rowsum}\left(M\right)$
+\end_inset
+
+ for each column 
+\begin_inset Formula $i$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $\nabla S_{k}=X_{k}\odot\nabla S_{k}-MX_{k}$
+\end_inset
+
+, 
+\begin_inset Formula $\nabla S_{k}=\frac{\Vert X_{k}\Vert_{2}}{\Vert\nabla S_{k}\Vert_{2}}\nabla S_{k}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $X_{k+1}=\mathsf{update}\left(X_{k},\nabla S_{k}\right)$
+\end_inset
+
+, let 
+\begin_inset Formula $D_{k+1}$
+\end_inset
+
+ be the the pairwise distances of 
+\begin_inset Formula $X_{k+1}$
+\end_inset
+
+, with 
+\begin_inset Formula $\mathsf{diag}(D_{k+1})=1$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Form 
+\begin_inset Formula $D_{k+1}^{\mu}$
+\end_inset
+
+, with 
+\begin_inset Formula $\mathsf{diag}\left(D_{k+1}^{\mu}\right)=0$
+\end_inset
+
+, 
+\begin_inset Formula $D_{k+1}^{\mu}=D_{k+1}^{\mu}-1$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Form 
+\begin_inset Formula $D_{k+1}^{\mu+\frac{1}{\lambda}}$
+\end_inset
+
+, with 
+\begin_inset Formula $\mathsf{diag}\left(D_{k+1}^{\mu+\frac{1}{\lambda}}\right)=0$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $s_{k+1}=\begin{cases}
+\frac{1}{\mu}\mathsf{sum}\left(\Delta^{\nu}\odot\log\left(D_{k+1}\right)\right)-\frac{1}{\mu}\mathsf{sum}\left(D_{k+1}^{\mu}\odot\Delta^{\nu+\frac{1}{\lambda}}\right)-\frac{t}{\mu}\mathsf{sum}\left(D_{k+1}^{\mu}\odot\overline{A}\right) & \mbox{if }\mu+\frac{1}{\lambda}=0\\
+\frac{1}{\mu+1/\lambda}\mathsf{sum}\left(\Delta^{\nu}\odot\left(D_{k+1}^{\mu+\frac{1}{\lambda}}-1\right)\right)-\mathsf{sum}\left(\log\left(D_{k+1}\right)\odot\Delta^{\nu+\frac{1}{\lambda}}\right)-t\mathsf{sum}\left(\log\left(D_{k+1}\right)\odot\overline{A}\right) & \mbox{if }\mu=0\\
+\frac{1}{\mu+1/\lambda}\mathsf{sum}\left(\Delta^{\nu}\odot\left(D_{k+1}^{\mu+\frac{1}{\lambda}}-1\right)\right)-\frac{1}{\mu}\mathsf{sum}\left(D_{k+1}^{\mu}\odot\Delta^{\nu+\frac{1}{\lambda}}\right)-\frac{t}{\mu}\mathsf{sum}\left(D_{k+1}^{\mu}\odot\overline{A}\right) & \mbox{otherwise}
+\end{cases}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $k=k+1$
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Boxcox Embedding
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
