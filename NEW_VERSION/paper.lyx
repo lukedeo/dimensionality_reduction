@@ -702,7 +702,14 @@ Imagine a scenario in which we find such an
 \end_layout
 
 \begin_layout Section
-Classical Multidimensional Scaling
+Metric 
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Metric-Multidimensional-Scaling"
+
+\end_inset
+
+Multidimensional Scaling
 \end_layout
 
 \begin_layout Subsection
@@ -1857,7 +1864,7 @@ geodesic
  pair, with
 \begin_inset Formula 
 \[
-\textsf{dist}_{G}(x_{i},x_{j})=\min_{\text{paths }P\text{ starting at \ensuremath{x_{i}} ending at \ensuremath{x_{j}}}}\sum_{e\in P}\delta(e).
+\textsf{dist}_{G}(x_{i},x_{j})=\min_{\text{paths }P\text{ starting at \ensuremath{x_{i}}ending at \ensuremath{x_{j}}}}\sum_{e\in P}\delta(e).
 \]
 
 \end_inset
@@ -2562,14 +2569,112 @@ Experiments
 \end_layout
 
 \begin_layout Section
-Local Multidimensional Scaling
+Multidimensional Scaling with Boxcox Stress Functions
+\end_layout
+
+\begin_layout Subsection
+Description
+\end_layout
+
+\begin_layout Standard
+We can look at the optimization problem outlined in 
+\begin_inset CommandInset ref
+LatexCommand formatted
+reference "sec:Metric-Multidimensional-Scaling"
+
+\end_inset
+
+ as fitting within a larger family of objective functions for determining
+ a lower dimensional embedding of a dataset.
+ We can consider the optimization problem once more, and write the objective
+ function in terms of 
+\begin_inset Quotes eld
+\end_inset
+
+attractive
+\begin_inset Quotes erd
+\end_inset
+
+ and 
+\begin_inset Quotes eld
+\end_inset
+
+repulsive
+\begin_inset Quotes erd
+\end_inset
+
+ forces.
+ Borrowing this notion from graph theory, we can think of an embedding in
+ a very physical sense, essentially trying to find the energy equilibrium
+ of a system of objects -- in this case, high dimensional datapoints.
+ In the metric multidimensional scaling case, we have that our embedding
+ can be written as a
+\begin_inset Formula 
+\begin{eqnarray*}
+\{y_{i}\}_{i=1}^{N} & = & \underset{\{a_{i}\}_{i=1}^{N}\subset\R^{d}}{\text{arg min}}\sum_{i=1}^{n}\sum_{j=1}^{n}(\Delta_{ij}-\Vert a_{i}-a_{j}\Vert)^{2}\mbox{, but by expanding, we have}\\
+ & = & \underset{\{a_{i}\}_{i=1}^{N}\subset\R^{d}}{\text{arg min}}\sum_{i=1}^{n}\sum_{j=1}^{n}\left(\underbrace{\Vert a_{i}-a_{j}\Vert{}^{2}}_{\text{min at }a_{i}=a_{j}}\overbrace{-2\Vert a_{i}-a_{j}\Vert\Delta_{ij}}^{\text{min at }\Vert a_{i}-a_{j}\Vert=\infty}\right)+\mbox{constant}.
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+As we can see, the 
+\begin_inset Formula $\Vert a_{i}-a_{j}\Vert{}^{2}$
+\end_inset
+
+ term acts as an attractive force, since a minimal solution for just this
+ term will want all pairs 
+\begin_inset Formula $a_{i}$
+\end_inset
+
+ and 
+\begin_inset Formula $a_{j}$
+\end_inset
+
+ to be identical.
+ Conversely, we can see that the 
+\begin_inset Formula $-2\Vert a_{i}-a_{j}\Vert\Delta_{ij}$
+\end_inset
+
+ term has the opposite effect -- a minimial solution considering only this
+ term will push points as far apart as possible.
+ We call such an energy function a 
+\emph on
+Stress Function
+\emph default
+, and the form of such a stress function 
+\begin_inset Formula $S(\{y_{i}\}_{i=1}^{N}\vert\Delta)$
+\end_inset
+
+ for the metric multidimensional scaling case can be written as
+\begin_inset Formula 
+\[
+S\left(\{y_{i}\}_{i=1}^{N}\vert\Delta\right)=\sum_{i=1}^{n}\sum_{j=1}^{n}\Vert y_{i}-y_{j}\Vert{}^{2}-2\Vert y_{i}-y_{j}\Vert\Delta_{ij}.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In the direction of CHEN AND BUJA, we can consider Power Law transformations
+ of the embedding distances, as is also done in Graph Drawing CITATION.
+ We use the so-called Boxcox transformation of the input distance.
 \end_layout
 
 \begin_layout Standard
 Local Multidimensional Scaling is a member of a larger family of CMDS variants.
  Called the boxcox family, these methods have different parameters that
- allow for different considerations of clustering, local influence, and
- global influence.
+ 
+\begin_inset Formula $ $
+\end_inset
+
+allow for different considerations of clustering, local influence, and global
+ influence.
 \end_layout
 
 \begin_layout Standard
