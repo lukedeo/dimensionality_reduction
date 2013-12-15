@@ -2576,6 +2576,10 @@ Multidimensional Scaling with Boxcox Stress Functions
 Description
 \end_layout
 
+\begin_layout Subsubsection
+Global Stress Functions
+\end_layout
+
 \begin_layout Standard
 We can look at the optimization problem outlined in 
 \begin_inset CommandInset ref
@@ -2651,9 +2655,9 @@ Stress Function
 
  for the metric multidimensional scaling case can be written as
 \begin_inset Formula 
-\[
-S\left(\{y_{i}\}_{i=1}^{N}\vert\Delta\right)=\sum_{i=1}^{n}\sum_{j=1}^{n}\Vert y_{i}-y_{j}\Vert{}^{2}-2\Vert y_{i}-y_{j}\Vert\Delta_{ij}.
-\]
+\begin{equation}
+S\left(\{y_{i}\}_{i=1}^{N}\vert\Delta\right)=\sum_{i=1}^{n}\sum_{j=1}^{n}\Vert y_{i}-y_{j}\Vert{}^{2}-2\Vert y_{i}-y_{j}\Vert\Delta_{ij}.\label{eq:mmds stress}
+\end{equation}
 
 \end_inset
 
@@ -2663,7 +2667,114 @@ S\left(\{y_{i}\}_{i=1}^{N}\vert\Delta\right)=\sum_{i=1}^{n}\sum_{j=1}^{n}\Vert y
 \begin_layout Standard
 In the direction of CHEN AND BUJA, we can consider Power Law transformations
  of the embedding distances, as is also done in Graph Drawing CITATION.
- We use the so-called Boxcox transformation of the input distance.
+ We use the so-called Boxcox transformation of the embedding dissimilarities
+ distance.
+ The Boxcox transformations can be writted as follows.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\beta_{\alpha}(d)=\begin{cases}
+\frac{d^{\alpha}-1}{\alpha} & \alpha\neq0\\
+\log(d) & \alpha=0
+\end{cases}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In lieu of the assumption of the euclidean metric above -- i.e., 
+\begin_inset Formula $\Vert y_{i}-y_{j}\Vert$
+\end_inset
+
+, we use 
+\begin_inset Formula $\rho(y_{i},y_{j})$
+\end_inset
+
+ for some 
+\begin_inset Formula $\rho:\R^{m}\times\R^{m}\longrightarrow\R$
+\end_inset
+
+ that satisfies 
+\begin_inset Formula $\rho(a,b)>0\mbox{ }\forall a,b\in\R^{m}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+To have other well-known stress functions CITATION fit into such a universal
+ stress function, we can add a weighting to the stress for each term in
+ the sum based on the provided matrix 
+\begin_inset Formula $\Delta$
+\end_inset
+
+.
+ Denote the 
+\begin_inset Quotes eld
+\end_inset
+
+attractive
+\begin_inset Quotes erd
+\end_inset
+
+ power as 
+\begin_inset Formula $\mu+\lambda$
+\end_inset
+
+, and the repulsing power by 
+\begin_inset Formula $\mu$
+\end_inset
+
+.
+ We also impose that 
+\begin_inset Formula $\lambda>0$
+\end_inset
+
+ and that 
+\begin_inset Formula $|\mu|<\infty$
+\end_inset
+
+.
+ We can now write the more general (still global) stress function as 
+\begin_inset Formula 
+\begin{equation}
+S\left(\{y_{i}\}_{i=1}^{N}\vert\Delta\right)=\sum_{i=1}^{N}\sum_{j=1}^{N}\Delta_{ij}^{\nu}\left(\beta_{\mu+\lambda}\left(\rho(y_{i},y_{j})\right)-\Delta_{ij}^{\lambda}\beta_{\mu}\left(\rho(y_{i},y_{j})\right)\right).\label{eq:mmds boxcox}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Notice how for the case where 
+\begin_inset Formula $\nu=0,\lambda=1,\mu=1$
+\end_inset
+
+, and 
+\begin_inset Formula $\rho(a,b)=\Vert a-b\Vert$
+\end_inset
+
+, 
+\begin_inset CommandInset ref
+LatexCommand formatted
+reference "eq:mmds boxcox"
+
+\end_inset
+
+ reduces to 
+\begin_inset CommandInset ref
+LatexCommand formatted
+reference "eq:mmds stress"
+
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Standard
