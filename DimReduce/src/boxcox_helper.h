@@ -26,7 +26,7 @@ void gradient_dump(arma::mat &X0,
 	column_sum = sum(M, 1);
 	Gradient.each_col() = column_sum;
 	Gradient = X0 % Gradient - M * X0;
-	Gradient = (norm(X0, 2) / norm(Gradient, 2)) * Gradient;
+	Gradient = (norm(X0, 1) / norm(Gradient, 1)) * Gradient;
 }
 
 

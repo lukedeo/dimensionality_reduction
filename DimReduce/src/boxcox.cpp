@@ -154,7 +154,7 @@ SEXP INTERNAL_BOXCOX(arma::mat D, arma::umat A, arma::mat X1, int cmds_start = 1
         //----------------------------------------------------------------------------
         // Done
 
-        double adj_norm = (arma::norm(D, 2) / n / n * 0.01);
+        double adj_norm = (arma::norm(D, 1) / n / n * 0.01);
         for (int i = 0; i < d; ++i)
         {
             for (int j = 0; j < n; ++j)
@@ -171,7 +171,7 @@ SEXP INTERNAL_BOXCOX(arma::mat D, arma::umat A, arma::mat X1, int cmds_start = 1
 
     arma::mat D1 = fastPdist(X1, X1);
 
-    X1 = (X1 * arma::norm(D, 2)) / arma::norm(D1, 2);
+    X1 = (X1 * arma::norm(D, 1)) / arma::norm(D1, 1);
 
     arma::mat X0 = X1;
 
@@ -314,7 +314,7 @@ SEXP INTERNAL_BOXCOX(arma::mat D, arma::umat A, arma::mat X1, int cmds_start = 1
                     Gradient.each_col() = column_sum;
                     Gradient = X0 % Gradient - M * X0;
 
-                    Gradient = (norm(X0, 2) / norm(Gradient, 2)) * Gradient;
+                    Gradient = (norm(X0, 1) / norm(Gradient, 1)) * Gradient;
 
                     X1 = X0 - stepsize * Gradient;
                 }
