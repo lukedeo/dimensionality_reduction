@@ -2957,10 +2957,10 @@ reference "eq:mmds_boxcox"
 \end_inset
 
 .
-\end_layout
-
-\begin_layout Standard
-TALK ABOUT INVARIANT AND GRADIENT
+ CITE CHEN BUJA provide a derivation of the stress function and associated
+ gradients such that the objective function is scale invariant, which means
+ that optimization procedures can focus on embeddings up to expansions,
+ rotations, and reflections.
 \end_layout
 
 \begin_layout Subsection
@@ -2982,6 +2982,16 @@ reference "sub:LMDSDescription"
 wide false
 sideways false
 status open
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "alg:boxcox"
+
+\end_inset
+
+
+\end_layout
 
 \begin_layout Plain Layout
 Input: A distance/dissimilarity matrix 
@@ -3072,7 +3082,7 @@ Let
 \end_inset
 
  be such that 
-\begin_inset Formula $\Omega=tA_{sym}$
+\begin_inset Formula $\Omega=tA_{sym}+\Delta^{\nu+\frac{1}{\lambda}}$
 \end_inset
 
 .
@@ -3109,7 +3119,7 @@ Until convergence:
 
 \begin_deeper
 \begin_layout Enumerate
-Form 
+Form the embedding dissimilarities 
 \begin_inset Formula $D_{k}^{\mu-2}$
 \end_inset
 
@@ -3137,7 +3147,7 @@ name "enu:5a"
 \end_layout
 
 \begin_layout Enumerate
-\begin_inset Formula $M=\Delta^{\nu}\odot D_{k}^{\mu+\frac{1}{\lambda}-2}-D_{k}^{\mu-2}\odot\left(\Delta^{\nu+\frac{1}{\lambda}}+\Omega\right)$
+\begin_inset Formula $M=\Delta^{\nu}\odot D_{k}^{\mu+\frac{1}{\lambda}-2}-D_{k}^{\mu-2}\odot\Omega$
 \end_inset
 
 
@@ -3381,36 +3391,110 @@ Including constants
 \end_inset
 
 .
+ Normally, we say that both implementations have the same asymptotic running
+ time -- 
+\begin_inset Formula $O(n^{2}d)$
+\end_inset
+
+.
+ However, since this implementation uses the Armadillo CITATION matrix library,
+ such constants matter, and make the chaining of matrix expressions more
+ time efficient than a basic R implementation.
+ The profiling of speed-ups will be elaborated upon in section X.
+\end_layout
+
+\begin_layout Subsection
+Optimization
 \end_layout
 
 \begin_layout Standard
-The original implmentation of a 
+We now turn our attention to step 5(e) of the The original implmentation
+ of a 
 \family typewriter
 boxcox
 \family default
  function utilized an adaptive version of gradient descent.
- That is depending upon the direction of movement of the objective function,
+ That is, depending upon the direction of movement of the objective function,
  the step size was increased or decreased.
- In addition to this, we implment backtracking line search algorithm for
- gradient descent via the Armijo Condition.
- That is, for a vectoral representation of our current configuration, say
- 
-\begin_inset Formula $x_{k}$
+ In addition to this heuristic -- which in practice is very effective --
+ we implment a backtracking line search algorithm for gradient descent via
+ the Armijo Condition.
+ Formally, the Armijo Condition states the following CITIATION.
+ Consider a function 
+\begin_inset Formula $f:\R^{n}\longrightarrow\R$
 \end_inset
 
-, a search direction 
+ restricted to a search direction 
+\begin_inset Formula $p\in\R^{n}$
+\end_inset
+
+ from a point 
+\begin_inset Formula $x\in\R^{n}$
+\end_inset
+
+.
+ A 
+\emph on
+step length 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ 
+\emph default
+is said to satisfy the Armijo condition if 
+\begin_inset Formula 
+\begin{equation}
+f(x+\alpha p)\leq f(x)+\alpha\beta p^{T}\nabla f(x)\label{eq:armijo}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+for some small 
+\begin_inset Formula $\beta\in(0,1)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Intuitively, this ensures that a step size decreases our objective 
+\begin_inset Formula $f$
+\end_inset
+
+ by 
+\begin_inset Quotes eld
+\end_inset
+
+enough.
+\begin_inset Quotes erd
+\end_inset
+
+ Though inexact, such a practice is necessary in any optimization problem
+ where closed form representations of step sizes aren't known.
+ We now apply this to a line search for our particular problem.
+ We can assume that 
+\begin_inset Formula $X$
+\end_inset
+
+ is a vectoral representation of our current embedding iterate.
+ Given a search direction 
 \begin_inset Formula $p_{k}$
 \end_inset
 
 , the objective function 
-\begin_inset Formula $s(x_{k})$
+\begin_inset Formula $S(X_{k})$
 \end_inset
 
 , and the gradient 
-\begin_inset Formula $\nabla s(x_{k})$
+\begin_inset Formula $\nabla S(X_{k})$
 \end_inset
 
-, we have the following algorithm -- 
+, we have the following algorithm.
+ 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "alg:armijo"
@@ -3437,7 +3521,7 @@ name "alg:armijo"
 
 \begin_layout Plain Layout
 Input: 
-\begin_inset Formula $x_{k}$
+\begin_inset Formula $X_{k}$
 \end_inset
 
 , 
@@ -3445,11 +3529,11 @@ Input:
 \end_inset
 
 ,
-\begin_inset Formula $s(x_{k})$
+\begin_inset Formula $S(X_{k})$
 \end_inset
 
 , 
-\begin_inset Formula $\nabla s(x_{k})$
+\begin_inset Formula $\nabla S(X_{k})$
 \end_inset
 
 , 
@@ -3481,7 +3565,7 @@ Let
 
 \begin_layout Enumerate
 While: 
-\begin_inset Formula $s(x_{k}+\alpha^{(\ell)}p_{k})\leq s(x_{k})+\alpha^{(\ell)}\beta\nabla s(x_{k})^{T}p_{k}$
+\begin_inset Formula $S(X_{k}+\alpha^{(\ell)}p_{k})>S(X_{k})+\alpha^{(\ell)}\beta\nabla S(X_{k})^{T}p_{k}$
 \end_inset
 
 
@@ -3504,7 +3588,7 @@ While:
 
 \end_deeper
 \begin_layout Enumerate
-Return:
+Return: 
 \begin_inset Formula $\alpha^{(\ell)}$
 \end_inset
 
@@ -3526,12 +3610,8 @@ Armijo Line Search
 \end_layout
 
 \begin_layout Standard
-MENTION WHY THIS WORKS.
-\end_layout
-
-\begin_layout Standard
 In addition to refining the selection of learning parameters in standard
- gradient descent,he we also provide an implentation of the (BFGS) algorithm.
+ gradient descent, we we also provide an implentation of the (BFGS) algorithm.
  Such a method relies on an iterative construction of the Hessian in order
  to obtain more information with respect to the behavior of the function.
  For the iterative construction of the inverse hessian, we use the Sherman

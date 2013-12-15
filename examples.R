@@ -124,16 +124,27 @@ iso <- embedding(X=X, k = 6, d = 2, method = "lle")
 plot(iso,  col=rainbow(N, start=0, end = .7))
 
 
+A <- fastPdist(X, X)
+A <- weighted_neighbor_graph(A, k)
+G <- graph.adjacency(A, mode = "undirected", weighted=TRUE)
+A <- shortest.paths(G, mode="all")
+if(sum(!is.finite(A)) > 0)
+{
+    A[!is.finite(A)] <- 1.1* max(A[is.finite(A)])
+}
 
-lmds_frey <- boxcox(D=Do, A=Inb, d = 2, tau = .2, lambda=2, sample_rate = 10, niter = 100, cmds_start=F, verbose = TRUE)
-lmds_frey <- boxcox(D=Do, A=Inb, d = 2, tau = 0.5, lambda=3, X1=lmds_frey$Y, sample_rate = 10, niter = 200, verbose = TRUE)
+
+
+lmds_frey <- boxcox(D=Do, A=Inb, d = 3, tau = 1, lambda=10, sample_rate = 10, niter = 100, cmds_start=F, verbose = TRUE)
+lmds_frey <- boxcox(D=Do, A=Inb, d = 3, tau = 0.5, lambda=1, X1=lmds_frey_geodesic$Y, cmds_start=F, sample_rate = 10, niter = 200, verbose = TRUE)
 
 
 plot(lmds_frey$Y, col=rainbow(N, start=0, end = .7), main = lmds_frey$description, pch = 19)
 
-Y=lmds_frey$best
-plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19, main = lmds_frey$description)
+Y = lmds_frey_geodesic$Y
+Y=lmds_frey$Y
 
+plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19, main = lmds_frey$description)
 
 
 
