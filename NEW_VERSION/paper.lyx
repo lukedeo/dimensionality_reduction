@@ -17,7 +17,7 @@ theorems-std
 \language_package default
 \inputencoding auto
 \fontencoding global
-\font_roman palatino
+\font_roman default
 \font_sans default
 \font_typewriter default
 \font_default_family rmdefault
@@ -2978,9 +2978,6 @@ reference "sub:LMDSDescription"
 
 .
  In this, we provide a matrix-efficient formulation of the problem.
-\end_layout
-
-\begin_layout Standard
 \begin_inset Float algorithm
 wide false
 sideways false
@@ -3015,11 +3012,7 @@ Output: an embedding
 \end_layout
 
 \begin_layout Enumerate
-Form (In one loop): This can be done in 
-\begin_inset Formula $O\left(\frac{n^{2}-1}{2}\right)$
-\end_inset
-
- time.
+Form (In one loop):
 \end_layout
 
 \begin_deeper
@@ -3067,7 +3060,7 @@ Form (In one loop): This can be done in
 \end_deeper
 \begin_layout Enumerate
 Let 
-\begin_inset Formula $t=\frac{\tau\times\mbox{median}\left(\Delta^{\nu+\frac{1}{\lambda}}\right)\left(|V|-N\right)}{N^{2}}$
+\begin_inset Formula $t=\frac{\tau|E|}{|V|^{2}-|E|}\left(\mbox{median}_{(i,j)\in E}\left(\Delta_{ij}^{\nu+\frac{1}{\lambda}}\right)\right)$
 \end_inset
 
 
@@ -3083,11 +3076,6 @@ Let
 \end_inset
 
 .
- This can be done in 
-\begin_inset Formula $O\left(\frac{n^{2}-1}{2}\right)$
-\end_inset
-
- time.
  This will be a repulsion matrix.
 \end_layout
 
@@ -3139,6 +3127,13 @@ Form
 \end_inset
 
 
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:5a"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Enumerate
@@ -3164,7 +3159,7 @@ Form
 \end_inset
 
 , 
-\begin_inset Formula $\nabla S_{k}=\frac{\Vert X_{k}\Vert_{2}}{\Vert\nabla S_{k}\Vert_{2}}\nabla S_{k}$
+\begin_inset Formula $\nabla S_{k}=\frac{\Vert X_{k}\Vert_{1}}{\Vert\nabla S_{k}\Vert_{1}}\nabla S_{k}$
 \end_inset
 
 
@@ -3218,6 +3213,8 @@ Form
 \end_layout
 
 \begin_layout Enumerate
+
+\size scriptsize
 \begin_inset Formula $s_{k+1}=\begin{cases}
 \frac{1}{\mu}\mathsf{sum}\left(\Delta^{\nu}\odot\log\left(D_{k+1}\right)\right)-\frac{1}{\mu}\mathsf{sum}\left(D_{k+1}^{\mu}\odot\Delta^{\nu+\frac{1}{\lambda}}\right)-\frac{t}{\mu}\mathsf{sum}\left(D_{k+1}^{\mu}\odot\overline{A}\right) & \mbox{if }\mu+\frac{1}{\lambda}=0\\
 \frac{1}{\mu+1/\lambda}\mathsf{sum}\left(\Delta^{\nu}\odot\left(D_{k+1}^{\mu+\frac{1}{\lambda}}-1\right)\right)-\mathsf{sum}\left(\log\left(D_{k+1}\right)\odot\Delta^{\nu+\frac{1}{\lambda}}\right)-t\mathsf{sum}\left(\log\left(D_{k+1}\right)\odot\overline{A}\right) & \mbox{if }\mu=0\\
@@ -3254,7 +3251,17 @@ Boxcox Embedding
 \end_layout
 
 \begin_layout Standard
-We provide a variety of improvements to this routine.
+Note that running times are determined in a slightly different way -- i.e.,
+ we report 
+\begin_inset Formula $O(\frac{1}{2}n)$
+\end_inset
+
+ in lieu of 
+\begin_inset Formula $O(n)$
+\end_inset
+
+.
+ We provide a variety of improvements to this routine.
  First, the calculation of 
 \begin_inset Formula $D^{\nu}$
 \end_inset
@@ -3281,6 +3288,99 @@ We provide a variety of improvements to this routine.
  elements of the adjacency matrix once.
  This precomputation allows the iterative optimization procedure to be more
  efficient.
+ Thus, steps 1, 2, and 3 can be completed in 
+\begin_inset Formula $O\left(\frac{n^{2}-n}{2}\right)$
+\end_inset
+
+ time, instead of 
+\begin_inset Formula $O(6n^{2})$
+\end_inset
+
+ time as in the original implementation.
+ In addition, we have precomputed 
+\begin_inset Formula $\overline{A}$
+\end_inset
+
+, which saves computation later.
+ For both implementations, step 4 is an 
+\begin_inset Formula $O(n^{2}d)$
+\end_inset
+
+ operation.
+\end_layout
+
+\begin_layout Standard
+We can compute the complexity associated with each iteration.
+ Step 5(a) can be done with 
+\begin_inset Formula $O\left(\frac{n^{2}-n}{2}\right)$
+\end_inset
+
+ operations in comparison to the original 
+\begin_inset Formula $O(2n^{2})$
+\end_inset
+
+, and step 5(b) can be done in 
+\begin_inset Formula $O(3n)$
+\end_inset
+
+ time instead of 
+\begin_inset Formula $O(6n)$
+\end_inset
+
+ as in the original implementation.
+ The formation of 
+\begin_inset Formula $\nabla S_{k}$
+\end_inset
+
+ can be broken into the following steps.
+ Step 5(c) takes 
+\begin_inset Formula $O(n^{2}+nd)$
+\end_inset
+
+ operations, and is not done in the original implementation.
+ Step 5(d) can be done in 
+\begin_inset Formula $O(n^{2}d+4nd)$
+\end_inset
+
+ operations in comparison to the original 
+\begin_inset Formula $O(2n^{2}d+5nd)$
+\end_inset
+
+.
+ For the sake of simplicity, the update step, which leaves us with a complexity
+ of 
+\begin_inset Formula $O(nd)$
+\end_inset
+
+ for step 5(e).
+ Finally, step 5(h) can be done in 
+\begin_inset Formula $O(3n^{2})$
+\end_inset
+
+ time instead of the original 
+\begin_inset Formula $O(4n^{2})$
+\end_inset
+
+.
+ Thus, for dominant terms
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+Including constants
+\end_layout
+
+\end_inset
+
+, each iteration has a complexity of 
+\begin_inset Formula $O\left(n^{2}d+\frac{7}{2}n^{2}\right)$
+\end_inset
+
+, whereas the original implemenation has a complexity of 
+\begin_inset Formula $O(2n^{2}d+6n^{2})$
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Standard
