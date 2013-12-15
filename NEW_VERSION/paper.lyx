@@ -1,0 +1,2958 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass report
+\begin_preamble
+\usepackage{lettrine}
+\newcommand{\R}{\mathbb{R}}
+\end_preamble
+\use_default_options true
+\begin_modules
+eqs-within-sections
+theorems-std
+\end_modules
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman palatino
+\font_sans default
+\font_typewriter default
+\font_default_family rmdefault
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\float_placement H
+\paperfontsize default
+\spacing double
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 1.2in
+\topmargin 1.2in
+\rightmargin 1.2in
+\bottommargin 1.4in
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+DimReduce -- an R package for dimensionality reduction
+\end_layout
+
+\begin_layout Author
+Luke de Oliveira
+\end_layout
+
+\begin_layout Abstract
+\begin_inset FormulaMacro
+\newcommand{\R}{\mathbb{R}}
+{\mathbb{R}}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Abstract
+In this short exposition, we show the various methods implemented in DimReduce,
+ taking care to show where steps have been taken to increase efficiency
+ of computation.
+ In addition, we utilize select example datasets to show some strengths
+ and weaknesses of various dimensionality reduction algorithms.
+ 
+\end_layout
+
+\begin_layout Chapter
+Background
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+lettrine[nindent=0em,lines=2]{M}
+\end_layout
+
+\end_inset
+
+ any problems in areas ranging from data visualization to pattern recognition
+ begin with a preprocessing step.
+ Frequently, it is desirable to reduce the dimensionality of a dataset --
+ that is, find a representation in a lower dimensional space that accurately
+ represents some aspect of the dataset, be it local structure, global structure,
+ et cetera.
+ 
+\end_layout
+
+\begin_layout Standard
+Many applications of Machine Learning have some high dimensional dataset
+ that lies on some lower dimensional space -- that is, there some level
+ of redundancy of information.
+ The general problem can be formulated as follows.
+ We are given a dataset 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$
+\backslash
+{x_i
+\backslash
+}_{i=1}^{N}$
+\end_layout
+
+\end_inset
+
+, where each 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$x_i
+\backslash
+in
+\backslash
+R^D$
+\end_layout
+
+\end_inset
+
+.
+ The problem is to find an embedding 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$
+\backslash
+{y_i
+\backslash
+}_{i=1}^{N}$
+\end_layout
+
+\end_inset
+
+, where each 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$y_i
+\backslash
+in
+\backslash
+R^d$
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$d<D$
+\end_layout
+
+\end_inset
+
+, such that 
+\begin_inset Formula $\{x_{i}\}_{i=1}^{N}$
+\end_inset
+
+ is "represented well" by 
+\begin_inset Formula $\{y_{i}\}_{i=1}^{N}$
+\end_inset
+
+.
+ The notion of "represented well" is far from concrete, but many metrics
+ for the quality of an embedding exist.
+ 
+\end_layout
+
+\begin_layout Standard
+In addition to the dataset, we assume we have access to a distance matrix,
+ 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$
+\backslash
+Delta
+\backslash
+in
+\backslash
+R^{N
+\backslash
+times N}$
+\end_layout
+
+\end_inset
+
+.
+ That is, 
+\begin_inset Formula $\Delta_{i,j}$
+\end_inset
+
+ is the distance from 
+\begin_inset Formula $x_{i}$
+\end_inset
+
+ to 
+\begin_inset Formula $x_{j}$
+\end_inset
+
+.
+ For an arbitrary matrix 
+\begin_inset Formula $A$
+\end_inset
+
+, I use numpy-style slicing notation, i.e., 
+\begin_inset Formula $A[v,:]$
+\end_inset
+
+ chooses the rows corresponding to some vector of indices 
+\begin_inset Formula $v$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Implementation
+\end_layout
+
+\begin_layout Standard
+The crux of all the dimensionality reduction algorithms we provide is efficiency
+ linear algebra.
+ Instead of using the base R implementation of matrix mathematics, we utilize
+ 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+texttt{RcppArmadillo}
+\end_layout
+
+\end_inset
+
+, an extension of 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+texttt{Rcpp}
+\end_layout
+
+\end_inset
+
+.
+ The package 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+texttt{Rcpp}
+\end_layout
+
+\end_inset
+
+ provides an easy interface between fast C++ code and R, allowing a user
+ to extend R by calling functions and methods that are more efficiently
+ implemented in C++.
+ 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+texttt{RcppArmadillo}
+\end_layout
+
+\end_inset
+
+ takes this a step further, by allowing the R developer the ability to call
+ the Armadillo Library -- a very efficient matrix library for C++.
+ Using this and a deeper understanding of how to efficiently implement methods,
+ we obtain speed-ups over existing packages that provide methods that we
+ include in DimReduce.
+\end_layout
+
+\begin_layout Standard
+In addition to methods for dimensionality reduction, we provide a method
+ for fast pairwise distances -- 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+texttt{fastPdist}
+\end_layout
+
+\end_inset
+
+ -- which is significantly faster than the native R function.
+ We also provide a fast method for determining nearest neighbors from a
+ matrix 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$
+\backslash
+Delta$
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+To determine speed-up, based on a baseline, we run a test using an INSERT
+ MACHARCH HERE.
+ As a test, we use a swiss roll with 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$N=150$, $D=3$, $d = 2$
+\end_layout
+
+\end_inset
+
+, and 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$k=5$
+\end_layout
+
+\end_inset
+
+ with 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$n_{iter} = 200$ 
+\end_layout
+
+\end_inset
+
+when appropriate.
+ 
+\end_layout
+
+\begin_layout Section
+Methods
+\end_layout
+
+\begin_layout Standard
+We don't provide proofs of optimal solutions to these methods -- instead,
+ we provide a basic walk-through of the algorithm, and state where efficiency
+ improvements were made.
+ We provide efficient implementations of the following methods: 
+\end_layout
+
+\begin_layout Itemize
+Random Projection 
+\end_layout
+
+\begin_layout Itemize
+Classical Multidimensional Scaling 
+\end_layout
+
+\begin_layout Itemize
+Locally Linear Embedding (Modified and Hessian)
+\end_layout
+
+\begin_layout Itemize
+Isomap 
+\end_layout
+
+\begin_layout Itemize
+Laplacian Eigenmaps 
+\end_layout
+
+\begin_layout Itemize
+Diffusion Maps 
+\end_layout
+
+\begin_layout Itemize
+Local Multidimensional Scaling using the boxcox family of stress functions
+ 
+\end_layout
+
+\begin_layout Standard
+For each method, we benchmark qualitative performance using three datasets.
+ First, we use the standard Swiss Roll and S-Curve data sets.
+ In addition to these artificial manifolds, we also use the Frey Faces data
+ set from 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "CITE_NEEDED"
+
+\end_inset
+
+.
+ In the Frey Faces dataset, embeddings that show similar colors along a
+ rainbow spectrum indicate that images are similar to each other -- i.e.,
+ they may represent a slight rotation of the head.
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Chapter
+Algorithms
+\end_layout
+
+\begin_layout Section
+Random Projection
+\end_layout
+
+\begin_layout Subsection
+Description and Implementation
+\end_layout
+
+\begin_layout Standard
+A random projection is a simple linear mapping that projects the original
+ dataset into a random subspace of a user-determined dimension.
+ Random projections rely on the notion of a Lipschitz Mapping.
+ 
+\end_layout
+
+\begin_layout Definition
+Let 
+\begin_inset Formula $U\subset\R^{D}$
+\end_inset
+
+.
+ A mapping 
+\begin_inset Formula $f:U\longrightarrow\R^{d}$
+\end_inset
+
+ is called Lipschitz on 
+\begin_inset Formula $U$
+\end_inset
+
+ if 
+\begin_inset Formula $\exists\alpha,\beta\in\R$
+\end_inset
+
+ such that 
+\begin_inset Formula 
+\[
+\alpha\Vert x-y\Vert^{2}\leq\Vert f(x)-f(y)\Vert^{2}\leq\beta\Vert x-y\Vert^{2}.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Definition
+In this case, 
+\begin_inset Formula $\Vert\cdot\Vert$
+\end_inset
+
+ is the Euclidean norm, but can be replaced by any norm.
+ 
+\end_layout
+
+\begin_layout Standard
+How can this help with reducing the dimensionality of a dataset? We turn
+ to Johnson and Lindenstrauss CITATION, who provide the following Lemma,
+ which we provide without proof.
+\end_layout
+
+\begin_layout Lemma
+(Johnson and Lindenstrauss) Fix 
+\begin_inset Formula $\varepsilon>0,n\in\mathbb{N}$
+\end_inset
+
+.
+ Let 
+\begin_inset Formula $d_{0}\le O(\varepsilon^{-2}\log n)$
+\end_inset
+
+.
+ Then, 
+\begin_inset Formula $\forall d\geq d_{0}$
+\end_inset
+
+ and for any randomly selected 
+\begin_inset Formula $U\subset\mathbb{R}^{D}$
+\end_inset
+
+ such that 
+\begin_inset Formula $|U|=n$
+\end_inset
+
+, 
+\begin_inset Formula $\exists f:\R^{D}\longrightarrow\R^{d}$
+\end_inset
+
+ such that 
+\begin_inset Formula $\forall x,y\in U$
+\end_inset
+
+,
+\begin_inset Formula 
+\begin{equation}
+(1-\varepsilon)\Vert x-y\Vert^{2}\leq\Vert f(x)-f(y)\Vert^{2}\leq(1+\varepsilon)\Vert x-y\Vert^{2}.\label{eq:jlindenstrauss}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Intuitively REFABOVE tells us that we can find approximate distance preserving
+ mappings that embed a data point in a lower dimensional space.
+ In fact, X and X show in XX that we can construct matricies that have zero
+ mean and unit variance that in expectation provide a pairwise distance
+ preserving embedding.
+ In particular, we it can be shown that we can construct a gaussian matrix
+ 
+\begin_inset Formula $R$
+\end_inset
+
+ with 
+\begin_inset Formula $R_{ij}\sim N(0,1)$
+\end_inset
+
+ such that in expectation, a normalized version of 
+\begin_inset Formula $R$
+\end_inset
+
+ is a good mapping from 
+\begin_inset Formula $D$
+\end_inset
+
+ to 
+\begin_inset Formula $d$
+\end_inset
+
+.
+ More formally, we can describe this simple algorithm as follows.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+Input: 
+\begin_inset Formula $X\in\R^{N\times D}$
+\end_inset
+
+, 
+\begin_inset Formula $d$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+Output: 
+\begin_inset Formula $Y\in\R^{N\times d}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Let 
+\begin_inset Formula $R\in\R^{D\times d}$
+\end_inset
+
+, with 
+\begin_inset Formula $R_{ij}\sim N(0,1)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Let 
+\begin_inset Formula $Y=\frac{1}{\sqrt{k}}XR$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Return: 
+\begin_inset Formula $Y$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Random Projection
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+Imagine a scenario in which we find such an 
+\begin_inset Formula $R$
+\end_inset
+
+ that gives a desirable embedding.
+ This method is very appealing because embedding new points that weren't
+ in the original 
+\begin_inset Formula $X$
+\end_inset
+
+ can be embedded in 
+\begin_inset Formula $O(dD)$
+\end_inset
+
+ time.
+ 
+\end_layout
+
+\begin_layout Section
+Classical Multidimensional Scaling
+\end_layout
+
+\begin_layout Subsection
+Description and Implementation
+\end_layout
+
+\begin_layout Standard
+Classical Multidimensional Scaling aims to approximately solve the problem
+ of Equation 
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:jlindenstrauss"
+
+\end_inset
+
+ by explicitly minimizing a cost function that penalized points whose embedded
+ representations aren't close in euclidean distance.
+ Formally, given a matrix of distances 
+\begin_inset Formula $\Delta$
+\end_inset
+
+ with entries 
+\begin_inset Formula $\Delta_{ij}$
+\end_inset
+
+, we let our embedding be 
+\begin_inset Formula $\{y_{i}\}_{i=1}^{N}$
+\end_inset
+
+ with 
+\begin_inset Formula $y_{i}\in\R^{d}$
+\end_inset
+
+, and we let
+\begin_inset Formula 
+\[
+\{y_{i}\}_{i=1}^{N}=\underset{\{a_{i}\}_{i=1}^{N}\subset\R^{d}}{\text{arg min}}\sum_{i=1}^{n}\sum_{j\neq i}(\Delta_{ij}-\Vert a_{i}-a_{j}\Vert)^{2}.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We provide without proof the decomposition that leads to an optimal embedding.
+ Let 
+\begin_inset Formula $J=I-\frac{1}{N}\mathbf{1}_{\{N\times N\}}$
+\end_inset
+
+, where 
+\begin_inset Formula $\mathbf{1}_{\{N\times N\}}$
+\end_inset
+
+ is the 
+\begin_inset Formula $N\times N$
+\end_inset
+
+ dimensional matrix of all ones.
+ We let out Kernel be 
+\begin_inset Formula $K=-\frac{1}{2}J\{\Delta\}^{2}J$
+\end_inset
+
+, where 
+\begin_inset Formula $\{\Delta\}^{2}$
+\end_inset
+
+ is each element of the matrix squared, rather than a matrix power.
+ We then perform eigendecomposition 
+\begin_inset Formula $K=V\Lambda V^{-1}$
+\end_inset
+
+, and let 
+\begin_inset Formula $\{y_{i}\}_{i=1}^{N}=Y\in\R^{N\times d}$
+\end_inset
+
+ be the columns of the eigenvectors 
+\begin_inset Formula $V$
+\end_inset
+
+ associated with the two largest eigenvalues.
+ To reiterate, we have that Classical Multidimensional Scaling can be written
+ as follows.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+Input: A distance matrix 
+\begin_inset Formula $\Delta\in\R^{N\times N}$
+\end_inset
+
+, an embedding dimension 
+\begin_inset Formula $d$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Plain Layout
+Output: An embedding 
+\begin_inset Formula $\{y_{i}\}_{i=1}^{N}=Y\in\R^{N\times d}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+Let 
+\begin_inset Formula $J=I-\frac{1}{N}\mathbf{1}_{\{N\times N\}}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+Construct the kernel 
+\begin_inset Formula $K=-\frac{1}{2}J\{\Delta\}^{2}J$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+Decompose into 
+\begin_inset Formula $K=V\Lambda V^{-1}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+Sort columns of 
+\begin_inset Formula $V$
+\end_inset
+
+ in decreasing order based on the associated eigenvalues.
+\end_layout
+
+\begin_layout Enumerate
+Let 
+\begin_inset Formula $Y=V[:,1:d]$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+Return 
+\begin_inset Formula $Y$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Classical Multidimensional Scaling
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+It should be noted that in the case of the Euclidean Metric, Principal Component
+s Analysis (PCA) and Classical Multidimensional Scaling (CMDS) are the same.
+ However, the motivations and data models of PCA and CMDS differ -- In PCA,
+ a data set 
+\begin_inset Formula $X$
+\end_inset
+
+ is given, and PCA aims to find its leading 
+\begin_inset Formula $d$
+\end_inset
+
+ principal components that preserve the maximal variance.
+ In CMDS, a pairwise distance matrix is given on a set of 
+\begin_inset Formula $n$
+\end_inset
+
+ objects and the aim is to find a lower dimensional embedding or point set
+ in a Euclidean space that preserves the pairwise (dis)similarities.
+ However, if the set of distances in CMDS is used to construct a 
+\begin_inset Formula $D$
+\end_inset
+
+-dimensional set 
+\begin_inset Formula $X$
+\end_inset
+
+ in 
+\begin_inset Formula $\R^{D}$
+\end_inset
+
+, and the pairwise distance matrix is the Euclidean metric of 
+\begin_inset Formula $X$
+\end_inset
+
+ , then PCA and CMDS are identical.
+\end_layout
+
+\begin_layout Subsection
+Experiments
+\end_layout
+
+\begin_layout Subsubsection
+Swiss Roll
+\end_layout
+
+\begin_layout Standard
+Consider the following embeddings.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+CMDS of Swiss Roll Dataset, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+S-Curve
+\end_layout
+
+\begin_layout Standard
+Consider the following embeddings.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+CMDS of S-Curve Dataset, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Frey Faces
+\end_layout
+
+\begin_layout Standard
+Consider the following embeddings.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+CMDS of Frey Faces Dataset, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+OBSERVATIONS HERE.
+\end_layout
+
+\begin_layout Section
+Locally Linear Embedding
+\end_layout
+
+\begin_layout Subsection
+Description
+\end_layout
+
+\begin_layout Standard
+Locally Linear Embedding is a very intuitive method which attempts to find
+ an embedding that preserves local neighborhood structure of the data.
+ Formally, the algorithm assumes that each point in the dataset can be described
+ as a convex combination of nearby data points.
+ If a data set is densely sampled from a smooth manifold, then neighbors
+ of each point remain nearby and are similarly located in the assumed low-dimens
+ional space.
+ In Locally Linear Embedding, each point in the data set is linearly embedded
+ into a locally linear subspace on the manifold.
+ Then, using eigendecomposition, the method tries to find a new embedding
+ for each point such that the new embedding is similar in locally convex
+ reconstruction to the original dataset.
+ It should be noted that in any large scale implementation of Locally Linear
+ Embedding, the inherent sparsity of the reconstruction kernel can be exploited.
+ In this version, we do not exploit the sparsity of the kernel.
+ 
+\end_layout
+
+\begin_layout Subsection
+Implementation
+\end_layout
+
+\begin_layout Standard
+The Locally Linear Embedding algorithm can be outlined as follows.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+Input: 
+\begin_inset Formula $X\in\R^{N\times D}$
+\end_inset
+
+, 
+\begin_inset Formula $k$
+\end_inset
+
+, 
+\begin_inset Formula $d$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+Output: 
+\begin_inset Formula $Y\in\R^{N\times d}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Let 
+\begin_inset Formula $A\in\{0,1\}^{N\times N}$
+\end_inset
+
+ be the 
+\begin_inset Formula $k$
+\end_inset
+
+ nearest neighbor matrix
+\end_layout
+
+\begin_layout Enumerate
+Let 
+\begin_inset Formula $W\in\R^{N\times N}$
+\end_inset
+
+ be an empty weight matrix
+\end_layout
+
+\begin_layout Enumerate
+For each 
+\begin_inset Formula $i\in\{1,\ldots,N\}$
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+\begin_inset Formula $Z=X[A[i,:],:]^{T}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $Z=Z-(\mathbb{1}_{k}X[i,:])^{T}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $C=Z^{T}Z$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $C=C+0.001\mathrm{tr}(C)I$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $w=\frac{C^{-1}\mathbb{1}_{k}}{(C^{-1}\mathbb{1}_{k})^{T}\mathbb{1}_{k}}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $W[i,A[i,:]]=-w^{T}$
+\end_inset
+
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+\begin_inset Formula $M=W+I$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Determine SVD, 
+\begin_inset Formula $U,\Sigma,V$
+\end_inset
+
+, such that 
+\begin_inset Formula $U\Sigma V^{T}=M$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Sort columns of 
+\begin_inset Formula $V$
+\end_inset
+
+ based on increasing singular values
+\end_layout
+
+\begin_layout Enumerate
+Return: 
+\begin_inset Formula $Y=V[:,2:(d+1)]$
+\end_inset
+
+ 
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Locally Linear Embedding
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The key difference when compared to other implementations in R is that we
+ do not use an eigendecomposition on the matrix 
+\begin_inset Formula $M^{T}M$
+\end_inset
+
+ -- we simply use the singular value decomposition, since the columns of
+ the right singular vector matrix 
+\begin_inset Formula $V$
+\end_inset
+
+ are the eigenvalues of the 
+\begin_inset Formula $M^{T}M$
+\end_inset
+
+ matrix.
+ To ensure the non-singularity of the reconstruction requirement matrix
+ 
+\begin_inset Formula $C$
+\end_inset
+
+, we add 
+\begin_inset Formula $\mathrm{tr}(C)\varepsilon I$
+\end_inset
+
+, for some small 
+\begin_inset Formula $\varepsilon$
+\end_inset
+
+.
+ Consider the following figure which shows a graphical representation of
+ the speed-up obtained.
+ The baseline considered for this method is the package 
+\family typewriter
+lle
+\family default
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:su_lle"
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename ../Paper/speedup_lle.pdf
+	lyxscale 10
+	width 40text%
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Ratio of CPU time for DimReduce versus a baseline
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Experiments
+\end_layout
+
+\begin_layout Standard
+In the following experiments, we use 
+\begin_inset Formula $N=1000$
+\end_inset
+
+ data points to ensure a reasonable sampled manifold.
+ In addition, we scale all variables 
+\begin_inset Formula $x$
+\end_inset
+
+ such that 
+\begin_inset Formula $\overline{x}=0$
+\end_inset
+
+ and 
+\begin_inset Formula $s_{x}=1$
+\end_inset
+
+ to ensure that no particular original feature has an imbalance of influence
+ on the objective function.
+ We use 
+\begin_inset Formula $k\in\{5,10,15,20\}$
+\end_inset
+
+ to illustrate the effect of neighborhood size on the unrolled representation.
+\end_layout
+
+\begin_layout Subsubsection
+Swiss Roll
+\end_layout
+
+\begin_layout Standard
+Consider the following embeddings.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Locally Linear Embedding of Swiss Roll Dataset, 
+\begin_inset Formula $k=5$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Locally Linear Embedding of Swiss Roll Dataset, 
+\begin_inset Formula $k=10$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Locally Linear Embedding of Swiss Roll Dataset, 
+\begin_inset Formula $k=15$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Locally Linear Embedding of Swiss Roll Dataset, 
+\begin_inset Formula $k=20$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+S-Curve
+\end_layout
+
+\begin_layout Standard
+Consider the following embeddings.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Locally Linear Embedding of S-Curve Dataset, 
+\begin_inset Formula $k=5$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Locally Linear Embedding of S-Curve Dataset, 
+\begin_inset Formula $k=10$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Locally Linear Embedding of S-Curve Dataset, 
+\begin_inset Formula $k=15$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Locally Linear Embedding of S-Curve Dataset, 
+\begin_inset Formula $k=20$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Frey Faces
+\end_layout
+
+\begin_layout Standard
+Consider the following embeddings.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Locally Linear Embedding of Frey Faces Dataset, 
+\begin_inset Formula $k=5$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Locally Linear Embedding of Frey Faces Dataset, 
+\begin_inset Formula $k=10$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Locally Linear Embedding of Frey Faces Dataset, 
+\begin_inset Formula $k=15$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Locally Linear Embedding of Frey Faces Dataset, 
+\begin_inset Formula $k=20$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Isomap 
+\end_layout
+
+\begin_layout Subsection
+Description
+\end_layout
+
+\begin_layout Standard
+Isomap is essentially Multidimensional Scaling with respect to a different
+ baseline metric.
+ Instead of using the standard Euclidean Metric, we first construct a graph
+ on the dataset.
+ We let each 
+\begin_inset Formula $x_{i}\in\{x_{i}\}_{i=1}^{N}$
+\end_inset
+
+ define a vertex, and we connect vertex 
+\begin_inset Formula $x_{i}$
+\end_inset
+
+ and vertex 
+\begin_inset Formula $x_{j}$
+\end_inset
+
+ if 
+\begin_inset Formula $i$
+\end_inset
+
+ and 
+\begin_inset Formula $j$
+\end_inset
+
+ are in the same neighborhood.
+ We can define a neighborhood either by 
+\begin_inset Formula $k$
+\end_inset
+
+ nearest neighbors or an 
+\begin_inset Formula $\varepsilon$
+\end_inset
+
+-neighborhood.
+ In general, a 
+\begin_inset Formula $k$
+\end_inset
+
+ nearest neighbor graph is used more in practice as an 
+\begin_inset Formula $\varepsilon$
+\end_inset
+
+-neighborhood graph requires an a priori knowledge of distances.
+ When we connect all vertices in neighborhoods, we have a set of edges 
+\begin_inset Formula $E$
+\end_inset
+
+, and we have an weighted graph
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+We assume that 
+\begin_inset Formula $G$
+\end_inset
+
+ is connected.
+ In practice, if 
+\begin_inset Formula $G$
+\end_inset
+
+ is not connected, we can impute distances as necessary, or increase the
+ neighborhood size.
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Formula $G=(\{x_{i}\}_{i=1}^{N},E,\delta)$
+\end_inset
+
+, with our weights 
+\begin_inset Formula $\delta$
+\end_inset
+
+ being an original euclidean pairwise distance.
+ For an edge 
+\begin_inset Formula $(x_{i},x_{j})=e\in E$
+\end_inset
+
+, let 
+\begin_inset Formula $\delta(e)=\Vert x_{i}-x_{j}\Vert$
+\end_inset
+
+.
+ For each pair, we determine the 
+\emph on
+geodesic
+\emph default
+ distance along the neighborhood-sampled manifold.
+ That is, we find 
+\begin_inset Formula $\textsf{dist}_{G}(x_{i},x_{j})$
+\end_inset
+
+ for each 
+\begin_inset Formula $i,j$
+\end_inset
+
+ pair, with
+\begin_inset Formula 
+\[
+\textsf{dist}_{G}(x_{i},x_{j})=\min_{\text{paths }P\text{ starting at \ensuremath{x_{i}} ending at \ensuremath{x_{j}}}}\sum_{e\in P}\delta(e).
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Our optimization problem is similar to that of Classical Multidimensional
+ Scaling.
+ We solve, for 
+\begin_inset Formula $G=(\{x_{i}\}_{i=1}^{N},E,\delta)$
+\end_inset
+
+,
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\{y_{i}\}_{i=1}^{N}=\underset{\{a_{i}\}_{i=1}^{N}\subset\R^{d}}{\text{arg min}}\sum_{i=1}^{n}\sum_{j\neq i}(\textsf{dist}_{G}(x_{i},x_{j})-\Vert a_{i}-a_{j}\Vert)^{2}.\label{eq:isomap}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Implementation
+\end_layout
+
+\begin_layout Standard
+To perform the optimization in Equation 
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:isomap"
+
+\end_inset
+
+, we must be able to determine geodesic distances.
+ To do this, we use the R package 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+texttt{igraph}
+\end_layout
+
+\end_inset
+
+, which provides a fast implementation of Dijkstra's Algorithm for finding
+ pairwise distances on a graph.
+ With this routine (call it 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+texttt{dijkstra}
+\end_layout
+
+\end_inset
+
+ for the sake of reading), we have the following algorithm.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+Input: 
+\begin_inset Formula $X\in\R^{N\times D}$
+\end_inset
+
+, 
+\begin_inset Formula $k$
+\end_inset
+
+, 
+\begin_inset Formula $d$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+Output: 
+\begin_inset Formula $Y\in\R^{N\times d}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Compute 
+\begin_inset Formula $\Delta$
+\end_inset
+
+, the pairwise Euclidean distance matrix on 
+\begin_inset Formula $X$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+Let 
+\begin_inset Formula $A\in\{0,1\}^{N\times N}$
+\end_inset
+
+ be the 
+\begin_inset Formula $k$
+\end_inset
+
+ nearest neighbor matrix.
+\end_layout
+
+\begin_layout Enumerate
+Let 
+\begin_inset Formula $G=(\{x_{i}\}_{i=1}^{N},E,\delta)$
+\end_inset
+
+ according to 
+\begin_inset Formula $\Delta$
+\end_inset
+
+ and 
+\begin_inset Formula $A$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+Use 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+texttt{dijkstra}
+\end_layout
+
+\end_inset
+
+ to find 
+\begin_inset Formula $\tilde{\Delta}\in\R^{\{N\times N\}}$
+\end_inset
+
+ such that 
+\begin_inset Formula $\tilde{\Delta}_{ij}=\begin{cases}
+\textsf{dist}_{G}(x_{i},x_{j}) & i\ne j\\
+0 & \mbox{otherwise}
+\end{cases}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Let 
+\begin_inset Formula $J=I-\frac{1}{N}\mathbf{1}_{\{N\times N\}}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+Construct the kernel 
+\begin_inset Formula $K=-\frac{1}{2}J\{\tilde{\Delta}\}^{2}J$
+\end_inset
+
+, where 
+\begin_inset Formula $\{\tilde{\Delta}\}^{2}$
+\end_inset
+
+ is the element-wise square of 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+
+\begin_inset Formula $\tilde{\Delta}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+Decompose into 
+\begin_inset Formula $K=V\Lambda V^{-1}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+Sort columns of 
+\begin_inset Formula $V$
+\end_inset
+
+ in decreasing order based on the associated eigenvalues.
+\end_layout
+
+\begin_layout Enumerate
+Let 
+\begin_inset Formula $Y=V[:,1:d]$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+Return 
+\begin_inset Formula $Y$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Isomap
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Experiments
+\end_layout
+
+\begin_layout Subsubsection
+Swiss Roll
+\end_layout
+
+\begin_layout Standard
+Consider the following embeddings.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Isomap Embedding of Swiss Roll Dataset, 
+\begin_inset Formula $k=5$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Isomap Embedding of Swiss Roll Dataset, 
+\begin_inset Formula $k=10$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Isomap Embedding of Swiss Roll Dataset, 
+\begin_inset Formula $k=15$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Isomap Embedding of Swiss Roll Dataset, 
+\begin_inset Formula $k=20$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+S-Curve
+\end_layout
+
+\begin_layout Standard
+Consider the following embeddings.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Isomap Embedding of S-Curve Dataset, 
+\begin_inset Formula $k=5$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Isomap Embedding of S-Curve Dataset, 
+\begin_inset Formula $k=10$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Isomap Embedding of S-Curve Dataset, 
+\begin_inset Formula $k=15$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Isomap Embedding of S-Curve Dataset, 
+\begin_inset Formula $k=20$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Frey Faces
+\end_layout
+
+\begin_layout Standard
+Consider the following embeddings.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Isomap Embedding of Frey Faces Dataset, 
+\begin_inset Formula $k=5$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Isomap Embedding of Frey Faces Dataset, 
+\begin_inset Formula $k=10$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Isomap Embedding of Frey Faces Dataset, 
+\begin_inset Formula $k=15$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Isomap Embedding of Frey Faces Dataset, 
+\begin_inset Formula $k=20$
+\end_inset
+
+, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Laplacian Eigenmaps 
+\end_layout
+
+\begin_layout Subsection
+Description
+\end_layout
+
+\begin_layout Subsection
+Implementation
+\end_layout
+
+\begin_layout Subsection
+Experiments
+\end_layout
+
+\begin_layout Section
+Diffusion Maps 
+\end_layout
+
+\begin_layout Subsection
+Description
+\end_layout
+
+\begin_layout Subsection
+Implementation
+\end_layout
+
+\begin_layout Subsection
+Experiments
+\end_layout
+
+\begin_layout Section
+Local Multidimensional Scaling
+\end_layout
+
+\begin_layout Standard
+Local Multidimensional Scaling is a member of a larger family of CMDS variants.
+ Called the boxcox family, these methods have different parameters that
+ allow for different considerations of clustering, local influence, and
+ global influence.
+\end_layout
+
+\begin_layout Standard
+INCLUDE ROUGH ALG HERE.
+\end_layout
+
+\begin_layout Standard
+We provide a variety of improvements to this routine.
+ First, the calculation of 
+\begin_inset Formula $D^{\nu}$
+\end_inset
+
+ and 
+\begin_inset Formula $D^{\nu+\frac{1}{\lambda}}$
+\end_inset
+
+ are only performed if they correspond to non-zero elements of 
+\begin_inset Formula $A^{T}A$
+\end_inset
+
+, where 
+\begin_inset Formula $A$
+\end_inset
+
+ is the (not necessarily symmetric) adjacency matrix passed to the routine.
+ While these matricies are constructed, we determine the logical negation
+ of the symmetric adjacency matrix.
+ This is all done to ensure we only have to traverse all 
+\begin_inset Formula $n^{2}$
+\end_inset
+
+ elements of the adjacency matrix once.
+ This precomputation allows the iterative optimization procedure to be more
+ efficient.
+\end_layout
+
+\begin_layout Standard
+The original implmentation of a 
+\family typewriter
+boxcox
+\family default
+ function utilized an adaptive version of gradient descent.
+ That is depending upon the direction of movement of the objective function,
+ the step size was increased or decreased.
+ In addition to this, we implment backtracking line search algorithm for
+ gradient descent via the Armijo Condition.
+ That is, for a vectoral representation of our current configuration, say
+ 
+\begin_inset Formula $x_{k}$
+\end_inset
+
+, a search direction 
+\begin_inset Formula $p_{k}$
+\end_inset
+
+, the objective function 
+\begin_inset Formula $s(x_{k})$
+\end_inset
+
+, and the gradient 
+\begin_inset Formula $\nabla s(x_{k})$
+\end_inset
+
+, we have the following algorithm -- 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:armijo"
+
+\end_inset
+
+.
+ 
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "alg:armijo"
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Plain Layout
+Input: 
+\begin_inset Formula $x_{k}$
+\end_inset
+
+, 
+\begin_inset Formula $p_{k}$
+\end_inset
+
+,
+\begin_inset Formula $s(x_{k})$
+\end_inset
+
+, 
+\begin_inset Formula $\nabla s(x_{k})$
+\end_inset
+
+, 
+\begin_inset Formula $\tau\in(0,1)$
+\end_inset
+
+, and 
+\begin_inset Formula $\beta\in(0,1)$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Plain Layout
+Output: Stepsize 
+\begin_inset Formula $\alpha$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Let 
+\begin_inset Formula $\alpha_{init}=\alpha^{(0)}=1$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+While: 
+\begin_inset Formula $s(x_{k}+\alpha^{(\ell)}p_{k})\leq s(x_{k})+\alpha^{(\ell)}\beta\nabla s(x_{k})^{T}p_{k}$
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+\begin_inset Formula $\alpha^{(\ell+1)}=\tau\alpha^{(\ell)}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $\ell=\ell+1$
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Return:
+\begin_inset Formula $\alpha^{(\ell)}$
+\end_inset
+
+ 
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Armijo Line Search
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+MENTION WHY THIS WORKS.
+\end_layout
+
+\begin_layout Standard
+In addition to refining the selection of learning parameters in standard
+ gradient descent,he we also provide an implentation of the (BFGS) algorithm.
+ Such a method relies on an iterative construction of the Hessian in order
+ to obtain more information with respect to the behavior of the function.
+ For the iterative construction of the inverse hessian, we use the Sherman
+ Morrison formula.
+ Our algorithm for BFGS, using 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:armijo"
+
+\end_inset
+
+, is as follows: 
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "alg:bfgs"
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Plain Layout
+Input:
+\begin_inset Formula $x_{0}$
+\end_inset
+
+, 
+\begin_inset Formula $p_{k}$
+\end_inset
+
+,
+\begin_inset Formula $s(x)$
+\end_inset
+
+, 
+\begin_inset Formula $\nabla s(x)$
+\end_inset
+
+, 
+\begin_inset Formula $\tau\in(0,1)$
+\end_inset
+
+, and 
+\begin_inset Formula $\beta\in(0,1)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Return: 
+\begin_inset Formula $x_{final}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Let 
+\begin_inset Formula $H_{0}^{-1}=I$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $k=0$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+While: not converged
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Search direction: 
+\begin_inset Formula $p_{k}=-H_{k}^{-1}\nabla s(x_{k})$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $\alpha^{(k)}=\mathrm{armijo}(x_{k},p_{k},s(x_{k}),\nabla s(x_{k}),\tau,\beta)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $x_{k+1}=x_{k}+\alpha^{(k)}p_{k}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $s_{k}=\alpha^{(k)}p_{k}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $y_{k}=\nabla s(x_{k+1})-\nabla s(x_{k})$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $H_{k+1}^{-1}=H_{k}^{-1}+\frac{(s_{k}^{T}y_{k}+y_{k}^{T}H_{k}^{-1}y_{k})s_{k}s_{k}^{T}}{(s_{k}^{T}y_{k})^{2}}+\frac{H_{k}^{-1}y_{k}s_{k}^{T}+s_{k}y_{k}^{T}H_{k}^{-1}}{s_{k}^{T}y_{k}}$
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Return: 
+\begin_inset Formula $x_{final}$
+\end_inset
+
+ 
+\begin_inset Caption
+
+\begin_layout Plain Layout
+BFGS for boxcox
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+For the visualitzation of the speedup, consider the following graphic.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:su_lmds"
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename ../Paper/speedup_lmds.pdf
+	lyxscale 10
+	width 40text%
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Ratio of CPU time for DimReduce versus a baseline
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

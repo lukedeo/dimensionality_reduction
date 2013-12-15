@@ -65,10 +65,14 @@ digits <- t(digits)
 labels <- cbind(rep("0", 1100), rep("1", 1100), rep("2", 1100), rep("3", 1100)
                 , rep("4", 1100), rep("5", 1100), rep("6", 1100), rep("7", 1100)
                 , rep("8", 1100), rep("9", 1100))
+color_vec <- cbind(rep("blue", 1100), rep("red", 1100), rep("green", 1100), rep("black", 1100)
+                , rep("purple", 1100), rep("grey", 1100), rep("pink", 1100), rep("yellow", 1100)
+                , rep("orange", 1100), rep("brown", 1100))
 N <- 600
 samp <- sort(sample(x=1:nrow(digits), size=N, replace=F))
 X <- (digits[samp, ]) / max(digits[samp, ])
 labs <- labels[samp]
+col_samp <- color_vec[samp]
 Do <- fastPdist(X, X)
 Daux <- apply(Do,2,sort)[k+1,]
 Inb <- ifelse(Do>Daux, 0, 1)
@@ -80,7 +84,7 @@ data(frey)
 frey <- t(frey)
 
 frey_scaled <- scale(frey)
-N <- 1400
+N <- 1200
 X <- frey_scaled[sort(sample(x=1:nrow(frey), size=N, replace=F)), ]
 Do <- fastPdist(X, X)
 Daux <- apply(Do,2,sort)[k+1,]
@@ -89,28 +93,29 @@ X_init <- X[, c(1, 3)]
 
 
 
-frey_lle <- local_linear_embedding(X, k = 17, d = 2, verbose = TRUE)
+frey_lle <- local_linear_embedding(X, k = 13, d = 2, verbose = TRUE)
 plot(frey_lle$Y, pch=19, col=rainbow(N, start=0, end = .7), main = frey_lle$description)
-xY=frey_lle$Y
+Y=frey_lle$Y
 plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19, main = frey_lle$description)
 
 # New LLE -----------------------------------------------------------------
 
-linemb <- local_linear_embedding(X = X, k = 15, d = 2, verbose = TRUE)
+linemb <- local_linear_embedding(X = X, k = 20, d = 3, verbose = TRUE)
 plot(linemb$Y, pch=19, col=rainbow(N, start=0, end = .7), main = linemb$description)
 plot(decomp$v[,c(198, 199)], pch=19, col=rainbow(N, start=0, end = .7))
 
+Y=linemb$Y
+plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19, main = frey_lle$description)
+
+
 
 # Isomap ------------------------------------------------------------------
-iso <- embedding(X=X, k = 11, d = 2, verbose=TRUE, method="isomap", mode = "classical", weighted = FALSE)
+iso <- embedding(X=X, k = 20, d = 3, verbose=TRUE, method="isomap", mode = "classical", weighted = FALSE)
 
-iso <- isomap(X=X, k = 7, d = 3, verbose=TRUE, weighted=TRUE)
-plot(iso$Y, col=rainbow(N, start=0, end = .7), main = iso$description, pch = labs)
+iso <- isomap(X=X, k = 20,  d = 3, verbose=TRUE, weighted=TRUE)
+plot(iso$Y, col=rainbow(N, start=0, end = .7), main = iso$description, pch = 19)
 Y=iso$Y
-
-
-
-plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=labs, main = frey_lle$description)
+plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19, main = frey_lle$description)
 
 
 
@@ -120,11 +125,26 @@ plot(iso,  col=rainbow(N, start=0, end = .7))
 
 
 
+lmds_frey <- boxcox(D=Do, A=Inb, d = 2, tau = .2, lambda=2, sample_rate = 10, niter = 100, cmds_start=F, verbose = TRUE)
+lmds_frey <- boxcox(D=Do, A=Inb, d = 2, tau = 0.5, lambda=3, X1=lmds_frey$Y, sample_rate = 10, niter = 200, verbose = TRUE)
+
+
+plot(lmds_frey$Y, col=rainbow(N, start=0, end = .7), main = lmds_frey$description, pch = 19)
+
+Y=lmds_frey$best
+plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19, main = lmds_frey$description)
 
 
 
 
+rand_prj <- random_projection(X=X, d=2, type=2)
+plot(rand_prj$Y, col=rainbow(N, start=0, end = .7), main = rand_prj$description, pch = 19)
+Y = rand_prj$Y
+plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19, main = rand_prj$description)
 
+
+cms <- cmds(D=Do, d=2, verbose=T)
+plot(cms$Y, col=rainbow(N, start=0, end = .7), main = cms$description, pch = 19)
 
 
 
