@@ -78,13 +78,13 @@ Daux <- apply(Do,2,sort)[k+1,]
 Inb <- ifelse(Do>Daux, 0, 1)
 X_init <- X[, c(1, 3)]
 
-
+library(RnavGraphImageData)
 data(frey)
 
 frey <- t(frey)
 
 frey_scaled <- scale(frey)
-N <- 1200
+N <- 700
 X <- frey_scaled[sort(sample(x=1:nrow(frey), size=N, replace=F)), ]
 Do <- fastPdist(X, X)
 Daux <- apply(Do,2,sort)[k+1,]
@@ -92,10 +92,17 @@ Inb <- ifelse(Do>Daux, 0, 1)
 X_init <- X[, c(1, 3)]
 
 
+X <- swiss_roll(n=N)
+Do <- fastPdist(X, X)
+Daux <- apply(Do,2,sort)[k+1,]
+Inb <- ifelse(Do>Daux, 0, 1)
+X_init <- X[, c(1, 3)]
+plot3d(X[, 1], X[, 2], X[, 3], col = rainbow(N, start=0, end = .7), pch=19)
 
-frey_lle <- local_linear_embedding(X, k = 13, d = 2, verbose = TRUE)
+frey_lle <- local_linear_embedding(X, k = 7, d = 2, verbose = TRUE)
 plot(frey_lle$Y, pch=19, col=rainbow(N, start=0, end = .7), main = frey_lle$description)
 Y=frey_lle$Y
+Dy <- fastPdist(Y, Y)
 plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19, main = frey_lle$description)
 
 # New LLE -----------------------------------------------------------------
@@ -110,9 +117,9 @@ plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19, main
 
 
 # Isomap ------------------------------------------------------------------
-iso <- embedding(X=X, k = 20, d = 3, verbose=TRUE, method="isomap", mode = "classical", weighted = FALSE)
+iso <- embedding(X=X, k = 10, d = 3, verbose=TRUE, method="isomap", mode = "classical", weighted = FALSE)
 
-iso <- isomap(X=X, k = 20,  d = 3, verbose=TRUE, weighted=TRUE)
+iso <- isomap(X=X, k = 10,  d = 2, verbose=TRUE, weighted=TRUE)
 plot(iso$Y, col=rainbow(N, start=0, end = .7), main = iso$description, pch = 19)
 Y=iso$Y
 plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19, main = frey_lle$description)
@@ -135,11 +142,11 @@ if(sum(!is.finite(A)) > 0)
 
 
 
-lmds_frey <- boxcox(D=Do, A=Inb, d = 3, tau = 1, lambda=10, sample_rate = 10, niter = 100, cmds_start=F, verbose = TRUE)
-lmds_frey <- boxcox(D=Do, A=Inb, d = 3, tau = 0.5, lambda=1, X1=lmds_frey_geodesic$Y, cmds_start=F, sample_rate = 10, niter = 200, verbose = TRUE)
+lmds_frey <- boxcox(D=Do, A=Inb, d = 2, tau = 1, lambda=1, sample_rate = 10, niter = 200, cmds_start=F, verbose = TRUE, bfgs=F, scale_out=F)
+lmds_frey <- boxcox(D=Do, A=Inb, d = 2, tau = 1, lambda=1, cmds_start=F, sample_rate = 1, niter = 10, verbose = TRUE, bfgs=T, X1=lmds_frey$Y, scale_out=F)
 
 
-plot(lmds_frey$Y, col=rainbow(N, start=0, end = .7), main = lmds_frey$description, pch = 19)
+plot(lmds_frey$best, col=rainbow(N, start=0, end = .7), main = lmds_frey$description, pch = 19)
 
 Y = lmds_frey_geodesic$Y
 Y=lmds_frey$Y
@@ -314,8 +321,8 @@ plot(lle_global$Y, pch=19, col=rainbow(N, start=0, end = .7))
 laplacian5 <- manifold(X, 2, 4, method="laplacian", heat=0)
 plot(laplacian5$Y, pch=19, col=rainbow(N, start=0, end = .7))
 
-laplacian4 <- laplacian_eigenmap(X=X, 2, 7, heat=.5)
-plot(laplacian4$Y, pch=19, col=rainbow(N, start=0, end = .7))
+laplacian5 <- laplacian_eigenmap(X=X,d=2, k=10, heat=4.0, verbose=T)
+plot(laplacian5$Y, pch=19, col=rainbow(N, start=0, end = .7))
 
 old <- laplacian4$Y
 new <- laplacian4$Y

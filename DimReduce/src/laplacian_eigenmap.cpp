@@ -20,7 +20,7 @@ SEXP laplacian_eigenmap(arma::mat X, int d, int k, double heat = 2.0, bool verbo
 	arma::mat D = fastPdist(X, X);
 	arma::mat graph = neighbor_graph(D, k, true);
 	graph.diag().zeros();
-
+	double heat_kernel = heat;
 	heat *= heat * 2;
 	if (heat != 0)
 	{
@@ -77,7 +77,7 @@ SEXP laplacian_eigenmap(arma::mat X, int d, int k, double heat = 2.0, bool verbo
 
 
 	std::stringstream ss;
-	ss << "Laplacian Eigenmap, heat = " << heat;
+	ss << "Laplacian Eigenmap, heat = " << heat_kernel;
 
 	std::string desc = ss.str();
 

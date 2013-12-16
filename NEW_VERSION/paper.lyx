@@ -946,122 +946,6 @@ s Analysis (PCA) and Classical Multidimensional Scaling (CMDS) are the same.
  , then PCA and CMDS are identical.
 \end_layout
 
-\begin_layout Subsection
-Experiments
-\end_layout
-
-\begin_layout Subsubsection
-Swiss Roll
-\end_layout
-
-\begin_layout Standard
-Consider the following embeddings.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-CMDS of Swiss Roll Dataset, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subsubsection
-S-Curve
-\end_layout
-
-\begin_layout Standard
-Consider the following embeddings.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-CMDS of S-Curve Dataset, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subsubsection
-Frey Faces
-\end_layout
-
-\begin_layout Standard
-Consider the following embeddings.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-CMDS of Frey Faces Dataset, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-OBSERVATIONS HERE.
-\end_layout
-
 \begin_layout Section
 Locally Linear Embedding
 \end_layout
@@ -1362,414 +1246,6 @@ In the following experiments, we use
 \end_inset
 
  to illustrate the effect of neighborhood size on the unrolled representation.
-\end_layout
-
-\begin_layout Subsubsection
-Swiss Roll
-\end_layout
-
-\begin_layout Standard
-Consider the following embeddings.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Locally Linear Embedding of Swiss Roll Dataset, 
-\begin_inset Formula $k=5$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Locally Linear Embedding of Swiss Roll Dataset, 
-\begin_inset Formula $k=10$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Locally Linear Embedding of Swiss Roll Dataset, 
-\begin_inset Formula $k=15$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Locally Linear Embedding of Swiss Roll Dataset, 
-\begin_inset Formula $k=20$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subsubsection
-S-Curve
-\end_layout
-
-\begin_layout Standard
-Consider the following embeddings.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Locally Linear Embedding of S-Curve Dataset, 
-\begin_inset Formula $k=5$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Locally Linear Embedding of S-Curve Dataset, 
-\begin_inset Formula $k=10$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Locally Linear Embedding of S-Curve Dataset, 
-\begin_inset Formula $k=15$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Locally Linear Embedding of S-Curve Dataset, 
-\begin_inset Formula $k=20$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subsubsection
-Frey Faces
-\end_layout
-
-\begin_layout Standard
-Consider the following embeddings.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Locally Linear Embedding of Frey Faces Dataset, 
-\begin_inset Formula $k=5$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Locally Linear Embedding of Frey Faces Dataset, 
-\begin_inset Formula $k=10$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Locally Linear Embedding of Frey Faces Dataset, 
-\begin_inset Formula $k=15$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Locally Linear Embedding of Frey Faces Dataset, 
-\begin_inset Formula $k=20$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Section
@@ -2140,450 +1616,6 @@ Isomap
 \end_inset
 
 
-\end_layout
-
-\begin_layout Subsection
-Experiments
-\end_layout
-
-\begin_layout Subsubsection
-Swiss Roll
-\end_layout
-
-\begin_layout Standard
-Consider the following embeddings.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Isomap Embedding of Swiss Roll Dataset, 
-\begin_inset Formula $k=5$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Isomap Embedding of Swiss Roll Dataset, 
-\begin_inset Formula $k=10$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Isomap Embedding of Swiss Roll Dataset, 
-\begin_inset Formula $k=15$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Isomap Embedding of Swiss Roll Dataset, 
-\begin_inset Formula $k=20$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subsubsection
-S-Curve
-\end_layout
-
-\begin_layout Standard
-Consider the following embeddings.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Isomap Embedding of S-Curve Dataset, 
-\begin_inset Formula $k=5$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Isomap Embedding of S-Curve Dataset, 
-\begin_inset Formula $k=10$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Isomap Embedding of S-Curve Dataset, 
-\begin_inset Formula $k=15$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Isomap Embedding of S-Curve Dataset, 
-\begin_inset Formula $k=20$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subsubsection
-Frey Faces
-\end_layout
-
-\begin_layout Standard
-Consider the following embeddings.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Isomap Embedding of Frey Faces Dataset, 
-\begin_inset Formula $k=5$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Isomap Embedding of Frey Faces Dataset, 
-\begin_inset Formula $k=10$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Isomap Embedding of Frey Faces Dataset, 
-\begin_inset Formula $k=15$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Isomap Embedding of Frey Faces Dataset, 
-\begin_inset Formula $k=20$
-\end_inset
-
-, 
-\begin_inset Formula $N=1000$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Section
-Laplacian Eigenmaps 
-\end_layout
-
-\begin_layout Subsection
-Description
-\end_layout
-
-\begin_layout Subsection
-Implementation
-\end_layout
-
-\begin_layout Subsection
-Experiments
-\end_layout
-
-\begin_layout Section
-Diffusion Maps 
-\end_layout
-
-\begin_layout Subsection
-Description
-\end_layout
-
-\begin_layout Subsection
-Implementation
-\end_layout
-
-\begin_layout Subsection
-Experiments
 \end_layout
 
 \begin_layout Section
@@ -3444,7 +2476,7 @@ step length
 is said to satisfy the Armijo condition if 
 \begin_inset Formula 
 \begin{equation}
-f(x+\alpha p)\leq f(x)+\alpha\beta p^{T}\nabla f(x)\label{eq:armijo}
+f(x+\alpha p)\leq f(x)+\underbrace{\alpha\beta p^{T}\nabla f(x)}_{g(\alpha,\beta)}\label{eq:armijo}
 \end{equation}
 
 \end_inset
@@ -3473,6 +2505,15 @@ enough.
 \begin_inset Quotes erd
 \end_inset
 
+ We require that 
+\begin_inset Formula $f$
+\end_inset
+
+ be reduced by 
+\begin_inset Formula $g(\alpha,\beta)$
+\end_inset
+
+, which we provide without proof.
  Though inexact, such a practice is necessary in any optimization problem
  where closed form representations of step sizes aren't known.
  We now apply this to a line search for our particular problem.
@@ -3610,20 +2651,71 @@ Armijo Line Search
 \end_layout
 
 \begin_layout Standard
-In addition to refining the selection of learning parameters in standard
- gradient descent, we we also provide an implentation of the (BFGS) algorithm.
+In addition to adding an additional toolbox to the selection of learning
+ parameters in standard gradient descent, we we also provide an implentation
+ of the Broyden–Fletcher–Goldfarb–Shanno (BFGS) algorithm CITATION.
+ BFGS is a second order method that is often used in unconstrained optimization
+ problems.
+ We provide an implementation of the memory inefficient version -- the entire
+ 
+\begin_inset Formula $Nd\times Nd$
+\end_inset
+
+ Hessian is stored and used.
  Such a method relies on an iterative construction of the Hessian in order
- to obtain more information with respect to the behavior of the function.
- For the iterative construction of the inverse hessian, we use the Sherman
- Morrison formula.
- Our algorithm for BFGS, using 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "alg:armijo"
+ to obtain more information with respect to the behavior of the function,
+ and to the curvature of the objective function around the current solution
+ iterate.
+ 
+\end_layout
+
+\begin_layout Standard
+To construct the Hessian at each iteration, we note that For the iterative
+ construction of the inverse hessian, we use the Sherman Morrison formula,
+ since the update to the Hessian is a rank-one update.
+\end_layout
+
+\begin_layout Fact
+(Sherman Morrison) Let 
+\begin_inset Formula $A$
+\end_inset
+
+ be an 
+\begin_inset Formula $n\times n$
+\end_inset
+
+, non-singular matrix, and let 
+\begin_inset Formula $A+uv^{T}$
+\end_inset
+
+ be a rank-one update.
+ Then we have that 
+\begin_inset Formula 
+\[
+\left(A+uv^{T}\right)^{-1}=A^{-1}-\frac{A^{-1}uv^{T}A^{-1}}{1+v^{T}A^{-1}u},
+\]
 
 \end_inset
 
-, is as follows: 
+
+\end_layout
+
+\begin_layout Fact
+Which can be verified by multiplying the right hand side by 
+\begin_inset Formula $A+uv^{T}$
+\end_inset
+
+, and showing the result is 
+\begin_inset Formula $I$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Using this fact, coupled with the Hessian update rules for BFGS, allows
+ us to write the follwing.
+ 
 \begin_inset Float algorithm
 placement H
 wide false
@@ -3642,7 +2734,7 @@ name "alg:bfgs"
 
 \begin_layout Plain Layout
 Input:
-\begin_inset Formula $x_{0}$
+\begin_inset Formula $X_{0}$
 \end_inset
 
 , 
@@ -3650,11 +2742,11 @@ Input:
 \end_inset
 
 ,
-\begin_inset Formula $s(x)$
+\begin_inset Formula $S(X)$
 \end_inset
 
 , 
-\begin_inset Formula $\nabla s(x)$
+\begin_inset Formula $\nabla S(X)$
 \end_inset
 
 , 
@@ -3668,9 +2760,9 @@ Input:
 
 \end_layout
 
-\begin_layout Enumerate
-Return: 
-\begin_inset Formula $x_{final}$
+\begin_layout Plain Layout
+Output: 
+\begin_inset Formula $X_{final}$
 \end_inset
 
 
@@ -3698,21 +2790,21 @@ While: not converged
 \begin_deeper
 \begin_layout Enumerate
 Search direction: 
-\begin_inset Formula $p_{k}=-H_{k}^{-1}\nabla s(x_{k})$
+\begin_inset Formula $p_{k}=-H_{k}^{-1}\nabla S(S_{k})$
 \end_inset
 
 
 \end_layout
 
 \begin_layout Enumerate
-\begin_inset Formula $\alpha^{(k)}=\mathrm{armijo}(x_{k},p_{k},s(x_{k}),\nabla s(x_{k}),\tau,\beta)$
+\begin_inset Formula $\alpha^{(k)}=\mathrm{armijo}(X_{k},p_{k},S(X_{k}),\nabla S(X_{k}),\tau,\beta)$
 \end_inset
 
 
 \end_layout
 
 \begin_layout Enumerate
-\begin_inset Formula $x_{k+1}=x_{k}+\alpha^{(k)}p_{k}$
+\begin_inset Formula $X_{k+1}=X_{k}+\alpha^{(k)}p_{k}$
 \end_inset
 
 
@@ -3726,7 +2818,7 @@ Search direction:
 \end_layout
 
 \begin_layout Enumerate
-\begin_inset Formula $y_{k}=\nabla s(x_{k+1})-\nabla s(x_{k})$
+\begin_inset Formula $y_{k}=\nabla S(X_{k+1})-\nabla S(X_{k})$
 \end_inset
 
 
@@ -3742,7 +2834,7 @@ Search direction:
 \end_deeper
 \begin_layout Enumerate
 Return: 
-\begin_inset Formula $x_{final}$
+\begin_inset Formula $X_{final}$
 \end_inset
 
  
@@ -3763,7 +2855,13 @@ BFGS for boxcox
 \end_layout
 
 \begin_layout Standard
-For the visualitzation of the speedup, consider the following graphic.
+In practice, we have seen that beginning the optimization with BFGS, then
+ switching to standard gradient descent works well.
+ 
+\end_layout
+
+\begin_layout Standard
+For the visualization of the speedup, consider the following graphic.
 \end_layout
 
 \begin_layout Standard

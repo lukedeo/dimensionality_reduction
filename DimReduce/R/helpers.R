@@ -1,3 +1,38 @@
+meta_criterion <- function(original_graph, reduced_graph)
+{
+    n <- nrow(original_graph)
+
+    M_list <- rep(0, n)
+
+    for (i in 1:n) {
+
+       M_k <- length(intersect(which(reduced_graph[i, ] > 0), which(original_graph[i, ] > 0)))
+       M_k <- M_k / sum(original_graph[i, ] > 0) - (1 / (n - 1)) * sum(reduced_graph[i, ] > 0)
+       M_list[i] <- M_k
+    }
+    return((M_list))
+}
+
+knn_criterion <- function(D_original, D_reduced, k) {
+    if(length(k) == 1)
+    {
+        original_graph <- neighbor_graph(D_original, k, 0)
+        reduced_graph <- neighbor_graph(D_reduced, k, 0)
+        return(mean(meta_criterion(original_graph, reduced_graph)))
+    }
+    else
+    {
+        ks <- length(k)
+        mks <- rep(0, ks)
+        for(i in 1:ks)
+        {
+            mks[i] <- knn_criterion(D_original, D_reduced, k[i])
+        }
+        return(mks)
+    }
+
+}
+
 pdist <- function(A,B) {
     an = apply(A, 1, function(rvec) crossprod(rvec,rvec))
     bn = apply(B, 1, function(rvec) crossprod(rvec,rvec))
@@ -41,18 +76,23 @@ s_curve <- function(n = 400, noisy = FALSE)
 
 
 
-compare_reductions <- function(...){
+compare_reductions <- function(X_orig, ...){
     candidates <- list(...)
+    D_orig <- fastPdist(X_orig, X_orig)
     kvals <- c(1:10, seq(15, 30, 5), 40, 50)
     LC <- matrix(0, length(candidates), length(kvals))
     idx <- 1
     cols <- rainbow(length(candidates))
     for(manifold in candidates){
-        LC[idx, ] <- LC_metacriterion(manifold, kvals)
+        Dnew <- manifold$Y
+        Dnew <- fastPdist(Dnew, Dnew)
+        LC[idx, ] <- knn_criterion(D_orig, Dnew, kvals)
         idx <- idx + 1
     }
     idx <- 1
-    minval <- 1.14 * min(LC)
+    minval <- min(LC)
+    minval <- ifelse(minval < 0, - 1.14 * abs(minval) , .84 * minval)
+    
     maxval <- 1.14 * max(LC)
     
     plot(kvals, LC[1, ], type = "b", xlim = c(1, 50), ylim = c(minval, maxval), col = cols[1], ylab = "Adjusted Criterion", xlab = "Neighborhood Size", log = "x", main = "Methods Comparison")
