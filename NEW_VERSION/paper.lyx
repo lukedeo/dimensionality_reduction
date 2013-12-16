@@ -504,7 +504,101 @@ For each method, we benchmark qualitative performance using three datasets.
 \end_layout
 
 \begin_layout Standard
+In order to evaluate the considered algorithms on empirical ground, we implement
+ the Local Continuity Metacriterion a la 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Chen:2013:SFN:2502581.2502616"
 
+\end_inset
+
+, which allows us to gain a sense of how well a given embedding algorithm
+ is preserving local neighborhood structure.
+ Formally, we use the Adjusted Metacriterion.
+ Let 
+\begin_inset Formula $\Delta$
+\end_inset
+
+ be the original dissimilarity matrix, let the embedded dissimilarity matrix
+ be 
+\begin_inset Formula $\Xi$
+\end_inset
+
+, and let there be neighborhood graphs 
+\begin_inset Formula $G_{\Delta}=(V,E)$
+\end_inset
+
+ and 
+\begin_inset Formula $G_{\Xi}=(W,F)$
+\end_inset
+
+ defined over these.
+ Let the neighborhood around 
+\begin_inset Formula $i$
+\end_inset
+
+ on 
+\begin_inset Formula $G_{\Delta}$
+\end_inset
+
+ be 
+\begin_inset Formula $\mathcal{N}_{\Delta}(i)=\{j:(i,j)\in E\}$
+\end_inset
+
+, and the neighborhood around 
+\begin_inset Formula $i$
+\end_inset
+
+ on 
+\begin_inset Formula $G_{\Xi}$
+\end_inset
+
+ be 
+\begin_inset Formula $\mathcal{N}_{\Xi}(i)=\{j:(i,j)\in F\}$
+\end_inset
+
+.
+ We then have that for each point 
+\begin_inset Formula $i$
+\end_inset
+
+, the Adjusted Metacriterion 
+\begin_inset Formula $M_{\Xi}^{adj}(i)$
+\end_inset
+
+ is 
+\begin_inset Formula 
+\[
+M_{\Xi}^{adj}(i)=\frac{\left|\mathcal{N}_{\Delta}(i)\cap\mathcal{N}_{\Xi}(i)\right|}{\left|\mathcal{N}_{\Delta}(i)\right|}-\frac{1}{|V|-1}\left|\mathcal{N}_{\Xi}(i)\right|,
+\]
+
+\end_inset
+
+and the overall Adjusted Metacriterion for the embedding represented by
+ 
+\begin_inset Formula $\Xi$
+\end_inset
+
+ is 
+\begin_inset Formula 
+\[
+M_{\Xi}^{adj}=\frac{1}{|V|}\sum_{i\in V}M_{\Xi}^{adj}(i).
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This criterion will be used in 
+\begin_inset CommandInset ref
+LatexCommand formatted
+reference "sec:Benchmarks"
+
+\end_inset
+
+ for benchmarking using the aforementioned datasets.
 \end_layout
 
 \begin_layout Chapter
@@ -2934,7 +3028,7 @@ In practice, we have seen that beginning the optimization with BFGS, then
 \end_layout
 
 \begin_layout Standard
-For the visualization of the speedup, consider the following graphic.
+For themark visualization of the speedup, consider the following graphic.
 \end_layout
 
 \begin_layout Standard
@@ -2990,6 +3084,566 @@ Experiments
 We break this portion up into two sections.
  First, we use our three benchmark datasets to show select performance from
  the algorithms within DimReduce.
+ Second, we utilize Kernel Support Vector Machines to map unseen observations
+ into the embedded feature space, representing a potential way to estimate
+ a mapping induced by such an algorithm.
+\end_layout
+
+\begin_layout Section
+Benchmarks
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Benchmarks"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+To benchmark the methods included in DimReduce, we utilize the Frey Faces
+ dataset and the canonical Swiss Roll and S-curve datasets.
+ To ensure proper sampling, we sample 
+\begin_inset Formula $N=1000$
+\end_inset
+
+ points from each set.
+\end_layout
+
+\begin_layout Subsection
+Swiss Roll
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename plots/swiss_lle_10.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename plots/swiss_lle_15.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename plots/swiss_lle_20.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename plots/swiss_lle_crit.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Locally Linear Embedding 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename plots/swiss_iso_10.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename plots/swiss_iso_15.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename plots/swiss_iso_20.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename plots/swiss_iso_crit.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+ISOMAP
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename plots/swiss_lmds_10_lambda1.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename plots/swiss_lmds_10_lambda6.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename plots/swiss_lmds_10_tauhalf.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename plots/swiss_lmds_crit_lamba.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename plots/swiss_lle_crit.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Local MDS 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename plots/swiss_lmds_5.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename plots/swiss_lmds_10_lambda1.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename plots/swiss_lmds_15.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename plots/swiss_lmds_crit_k.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Local MDS 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Learning Mappings
+\end_layout
+
+\begin_layout Standard
+Clearly, all methods considered in DimReduce perform well and can offer
+ valuable insight into the underlying structure of a dataset.
+ All seem to preserve some important qualitative features of the manifold,
+ and the dynamics with respect to the metacriterion are consistent with
+ intuition.
+ For example, manifolds estimated while only considering the local neighborhood
+ exhibit high metacriterion values for small neighborhood size, but poor
+ values for larger and larger neighborhoods within the dataset.
+ For as much as these offer, they all share a common shortcoming -- they
+ learn an 
+\emph on
+embedding
+\emph default
+, not a 
+\emph on
+mapping
+\emph default
+.
+ That is, for a new high dimensional observation, there is no model by which
+ to produce a lower dimensional representation.
+ We offer a simple solution to this -- assume that the unrolling procedure
+ can be aproximated by some generative function.
+ As such, we can certainly estimate a model that maps data, 
+\begin_inset Formula $X$
+\end_inset
+
+, to uncovered features, 
+\begin_inset Formula $Y$
+\end_inset
+
+.
+ Though we do not provide any proof, we show -- at least on the Swiss Roll
+ and S Curve datasets -- that we can train a simple Kernel Support Vector
+ Machine to map original high dimensional features to the more informative
+ features learned from one of the aforementioned algorithms.
+ 
+\end_layout
+
+\begin_layout Standard
+For this illustration, we use Local Multidimensional Scaling on a dataset
+ 
+\begin_inset Formula $X\in\R^{N\times3}$
+\end_inset
+
+ to produce an embedding 
+\begin_inset Formula $Y\in\R^{N\times2}$
+\end_inset
+
+, where 
+\begin_inset Formula $X$
+\end_inset
+
+ is either the Swiss Roll or the S Curve, 
+\begin_inset Formula $N=1000$
+\end_inset
+
+, and we use 
+\begin_inset Formula $k=10$
+\end_inset
+
+ and use a 
+\begin_inset Formula $k$
+\end_inset
+
+ Nearest Neighbor graph for LMDS.
+ We then train a regression Kernel Support Vector Machine to produce 
+\begin_inset Formula $Y$
+\end_inset
+
+ from 
+\begin_inset Formula $X$
+\end_inset
+
+.
+ That is, we learn an 
+\begin_inset Formula $f$
+\end_inset
+
+ such that 
+\begin_inset Formula $f(X)\approx Y$
+\end_inset
+
+.
+ We use two support vector machines -- one for each coordinate of the embedding.
+ Consider the following graphics, which illustrate the predictive power
+ of such a pairing.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename plots/swiss_lmds_training_smooth.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename plots/swiss_lmds_testing_noisy.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Learned Mappings of the Swiss Roll
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+On the left, we see the predictions (read: embedding) made by the kSVM on
+ the training data -- i.e., the original 
+\begin_inset Formula $X$
+\end_inset
+
+ paired with the original determined embedding 
+\begin_inset Formula $Y$
+\end_inset
+
+.
+ On the right, we used the following procedure.
+ We generate an entirely new, 
+\emph on
+noisy 
+\emph default
+version of the Swiss Roll, then use the kSVM to predict the coordinates
+ of the embedding.
+ The coloration qualitatively shows us that the kSVM is learning an applicable
+ mapping for this manifold.
+ 
+\end_layout
+
+\begin_layout Standard
+In addition, we apply this same procedure to the S-Curve data with one slight
+ modification.
+ Instead of learning the kSVM on a smoothly sampled manifold, we add noise
+ to the training procedure.
+ Once again, we must first use LMDS to obtain the targets for the kSVM to
+ learn.
+ We then generate a new Swiss Roll and try to see if the learned embedding
+ is valuable.
+ Consider the following.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename plots/sroll_training_noisy.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename plots/sroll_testing_doublynoisy.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Learned Mappings of the S Curve
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+On the left, we see the predictions made by the kSVM on the noisy training
+ data.
+ On the right, we first generated a new, noisy S-Curve.
+ We then added more noise, then embedded using the kSVM.
+ As is evident, the feature relationship learned by the kSVM maps well,
+ and seems to generalize well.
+ As a final illustration of this, consider the following.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename plots/sroll_ksvm_vs_lmds.png
+	lyxscale 10
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Adjusted Metacriterion on the 
+\emph on
+testing
+\emph default
+ data for the kSVM mapped features versus a completely relearned (by LMDS)
+ embedding.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Though it is clear that the relearned embedding does better than the kSVM
+ mapped version, we can see that the performance is not terribly far off,
+ and suggests that this may be a promising procedure for creating mappings
+ to extract features.
+ This warrents further investigation, and a more thorough testing of different
+ datasets, initial embeddings, and learners applied to the learning of the
+ embedding.
+ Clearly, this procedure relies on the manifold being densely sampled at
+ training time, and also relies on the new data points to be embedding lying
+ on the support of the sampling on the manifold.
+ However, this is defininely a promising procedure.
 \end_layout
 
 \begin_layout Standard

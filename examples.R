@@ -84,23 +84,31 @@ data(frey)
 frey <- t(frey)
 
 frey_scaled <- scale(frey)
-N <- 700
+N <- 1000
 X <- frey_scaled[sort(sample(x=1:nrow(frey), size=N, replace=F)), ]
 Do <- fastPdist(X, X)
 Daux <- apply(Do,2,sort)[k+1,]
 Inb <- ifelse(Do>Daux, 0, 1)
 X_init <- X[, c(1, 3)]
 
-
+Xnew <- swiss_roll(n=N, noisy=F)
 X <- swiss_roll(n=N)
 Do <- fastPdist(X, X)
 Daux <- apply(Do,2,sort)[k+1,]
 Inb <- ifelse(Do>Daux, 0, 1)
 X_init <- X[, c(1, 3)]
-plot3d(X[, 1], X[, 2], X[, 3], col = rainbow(N, start=0, end = .7), pch=19)
+plot3d(Xnew[, 1], Xnew[, 2], Xnew[, 3], col = rainbow(N, start=0, end = .7), pch=19)
 
-frey_lle <- local_linear_embedding(X, k = 7, d = 2, verbose = TRUE)
-plot(frey_lle$Y, pch=19, col=rainbow(N, start=0, end = .7), main = frey_lle$description)
+
+locle10 <- local_linear_embedding(X, k = 10, d = 2, verbose = TRUE)
+locle15 <- local_linear_embedding(X, k = 15, d = 2, verbose = TRUE)
+locle20 <- local_linear_embedding(X, k = 20, d = 2, verbose = TRUE)
+compare_reductions(X_orig=X, locle10, locle15, locle20)
+
+plot(frey_lle$Y, pch=19, col=rainbow(N, start=0, end = .7), xlab = "Feature 1", ylab = "Feature 2",main = frey_lle$description)
+
+
+
 Y=frey_lle$Y
 Dy <- fastPdist(Y, Y)
 plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19, main = frey_lle$description)
@@ -118,8 +126,10 @@ plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19, main
 
 # Isomap ------------------------------------------------------------------
 iso <- embedding(X=X, k = 10, d = 3, verbose=TRUE, method="isomap", mode = "classical", weighted = FALSE)
-
-iso <- isomap(X=X, k = 10,  d = 2, verbose=TRUE, weighted=TRUE)
+iso10 <- isomap(X=X, k = 10,  d = 2, verbose=TRUE, weighted=TRUE)
+iso15 <- isomap(X=X, k = 15,  d = 2, verbose=TRUE, weighted=TRUE)
+iso20 <- isomap(X=X, k = 20,  d = 2, verbose=TRUE, weighted=TRUE)
+compare_reductions(X_orig=X, iso10, iso15, iso20)
 plot(iso$Y, col=rainbow(N, start=0, end = .7), main = iso$description, pch = 19)
 Y=iso$Y
 plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19, main = frey_lle$description)
@@ -141,15 +151,37 @@ if(sum(!is.finite(A)) > 0)
 }
 
 
+Do <- fastPdist(X, X)
 
-lmds_frey <- boxcox(D=Do, A=Inb, d = 2, tau = 1, lambda=1, sample_rate = 10, niter = 200, cmds_start=F, verbose = TRUE, bfgs=F, scale_out=F)
+k = 15
+Daux <- apply(Do,2,sort)[k+1,]
+Inb <- ifelse(Do>Daux, 0, 1)
+lmds <- boxcox(D=Do, A=Inb, d = 2, tau = 1, lambda=1, sample_rate = 10, niter = 200, cmds_start=F, verbose = T,scale_out=F)
+plot(lmds$Y, col=rainbow(N, start=0, end = .7), main = lmds$description, pch = 19)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+lmds_frey_clust <- boxcox(D=Do, A=Inb, d = 2, tau = 1, lambda=1, sample_rate = 10, niter = 150, cmds_start=F, verbose = TRUE, bfgs=F, scale_out=F)
 lmds_frey <- boxcox(D=Do, A=Inb, d = 2, tau = 1, lambda=1, cmds_start=F, sample_rate = 1, niter = 10, verbose = TRUE, bfgs=T, X1=lmds_frey$Y, scale_out=F)
 
 
-plot(lmds_frey$best, col=rainbow(N, start=0, end = .7), main = lmds_frey$description, pch = 19)
+plot(lmds_frey_clust$Y, col=rainbow(N, start=0, end = .7), main = lmds_frey$description, pch = 19)
 
 Y = lmds_frey_geodesic$Y
-Y=lmds_frey$Y
+Y=lmds_frey_clust$best
 
 plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19, main = lmds_frey$description)
 
@@ -283,15 +315,18 @@ diffmap_local <- manifold(X, 2, sigma=0.3, t=2, method = "diffusion")
 diffmap_semiglobal <- manifold(X, 2, sigma=0.4, t=2, method = "diffusion")
 diffmap_global <- manifold(X, 2, sigma=0.9, t=2, method = "diffusion")
 
-diffmap_local_t <- manifold(X, 2, sigma=0.3, t=5, method = "diffusion")
+diffmap_local_t <- manifold(X, 2, sigma=0.1, t=5, method = "diffusion")
 diffmap_semiglobal_t <- manifold(X, 2, sigma=0.4, t=5, method = "diffusion")
 diffmap_global_t <- manifold(X, 2, sigma=0.9, t=5, method = "diffusion")
 
 diffmap_local_t <- DIFFMAP(X, 2, sigma = 0.3, t=2)
 plot(diffmap_local_t$Y, pch=19, col=rainbow(N, start=0, end = .7))
 
-diffmap_local <- diffusion_map(X, 2, t=2, sigma=0.8)
+diffmap_local <- diffusion_map(X, 3, t=2, sigma=-1, verbose=T)
 plot(diffmap_local$Y, pch=19, col=rainbow(N, start=0, end = .7))
+Y=diffmap_local$Y
+plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19, main = diffmap_local$description)
+
 
 plot(diffmap_local_t$Y, pch=19, col=rainbow(N, start=0, end = .7))
 plot(diffmap_semiglobal$Y, pch=19, col=rainbow(N, start=0, end = .7))
@@ -321,8 +356,12 @@ plot(lle_global$Y, pch=19, col=rainbow(N, start=0, end = .7))
 laplacian5 <- manifold(X, 2, 4, method="laplacian", heat=0)
 plot(laplacian5$Y, pch=19, col=rainbow(N, start=0, end = .7))
 
-laplacian5 <- laplacian_eigenmap(X=X,d=2, k=10, heat=4.0, verbose=T)
+laplacian5 <- laplacian_eigenmap(X=X,d=3, k=11, heat=100.0, verbose=T)
 plot(laplacian5$Y, pch=19, col=rainbow(N, start=0, end = .7))
+
+Y=laplacian5$Y
+plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19, main = laplacian5$description)
+
 
 old <- laplacian4$Y
 new <- laplacian4$Y
