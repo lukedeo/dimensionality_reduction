@@ -329,6 +329,13 @@ texttt{Rcpp}
 
 \end_inset
 
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Eddelbuettel:Francois:2011:JSSOBK:v40i08"
+
+\end_inset
+
 .
  The package 
 \begin_inset ERT
@@ -360,7 +367,14 @@ texttt{RcppArmadillo}
 \end_inset
 
  takes this a step further, by allowing the R developer the ability to call
- the Armadillo Library -- a very efficient matrix library for C++.
+ the Armadillo Library -- a very efficient matrix library for C++ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "nicta_4314"
+
+\end_inset
+
+.
  Using this and a deeper understanding of how to efficiently implement methods,
  we obtain speed-ups over existing packages that provide methods that we
  include in DimReduce.
@@ -552,8 +566,14 @@ In this case,
 
 \begin_layout Standard
 How can this help with reducing the dimensionality of a dataset? We turn
- to Johnson and Lindenstrauss CITATION, who provide the following Lemma,
- which we provide without proof.
+ to Johnson and Lindenstrauss 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Dasgupta:1999uq"
+
+\end_inset
+
+, who provide the following Lemma, which we provide without proof.
 \end_layout
 
 \begin_layout Lemma
@@ -599,8 +619,15 @@ How can this help with reducing the dimensionality of a dataset? We turn
 \end_layout
 
 \begin_layout Standard
-Intuitively REFABOVE tells us that we can find approximate distance preserving
- mappings that embed a data point in a lower dimensional space.
+Intuitively 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:jlindenstrauss"
+
+\end_inset
+
+ tells us that we can find approximate distance preserving mappings that
+ embed a data point in a lower dimensional space.
  In fact, X and X show in XX that we can construct matricies that have zero
  mean and unit variance that in expectation provide a pairwise distance
  preserving embedding.
@@ -720,7 +747,6 @@ Imagine a scenario in which we find such an
 \end_layout
 
 \begin_layout Section
-Metric 
 \begin_inset CommandInset label
 LatexCommand label
 name "sec:Metric-Multidimensional-Scaling"
@@ -735,16 +761,26 @@ Description and Implementation
 \end_layout
 
 \begin_layout Standard
-Classical Multidimensional Scaling aims to approximately solve the problem
- of Equation 
-\begin_inset CommandInset ref
-LatexCommand eqref
-reference "eq:jlindenstrauss"
-
+We must distinguish here between so called 
+\begin_inset Quotes eld
 \end_inset
 
- by explicitly minimizing a cost function that penalized points whose embedded
- representations aren't close in euclidean distance.
+Classical
+\begin_inset Quotes erd
+\end_inset
+
+ Multidimensional Scaling, non-metric multidimensional scaling.
+ Classical Multidimensional Scaling transforms dissimilarity data into inner
+ product data, which can be solved using an eigendecomposition, while non-metric
+ multidimensional scaling approximates the distance data directly, removing
+ the need for the dissimilarities to be from a well defined (mathematically)
+ metric.
+\end_layout
+
+\begin_layout Standard
+In general Multidimensional Scaling aims to find an optimal embedding by
+ explicitly minimizing a cost function that penalizes points whose embedded
+ representations aren't close in Euclidean distance.
  Formally, given a matrix of distances 
 \begin_inset Formula $\Delta$
 \end_inset
@@ -955,8 +991,15 @@ Description
 \end_layout
 
 \begin_layout Standard
-Locally Linear Embedding is a very intuitive method which attempts to find
- an embedding that preserves local neighborhood structure of the data.
+Locally Linear Embedding 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Roweis22122000"
+
+\end_inset
+
+ is a very intuitive method which attempts to find an embedding that preserves
+ local neighborhood structure of the data.
  Formally, the algorithm assumes that each point in the dataset can be described
  as a convex combination of nearby data points.
  If a data set is densely sampled from a smooth manifold, then neighbors
@@ -1204,7 +1247,7 @@ name "fig:su_lle"
 \begin_inset Caption
 
 \begin_layout Plain Layout
-Ratio of CPU time for DimReduce versus a baseline
+Ratio of CPU time for DimReduce versus the baseline package
 \end_layout
 
 \end_inset
@@ -1215,37 +1258,6 @@ Ratio of CPU time for DimReduce versus a baseline
 \end_inset
 
 
-\end_layout
-
-\begin_layout Subsection
-Experiments
-\end_layout
-
-\begin_layout Standard
-In the following experiments, we use 
-\begin_inset Formula $N=1000$
-\end_inset
-
- data points to ensure a reasonable sampled manifold.
- In addition, we scale all variables 
-\begin_inset Formula $x$
-\end_inset
-
- such that 
-\begin_inset Formula $\overline{x}=0$
-\end_inset
-
- and 
-\begin_inset Formula $s_{x}=1$
-\end_inset
-
- to ensure that no particular original feature has an imbalance of influence
- on the objective function.
- We use 
-\begin_inset Formula $k\in\{5,10,15,20\}$
-\end_inset
-
- to illustrate the effect of neighborhood size on the unrolled representation.
 \end_layout
 
 \begin_layout Section
@@ -1257,10 +1269,17 @@ Description
 \end_layout
 
 \begin_layout Standard
-Isomap is essentially Multidimensional Scaling with respect to a different
- baseline metric.
+Isomap 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Tenenbaum22122000"
+
+\end_inset
+
+ is essentially Multidimensional Scaling with respect to a different baseline
+ metric.
  Instead of using the standard Euclidean Metric, we first construct a graph
- on the dataset.
+ on the dataset .
  We let each 
 \begin_inset Formula $x_{i}\in\{x_{i}\}_{i=1}^{N}$
 \end_inset
@@ -1729,8 +1748,15 @@ S\left(\{y_{i}\}_{i=1}^{N}\vert\Delta\right)=\sum_{i=1}^{n}\sum_{j=1}^{n}\Vert y
 \end_layout
 
 \begin_layout Standard
-In the direction of CHEN AND BUJA, we can consider Power Law transformations
- of the embedding distances, as is also done in Graph Drawing CITATION.
+In the direction of 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Chen:2006fk,Chen:2013:SFN:2502581.2502616"
+
+\end_inset
+
+, we can consider Power Law transformations of the embedding distances,
+ as is also done in Graph.
  We use the so-called Boxcox transformation of the embedding dissimilarities
  distance.
  The Boxcox transformations can be writted as follows.
@@ -1771,9 +1797,16 @@ In lieu of the assumption of the euclidean metric above -- i.e.,
 \end_layout
 
 \begin_layout Standard
-To have other well-known stress functions CITATION fit into such a universal
- stress function, we can add a weighting to the stress for each term in
- the sum based on the provided matrix 
+To have other well-known stress functions fit into such a universal stress
+ function 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Chen:2013:SFN:2502581.2502616"
+
+\end_inset
+
+, we can add a weighting to the stress for each term in the sum based on
+ the provided matrix 
 \begin_inset Formula $\Delta$
 \end_inset
 
@@ -1944,7 +1977,14 @@ where we choose
 \end_inset
 
 .
- As per CITATION, as we let 
+ As per 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Chen:2013:SFN:2502581.2502616"
+
+\end_inset
+
+, as we let 
 \begin_inset Formula $\Delta_{\infty}\longrightarrow\infty$
 \end_inset
 
@@ -1989,10 +2029,16 @@ reference "eq:mmds_boxcox"
 \end_inset
 
 .
- CITE CHEN BUJA provide a derivation of the stress function and associated
- gradients such that the objective function is scale invariant, which means
- that optimization procedures can focus on embeddings up to expansions,
- rotations, and reflections.
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Chen:2013:SFN:2502581.2502616"
+
+\end_inset
+
+ provide a derivation of the stress function and associated gradients such
+ that the objective function is scale invariant, which means that optimization
+ procedures can focus on embeddings up to expansions, rotations, and reflections.
 \end_layout
 
 \begin_layout Subsection
@@ -2429,9 +2475,15 @@ Including constants
 \end_inset
 
 .
- However, since this implementation uses the Armadillo CITATION matrix library,
- such constants matter, and make the chaining of matrix expressions more
- time efficient than a basic R implementation.
+ However, since this implementation uses the Armadillo 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Eddelbuettel:Francois:2011:JSSOBK:v40i08,nicta_4314"
+
+\end_inset
+
+ matrix library, such constants matter, and make the chaining of matrix
+ expressions more time efficient than a basic R implementation.
  The profiling of speed-ups will be elaborated upon in section X.
 \end_layout
 
@@ -2451,7 +2503,14 @@ boxcox
  In addition to this heuristic -- which in practice is very effective --
  we implment a backtracking line search algorithm for gradient descent via
  the Armijo Condition.
- Formally, the Armijo Condition states the following CITIATION.
+ Formally, the Armijo Condition 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Li:1999kx,doi:10.1137/1011036"
+
+\end_inset
+
+ states the following.
  Consider a function 
 \begin_inset Formula $f:\R^{n}\longrightarrow\R$
 \end_inset
@@ -2653,7 +2712,14 @@ Armijo Line Search
 \begin_layout Standard
 In addition to adding an additional toolbox to the selection of learning
  parameters in standard gradient descent, we we also provide an implentation
- of the Broyden–Fletcher–Goldfarb–Shanno (BFGS) algorithm CITATION.
+ of the Broyden–Fletcher–Goldfarb–Shanno (BFGS) algorithm 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "doi:10.1137/1011036"
+
+\end_inset
+
+.
  BFGS is a second order method that is often used in unconstrained optimization
  problems.
  We provide an implementation of the memory inefficient version -- the entire
@@ -2671,8 +2737,15 @@ In addition to adding an additional toolbox to the selection of learning
 
 \begin_layout Standard
 To construct the Hessian at each iteration, we note that For the iterative
- construction of the inverse hessian, we use the Sherman Morrison formula,
- since the update to the Hessian is a rank-one update.
+ construction of the inverse hessian, we use the Sherman Morrison formula
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "doi:10.1137/1031049"
+
+\end_inset
+
+, since the update to the Hessian is a rank-one update.
 \end_layout
 
 \begin_layout Fact
@@ -2903,6 +2976,28 @@ Ratio of CPU time for DimReduce versus a baseline
 
 
 \end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Chapter
+Experiments
+\end_layout
+
+\begin_layout Standard
+We break this portion up into two sections.
+ First, we use our three benchmark datasets to show select performance from
+ the algorithms within DimReduce.
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+btprint "btPrintAll"
+bibfiles "sources"
+options "apalike"
 
 \end_inset
 
