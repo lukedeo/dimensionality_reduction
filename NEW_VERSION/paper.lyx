@@ -74,7 +74,7 @@ theorems-std
 \begin_body
 
 \begin_layout Title
-DimReduce -- an R package for dimensionality reduction
+AMTH 480: DimReduce -- an R package for dimensionality reduction
 \end_layout
 
 \begin_layout Author
@@ -91,11 +91,11 @@ Luke de Oliveira
 \end_layout
 
 \begin_layout Abstract
-In this short exposition, we show the various methods implemented in DimReduce,
- taking care to show where steps have been taken to increase efficiency
- of computation.
- In addition, we utilize select example datasets to show some strengths
- and weaknesses of various dimensionality reduction algorithms.
+In this short exposition, we show the a selection of the various methods
+ implemented in DimReduce, taking care to show where steps have been taken
+ to increase efficiency of computation.
+ In addition, we utilize select example datasets to show the performance
+ of the various dimensionality reduction algorithms.
  
 \end_layout
 
@@ -126,13 +126,16 @@ lettrine[nindent=0em,lines=2]{M}
  that is, find a representation in a lower dimensional space that accurately
  represents some aspect of the dataset, be it local structure, global structure,
  et cetera.
- 
+ This work represents a venture in developing an R package to implement
+ many of the major non-linear dimensionality reduction techniques that R
+ does not provide support for, while developing a deeper understanding of
+ the methods included and learning about the field as a whole.
 \end_layout
 
 \begin_layout Standard
 Many applications of Machine Learning have some high dimensional dataset
  that lies on some lower dimensional space -- that is, there some level
- of redundancy of information.
+ of redundancy of information, or the data has been sampled from a manifold.
  The general problem can be formulated as follows.
  We are given a dataset 
 \begin_inset ERT
@@ -283,16 +286,29 @@ In terms of notation, for two matricies
 \begin_inset Formula $A\odot B$
 \end_inset
 
- represents the Hadamard Product.
+ represents the Hadamard Product, i.e., element-wise multiplication.
  For a matrix 
 \begin_inset Formula $A$
 \end_inset
 
 , 
-\begin_inset Formula $\mathsf{sum}(A)=\sum_{i}\sum_{j}[A]_{ij}$
+\begin_inset Formula $\mathsf{sum}(A)=\sum_{i}\sum_{j}[A]_{ij}=\mathbf{1}^{T}A\mathbf{1}$
 \end_inset
 
-.
+, where the vectors of ones are of appropriate sizes.
+ In this write up, any matrix 
+\begin_inset Formula $A$
+\end_inset
+
+ raised to a power, i.e., 
+\begin_inset Formula $A^{p}$
+\end_inset
+
+ is simply 
+\begin_inset Formula $[A]_{ij}^{p}$
+\end_inset
+
+ element-wise rather than a matrix power.
 \end_layout
 
 \begin_layout Section
@@ -375,9 +391,9 @@ key "nicta_4314"
 \end_inset
 
 .
- Using this and a deeper understanding of how to efficiently implement methods,
- we obtain speed-ups over existing packages that provide methods that we
- include in DimReduce.
+ Using this and a deep understanding of how to efficiently implement methods,
+ we obtain speed-ups over some existing packages that provide methods that
+ we include in DimReduce.
 \end_layout
 
 \begin_layout Standard
@@ -414,8 +430,8 @@ Delta$
 \end_layout
 
 \begin_layout Standard
-To determine speed-up, based on a baseline, we run a test using an INSERT
- MACHARCH HERE.
+To determine speed-up, based on a baseline, we run a test using an MacBook
+ Air with 1.7 GHz Intel Core i5 processor, and 4G 133MHz DDR3 memory.
  As a test, we use a swiss roll with 
 \begin_inset ERT
 status open
@@ -450,7 +466,21 @@ $n_{iter} = 200$
 \end_inset
 
 when appropriate.
- 
+ This is not meant to be a comprehensive exposition of speedups, rather
+ a simple test to show that the implementations using 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+texttt{RcppArmadillo}
+\end_layout
+
+\end_inset
+
+ provide clear speed-ups.
 \end_layout
 
 \begin_layout Section
@@ -459,13 +489,13 @@ Methods
 
 \begin_layout Standard
 We don't provide proofs of optimal solutions to these methods -- instead,
- we provide a basic walk-through of the algorithm, and state where efficiency
- improvements were made.
+ we provide a basic walk-through of the algorithm, and state where small
+ efficiency improvements were made.
  We provide efficient implementations of the following methods: 
 \end_layout
 
 \begin_layout Itemize
-Random Projection 
+Random Projection
 \end_layout
 
 \begin_layout Itemize
@@ -473,7 +503,7 @@ Classical Multidimensional Scaling
 \end_layout
 
 \begin_layout Itemize
-Locally Linear Embedding (Modified and Hessian)
+Locally Linear Embedding 
 \end_layout
 
 \begin_layout Itemize
@@ -481,11 +511,25 @@ Isomap
 \end_layout
 
 \begin_layout Itemize
-Laplacian Eigenmaps 
+Laplacian Eigenmaps (See 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Belkin:2002fk"
+
+\end_inset
+
+ for details)
 \end_layout
 
 \begin_layout Itemize
-Diffusion Maps 
+Diffusion Maps (See 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Coifman20065"
+
+\end_inset
+
+ for details)
 \end_layout
 
 \begin_layout Itemize
@@ -494,13 +538,54 @@ Local Multidimensional Scaling using the boxcox family of stress functions
 \end_layout
 
 \begin_layout Standard
-For each method, we benchmark qualitative performance using three datasets.
- First, we use the standard Swiss Roll and S-Curve data sets.
- In addition to these artificial manifolds, we also use the Frey Faces data
- set from CITATION.
- In the Frey Faces dataset, embeddings that show similar colors along a
- rainbow spectrum indicate that images are similar to each other -- i.e.,
- they may represent a slight rotation of the head.
+For selected methods, we benchmark qualitative performance using two datasets.
+ We use the standard Swiss Roll and S-Curve data sets, as shown below.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename /Users/lukedeoliveira/Documents/Yale_Work/Senior_Year/dimensionality_reduction/Noisy_S_Curve.png
+	lyxscale 10
+	scale 30
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename /Users/lukedeoliveira/Documents/Yale_Work/Senior_Year/dimensionality_reduction/Noisy_Swiss_Roll.png
+	lyxscale 10
+	scale 30
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+S-Curve (Left) and Swiss Roll (Right)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -863,7 +948,7 @@ Classical
 \begin_inset Quotes erd
 \end_inset
 
- Multidimensional Scaling, non-metric multidimensional scaling.
+ Multidimensional Scaling, metric multidimensional scaling.
  Classical Multidimensional Scaling transforms dissimilarity data into inner
  product data, which can be solved using an eigendecomposition, while non-metric
  multidimensional scaling approximates the distance data directly, removing
@@ -872,8 +957,8 @@ Classical
 \end_layout
 
 \begin_layout Standard
-In general Multidimensional Scaling aims to find an optimal embedding by
- explicitly minimizing a cost function that penalizes points whose embedded
+In general metric Multidimensional Scaling aims to find an optimal embedding
+ by explicitly minimizing a cost function that penalizes points whose embedded
  representations aren't close in Euclidean distance.
  Formally, given a matrix of distances 
 \begin_inset Formula $\Delta$
@@ -903,7 +988,10 @@ In general Multidimensional Scaling aims to find an optimal embedding by
 \end_layout
 
 \begin_layout Standard
-We provide without proof the decomposition that leads to an optimal embedding.
+For the case of Classical Multidimensional Scaling, we optimize to try and
+ preserve the inner product of poit pairings.
+ We now state withour proof the decomposition for that leads to an optimal
+ embedding in the classical MDS framework.
  Let 
 \begin_inset Formula $J=I-\frac{1}{N}\mathbf{1}_{\{N\times N\}}$
 \end_inset
@@ -917,15 +1005,11 @@ We provide without proof the decomposition that leads to an optimal embedding.
 \end_inset
 
  dimensional matrix of all ones.
- We let out Kernel be 
-\begin_inset Formula $K=-\frac{1}{2}J\{\Delta\}^{2}J$
+ We let our Kernel be 
+\begin_inset Formula $K=-\frac{1}{2}J\Delta{}^{2}J$
 \end_inset
 
-, where 
-\begin_inset Formula $\{\Delta\}^{2}$
-\end_inset
-
- is each element of the matrix squared, rather than a matrix power.
+.
  We then perform eigendecomposition 
 \begin_inset Formula $K=V\Lambda V^{-1}$
 \end_inset
@@ -938,7 +1022,11 @@ We provide without proof the decomposition that leads to an optimal embedding.
 \begin_inset Formula $V$
 \end_inset
 
- associated with the two largest eigenvalues.
+ associated with the 
+\begin_inset Formula $d$
+\end_inset
+
+ largest eigenvalues.
  To reiterate, we have that Classical Multidimensional Scaling can be written
  as follows.
 \end_layout
@@ -1186,7 +1274,7 @@ For each
 \end_layout
 
 \begin_layout Enumerate
-\begin_inset Formula $Z=Z-(\mathbb{1}_{k}X[i,:])^{T}$
+\begin_inset Formula $Z=Z-(\mathbf{1}_{k}X[i,:])^{T}$
 \end_inset
 
 
@@ -1207,7 +1295,7 @@ For each
 \end_layout
 
 \begin_layout Enumerate
-\begin_inset Formula $w=\frac{C^{-1}\mathbb{1}_{k}}{(C^{-1}\mathbb{1}_{k})^{T}\mathbb{1}_{k}}$
+\begin_inset Formula $w=\frac{C^{-1}\mathbf{1}_{k}}{(C^{-1}\mathbf{1}_{k})^{T}\mathbf{1}_{k}}$
 \end_inset
 
 
@@ -1352,6 +1440,11 @@ Ratio of CPU time for DimReduce versus the baseline package
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+Though this is not a formal speed analysis, it does lend itself to an understand
+ing of the speed-up obtained.
 \end_layout
 
 \begin_layout Section
@@ -1555,6 +1648,10 @@ Input:
 \begin_inset Formula $X\in\R^{N\times D}$
 \end_inset
 
+ or 
+\begin_inset Formula $\Delta\in\R^{N\times N}$
+\end_inset
+
 , 
 \begin_inset Formula $k$
 \end_inset
@@ -1583,7 +1680,7 @@ Compute
 \begin_inset Formula $X$
 \end_inset
 
-.
+ if not specified.
 \end_layout
 
 \begin_layout Enumerate
@@ -1652,27 +1749,7 @@ Let
 
 \begin_layout Enumerate
 Construct the kernel 
-\begin_inset Formula $K=-\frac{1}{2}J\{\tilde{\Delta}\}^{2}J$
-\end_inset
-
-, where 
-\begin_inset Formula $\{\tilde{\Delta}\}^{2}$
-\end_inset
-
- is the element-wise square of 
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\strikeout off
-\uuline off
-\uwave off
-\noun off
-\color none
-
-\begin_inset Formula $\tilde{\Delta}$
+\begin_inset Formula $K=-\frac{1}{2}J\tilde{\Delta}{}^{2}J$
 \end_inset
 
 .
@@ -1722,13 +1799,19 @@ Isomap
 
 \end_layout
 
-\begin_layout Plain Layout
-
-\end_layout
-
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+We can note that steps 5 through 10 are simply Classical Multidimensional
+ Scaling applied to distance data that are estimations of geodesic distance
+ on the constructed graph 
+\begin_inset Formula $G$
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Section
@@ -1850,7 +1933,7 @@ key "Chen:2006fk,Chen:2013:SFN:2502581.2502616"
 \end_inset
 
 , we can consider Power Law transformations of the embedding distances,
- as is also done in Graph.
+ as is also done in Graph Drawing.
  We use the so-called Boxcox transformation of the embedding dissimilarities
  distance.
  The Boxcox transformations can be writted as follows.
@@ -2351,7 +2434,7 @@ name "enu:5a"
 \begin_inset Formula $X_{k+1}=\mathsf{update}\left(X_{k},\nabla S_{k}\right)$
 \end_inset
 
-, let 
+ using any optimization update rule, let 
 \begin_inset Formula $D_{k+1}$
 \end_inset
 
@@ -2433,8 +2516,8 @@ Boxcox Embedding
 \end_layout
 
 \begin_layout Standard
-Note that running times are determined in a slightly different way -- i.e.,
- we report 
+Note that we report running times in a slightly different way -- i.e., we
+ would report 
 \begin_inset Formula $O(\frac{1}{2}n)$
 \end_inset
 
@@ -2443,13 +2526,20 @@ Note that running times are determined in a slightly different way -- i.e.,
 \end_inset
 
 .
- We provide a variety of improvements to this routine.
+ This is because we can remove extraneous loops over our dataset, which
+ certainly helps in practice.
+ Though we provide no clear asymptotic speedups, we reduce many of the coefficie
+nts contained within an asymptotic bound.
+\end_layout
+
+\begin_layout Standard
+We provide a variety of improvements to this routine.
  First, the calculation of 
-\begin_inset Formula $D^{\nu}$
+\begin_inset Formula $\Delta^{\nu}$
 \end_inset
 
  and 
-\begin_inset Formula $D^{\nu+\frac{1}{\lambda}}$
+\begin_inset Formula $\Delta^{\nu+\frac{1}{\lambda}}$
 \end_inset
 
  are only performed if they correspond to non-zero elements of 
@@ -2578,7 +2668,61 @@ key "Eddelbuettel:Francois:2011:JSSOBK:v40i08,nicta_4314"
 
  matrix library, such constants matter, and make the chaining of matrix
  expressions more time efficient than a basic R implementation.
- The profiling of speed-ups will be elaborated upon in section X.
+ For a visualization of the speedup obtained when compared to the original
+ R implementation, consider the following graphic.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:su_lmds"
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename ../Paper/speedup_lmds.pdf
+	lyxscale 10
+	width 40text%
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Ratio of CPU time for DimReduce versus a baseline using the problem specificatio
+ns in Section 1.2.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Once again, though not asymptotically better, in practice, running times
+ are much lower (consistently half the time of the original implementation)
+ with this implementation scheme, which makes experimentation and visualization
+ that much easier.
 \end_layout
 
 \begin_layout Subsection
@@ -2654,10 +2798,15 @@ Intuitively, this ensures that a step size decreases our objective
 \begin_inset Quotes eld
 \end_inset
 
-enough.
+enough
 \begin_inset Quotes erd
 \end_inset
 
+ -- formally by a factor of 
+\begin_inset Formula $\beta$
+\end_inset
+
+ within its Taylor Expansion.
  We require that 
 \begin_inset Formula $f$
 \end_inset
@@ -2804,9 +2953,9 @@ Armijo Line Search
 \end_layout
 
 \begin_layout Standard
-In addition to adding an additional toolbox to the selection of learning
- parameters in standard gradient descent, we we also provide an implentation
- of the Broyden–Fletcher–Goldfarb–Shanno (BFGS) algorithm 
+In addition to adding an additional tool to the selection of learning parameters
+ in standard gradient descent, we we also provide an implentation of the
+ Broyden–Fletcher–Goldfarb–Shanno (BFGS) algorithm 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "doi:10.1137/1011036"
@@ -2826,13 +2975,14 @@ key "doi:10.1137/1011036"
  to obtain more information with respect to the behavior of the function,
  and to the curvature of the objective function around the current solution
  iterate.
- 
+ For further work, it would be worthwhile to implement and test some BFGS
+ variants, such as Limited Memory BFGS and Limited Memory BFGS with regularizati
+on.
 \end_layout
 
 \begin_layout Standard
-To construct the Hessian at each iteration, we note that For the iterative
- construction of the inverse hessian, we use the Sherman Morrison formula
- 
+To construct the Hessian at each iteration, we use the Sherman Morrison
+ formula 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "doi:10.1137/1031049"
@@ -3024,56 +3174,8 @@ BFGS for boxcox
 \begin_layout Standard
 In practice, we have seen that beginning the optimization with BFGS, then
  switching to standard gradient descent works well.
- 
-\end_layout
-
-\begin_layout Standard
-For themark visualization of the speedup, consider the following graphic.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset CommandInset label
-LatexCommand label
-name "fig:su_lmds"
-
-\end_inset
-
- 
-\end_layout
-
-\begin_layout Plain Layout
-\align center
-\begin_inset Graphics
-	filename ../Paper/speedup_lmds.pdf
-	lyxscale 10
-	width 40text%
-
-\end_inset
-
- 
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Ratio of CPU time for DimReduce versus a baseline
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
+ A further investigation is needed to see if any rules of thumb can be determine
+d to formalize when to switch optimization schemes.
 \end_layout
 
 \begin_layout Chapter
@@ -3082,11 +3184,11 @@ Experiments
 
 \begin_layout Standard
 We break this portion up into two sections.
- First, we use our three benchmark datasets to show select performance from
+ First, we use our two benchmark datasets to show select performance from
  the algorithms within DimReduce.
  Second, we utilize Kernel Support Vector Machines to map unseen observations
  into the embedded feature space, representing a potential way to estimate
- a mapping induced by such an algorithm.
+ a mapping induced by a non-linear dimensionality reduction algorithm.
 \end_layout
 
 \begin_layout Section
@@ -3101,8 +3203,8 @@ name "sec:Benchmarks"
 \end_layout
 
 \begin_layout Standard
-To benchmark the methods included in DimReduce, we utilize the Frey Faces
- dataset and the canonical Swiss Roll and S-curve datasets.
+To benchmark the methods included in DimReduce, we utilize the canonical
+ Swiss Roll and S-curve datasets.
  To ensure proper sampling, we sample 
 \begin_inset Formula $N=1000$
 \end_inset
@@ -3112,6 +3214,10 @@ To benchmark the methods included in DimReduce, we utilize the Frey Faces
 
 \begin_layout Subsection
 Swiss Roll
+\end_layout
+
+\begin_layout Standard
+Consider the following -- Various methods applied to the Swiss Roll dataset.
 \end_layout
 
 \begin_layout Standard
@@ -3173,6 +3279,9 @@ Locally Linear Embedding
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
 \begin_inset Float figure
 wide false
 sideways false
@@ -3237,7 +3346,7 @@ ISOMAP
 \begin_inset Float figure
 wide false
 sideways false
-status collapsed
+status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -3267,19 +3376,8 @@ status collapsed
 \end_inset
 
 
-\end_layout
-
-\begin_layout Plain Layout
 \begin_inset Graphics
 	filename plots/swiss_lmds_crit_lamba.png
-	lyxscale 10
-	scale 35
-
-\end_inset
-
-
-\begin_inset Graphics
-	filename plots/swiss_lle_crit.png
 	lyxscale 10
 	scale 35
 
@@ -3309,7 +3407,7 @@ Local MDS
 \begin_inset Float figure
 wide false
 sideways false
-status collapsed
+status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -3353,7 +3451,307 @@ status collapsed
 \begin_inset Caption
 
 \begin_layout Plain Layout
+Local MDS, top left 
+\begin_inset Formula $k=5$
+\end_inset
+
+, top right 
+\begin_inset Formula $k=10$
+\end_inset
+
+, bottom left 
+\begin_inset Formula $k=15$
+\end_inset
+
+, bottom right, meta-criterion for 
+\begin_inset Formula $k=5$
+\end_inset
+
+ (green), 
+\begin_inset Formula $k=10$
+\end_inset
+
+ (red), and 
+\begin_inset Formula $k=15$
+\end_inset
+
+ (blue)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+S-Curve
+\end_layout
+
+\begin_layout Standard
+Consider the following -- Various methods applied to the S-Curve dataset.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename plots/sroll_lle_10.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename plots/sroll_lle_15.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename plots/sroll_lle_20.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename plots/sroll_lle_crit.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Locally Linear Embedding 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename plots/sroll_iso_10.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename plots/sroll_iso_15.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename plots/sroll_iso_20.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename plots/sroll_iso_crit.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+ISOMAP
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename plots/sroll_lmds_10_lambda1.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename plots/sroll_lmds_10_lambda6.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename plots/sroll_lmds_10_tauhalf.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename plots/sroll_lmds_crit_lamba.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
 Local MDS 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename plots/sroll_lmds_5.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename plots/sroll_lmds_10_lambda1.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename plots/sroll_lmds_15.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename plots/sroll_lmds_crit_k.png
+	lyxscale 10
+	scale 35
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Local MDS , top left 
+\begin_inset Formula $k=5$
+\end_inset
+
+, top right 
+\begin_inset Formula $k=10$
+\end_inset
+
+, bottom left 
+\begin_inset Formula $k=15$
+\end_inset
+
+, bottom right, meta-criterion for 
+\begin_inset Formula $k=5$
+\end_inset
+
+ (red), 
+\begin_inset Formula $k=10$
+\end_inset
+
+ (green), and 
+\begin_inset Formula $k=15$
+\end_inset
+
+ (blue)
 \end_layout
 
 \end_inset
@@ -3643,7 +4041,8 @@ Though it is clear that the relearned embedding does better than the kSVM
  Clearly, this procedure relies on the manifold being densely sampled at
  training time, and also relies on the new data points to be embedding lying
  on the support of the sampling on the manifold.
- However, this is defininely a promising procedure.
+ However, this is defininely a promising procedure, and warrents further
+ investigation and experiments on other datasets.
 \end_layout
 
 \begin_layout Standard

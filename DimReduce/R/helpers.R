@@ -76,44 +76,44 @@ s_curve <- function(n = 400, noisy = FALSE)
 
 
 
-compare_reductions <- function(X_orig, ...){
-    candidates <- list(...)
-    D_orig <- fastPdist(X_orig, X_orig)
-    kvals <- c(1:10, seq(15, 30, 5), 40, 50)
-    LC <- matrix(0, length(candidates), length(kvals))
-    idx <- 1
-    cols <- rainbow(length(candidates))
-    for(manifold in candidates){
-        Dnew <- manifold$Y
-        Dnew <- fastPdist(Dnew, Dnew)
-        LC[idx, ] <- knn_criterion(D_orig, Dnew, kvals)
-        idx <- idx + 1
-    }
-    idx <- 1
-    minval <- min(LC)
-    minval <- ifelse(minval < 0, - 1.14 * abs(minval) , .84 * minval)
+# compare_reductions <- function(X_orig, ...){
+#     candidates <- list(...)
+#     D_orig <- fastPdist(X_orig, X_orig)
+#     kvals <- c(1:10, seq(15, 30, 5), 40, 50)
+#     LC <- matrix(0, length(candidates), length(kvals))
+#     idx <- 1
+#     cols <- rainbow(length(candidates))
+#     for(manifold in candidates){
+#         Dnew <- manifold$Y
+#         Dnew <- fastPdist(Dnew, Dnew)
+#         LC[idx, ] <- knn_criterion(D_orig, Dnew, kvals)
+#         idx <- idx + 1
+#     }
+#     idx <- 1
+#     minval <- min(LC)
+#     minval <- ifelse(minval < 0, - 1.14 * abs(minval) , .84 * minval)
     
-    maxval <- 1.14 * max(LC)
+#     maxval <- 1.14 * max(LC)
     
-    plot(kvals, LC[1, ], type = "b", xlim = c(1, 50), ylim = c(minval, maxval), col = cols[1], ylab = "Adjusted Criterion", xlab = "Neighborhood Size", log = "x", main = "Methods Comparison")
-    for(manifold in candidates){
-        if(idx != 1){
-            points(kvals, LC[idx, ], type = "b", col = cols[idx])
-        }
-        idx <- idx + 1    
-    } 
-    names <- NULL
-    coresp_colors <- NULL
-    idx <- 1
-    lty <- NULL
-    for(manifold in candidates){
-        names <- cbind(names, manifold$description)
-        coresp_colors <- cbind(coresp_colors, cols[idx])
-        lty<-cbind(lty, 1)
-        idx <- idx + 1
-    }
-    legend("topright", cex = 0.8, legend=names, col=coresp_colors, lty=lty)
-}
+#     plot(kvals, LC[1, ], type = "b", xlim = c(1, 50), ylim = c(minval, maxval), col = cols[1], ylab = "Adjusted Criterion", xlab = "Neighborhood Size", log = "x", main = "Methods Comparison")
+#     for(manifold in candidates){
+#         if(idx != 1){
+#             points(kvals, LC[idx, ], type = "b", col = cols[idx])
+#         }
+#         idx <- idx + 1    
+#     } 
+#     names <- NULL
+#     coresp_colors <- NULL
+#     idx <- 1
+#     lty <- NULL
+#     for(manifold in candidates){
+#         names <- cbind(names, manifold$description)
+#         coresp_colors <- cbind(coresp_colors, cols[idx])
+#         lty<-cbind(lty, 1)
+#         idx <- idx + 1
+#     }
+#     legend("topright", cex = 0.8, legend=names, col=coresp_colors, lty=lty)
+# }
 
 random_projection <- function(X, d, type = 1){
     X_new <- t(X)
@@ -154,6 +154,42 @@ diffmap <- function(X, d, t = 1.0, sigma = -1.0){
          t = t,
          description = paste("Diffusion Map, t = ", t, ", sigma = ", sigma, sep = ""),
          d = d) 
+}
+
+compare_reductions <- function(X_orig, ..., kvals = c(1:10, seq(15, 30, 5), 40, 50)){
+    candidates <- list(...)
+    D_orig <- fastPdist(X_orig, X_orig)
+    kvals <- c(1:10, seq(15, 30, 5), 40, 50)
+    
+    LC <- data.frame(k=rep(0, length(candidates) * length(kvals)), crit=rep(0, length(candidates) * length(kvals)))
+
+    len_k <- length(kvals)
+    mult <- 0
+    names <- rep("", length(candidates) * length(kvals))
+    for(manifold in candidates){
+        Dnew <- manifold$Y
+        Dnew <- fastPdist(Dnew, Dnew)
+        idx <- seq(1 + mult * len_k, by=1, to= (mult + 1) * len_k)
+        LC$crit[idx] <- knn_criterion(D_orig, Dnew, kvals)
+        LC$k[idx] <- kvals
+        names[idx] <- (manifold$description)
+        mult <- mult + 1
+    }
+    LC$method <- names
+    LC$method <- factor(names)
+    gg <- qplot(x=k,y=crit,color=method, data = LC)+geom_line()
+
+    gg <- gg +scale_x_continuous(trans = 'log10',
+                                 breaks = trans_breaks('log10', function(x) 10^x),
+                                 labels = trans_format('log10', math_format(10^.x)))
+
+
+    gg <- gg+ xlab(label="Neighborhood size, k")
+    gg <- gg + ylab("Local MetaCriterion")
+    gg<-gg+labs(title = "Local MetaCriterion for Considered Methods", cex = 1.3)
+    gg <- gg + theme(plot.title = element_text(size = rel(1.5)))
+    gg
+    return(gg)
 }
 
 

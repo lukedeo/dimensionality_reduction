@@ -8,6 +8,6 @@ Maintainer:Luke de Oliveira <luke.deoliveira@yale.edu>
 Description: Non-linear Dimensionality reduction techniques that are applicable to data visualization, exploration, and mining. Includes standard spectral kernel methods and boxcox family stress functions for Multi-Dimensional scaling variants.
 License: GPL
 Depends: methods
-Depends: Rcpp (>= 0.10.3), RcppArmadillo (>= 0.2.0), igraph
-LinkingTo: Rcpp, RcppArmadillo, igraph
+Depends: Rcpp (>= 0.10.3), RcppArmadillo (>= 0.2.0), igraph, ggplot2, scales
+LinkingTo: Rcpp, RcppArmadillo, igraph, ggplot2, scales
  
