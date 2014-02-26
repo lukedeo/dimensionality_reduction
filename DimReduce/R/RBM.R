@@ -28,7 +28,7 @@ RBM <- setRefClass("RBM",
             weights <<- matrix(rnorm(visible * hidden, 0, scale), hidden, visible)
             hidden_bias <<- matrix(rnorm(hidden, 0, scale), hidden, 1)
             visible_bias <<- matrix(rnorm(visible, 0, scale), visible, 1)
-            visible_form
+            visible_form <<- ifelse(binary, sigmoid, identity)
         }
         train = function(X, learning_rate = 0.1) 
         {
@@ -64,9 +64,3 @@ RBM <- setRefClass("RBM",
         }
     )
 )
-
-
-rbm <- function(n_visible = 100, n_hidden = 15, binary = FALSE, scale = 0.001)
-{
-
-}
