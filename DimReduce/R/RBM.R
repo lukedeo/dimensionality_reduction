@@ -5,6 +5,10 @@ sigmoid <- function(x)
 {
     return(1 / (1 + exp(-x)))
 }
+identity <- function(x) 
+{
+    return x
+}
 
 bernoulli <- function(x) 
 {
@@ -12,11 +16,22 @@ bernoulli <- function(x)
 }
 
 RBM <- setRefClass("RBM", 
-    fields = list(data = "matrix", edits = "list"), 
+    fields = list(weights = "matrix", 
+                  hidden_bias = "matrix", 
+                  visible_bias = "matrix", 
+                  visible_form = "function"),
+
+
     methods = list(
-        edit = function(i, j, value) 
+        initialize = function(visible, hidden, binary = TRUE, scale = 0.01)
         {
-        ## the following string documents the edit method
+            weights <<- matrix(rnorm(visible * hidden, 0, scale), hidden, visible)
+            hidden_bias <<- matrix(rnorm(hidden, 0, scale), hidden, 1)
+            visible_bias <<- matrix(rnorm(visible, 0, scale), visible, 1)
+            visible_form
+        }
+        train = function(X, learning_rate = 0.1) 
+        {
             'Replaces the range [i, j] of the
             object by value.
             '
