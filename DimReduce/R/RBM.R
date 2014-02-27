@@ -87,6 +87,14 @@ RBM <- setRefClass("RBM",
             {
                 return(visible_form((hidden %*% weights) + visible_bias + bias))
             }
+        },
+        pass_between = function(visible, num_passes = 1)
+        {
+            passes <- 1
+            while(passes <= num_passes)
+            hidden = self.hidden_expectation(visible)
+            yield visible, hidden
+            visible = self.visible_expectation(bernoulli(hidden))
         }
         # train = function(X, learning_rate = 0.1) 
         # {
