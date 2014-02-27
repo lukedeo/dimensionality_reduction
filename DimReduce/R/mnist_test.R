@@ -1,0 +1,164 @@
+library(ggplot2)
+
+p <- ggplot(data.frame(matrix(MNIST[1], 28, 28)))
+
+
+image((matrix(MNIST[1], 28, 28)))
+
+mnist <- as.matrix(MNIST)
+
+im <- as.matrix((matrix(mnist[1, ], 28, 28)))
+
+
+image(im)
+
+library(ggplot2)
+library(reshape2)
+library(scales)
+library(RColorBrewer)
+
+image_data <- data.frame(x.idx = rep(c(1:28), 28), y.idx = rep(c(1:28), 28), value = rep(0, 784))
+ctr <- 1
+for(i in 1:28)
+{
+    for(j in 1:28)
+    {
+        image_data$value[ctr] <- im[i, j]
+        image_data$x.idx[ctr] <- i
+        image_data$y.idx[ctr] <- j
+        ctr <- ctr + 1
+    }
+}
+
+
+im <- matrix(t(t(mnist[2, ])), 28, 28)
+
+image_gen <- function(idx, data = mnist)
+{
+    im <- matrix(0, 28, 28)
+    for(i in 0:27)
+    {
+        for(j in 0:27)
+        {
+            im[i+1, 28 - j] <- data[idx, (i *28 + (j)) + 1 ]
+        }
+    }
+    return(im)
+}
+
+
+
+p <- ggplot(melt((image_gen(1))), aes(x=Var1,y=Var2))
+
+p + geom_tile(aes(fill=value))+scale_fill_gradient(low = "white", high = "black")
+
+
+myrbm <- RBM(28^2, 300)
+
+for(i in 1:nrow(mnist))
+{
+    myrbm$learn(mnist[i, ])
+}
+
+
+myrbm$calculate_gradients(mnist[1, ])
+
+reconstructions <- myrbm$reconstruct(mnist, 2)
+
+for(i in 1:10)
+{
+    orig <- ggplot(melt((image_gen(i, data = mnist))), aes(x=Var1,y=Var2))
+    orig <- orig + geom_tile(aes(fill=value))+scale_fill_gradient(low = "white", high = "black")
+    
+    learned <- ggplot(melt((image_gen(i, data = reconstructions$visible))), aes(x=Var1,y=Var2))
+    learned <- learned + geom_tile(aes(fill=value))+scale_fill_gradient(low = "white", high = "black")
+    
+    multiplot(orig, learned, cols=2)
+}
+
+
+
+
+
+
+ggplot(data = image_data, aes(x=x.idx, y=y.idx, fill=factor(value))) + geom_tile()
+myPalette <- colorRampPalette(rev(brewer.pal(11, "Spectral")))
+p <- qplot(x=Var1, y=Var2, data=melt((im)), fill=value, geom="tile") + scale_fill_gradientn(colours = myPalette(100), name = "Value of Correlation Coefficient")
+p <- p + theme(axis.text.y=element_blank(), axis.title.y=element_blank())
+p <- p + theme(axis.text.x=element_blank(), axis.title.x=element_blank())
+p <- p + theme(axis.ticks = element_blank())
+p + labs(title = "Heatmap of Correlation Coefficients", cex = 1.3)
+
+
+
+
+
+library(reshape2) 
+library(ggplot2) 
+tdm <- melt(matrix(im))
+
+ggplot(tdm, aes(x = Var2, y = Var1, fill = value))) + 
+    labs(x = "MHz", y = "Threshold", fill = "Value") + 
+    geom_raster() + 
+    scale_fill_manual(breaks = levels(factor(tdm$value)), 
+                      values = c("white", "black")) + 
+    theme(plot.background = element_rect(fill = "grey90"), 
+          legend.background = element_rect(fill = "grey90")) + 
+    scale_x_continuous(expand = c(0, 0)) + 
+    scale_y_continuous(expand = c(0, 0)) 
+
+
+
+
+
+
+
+
+
+
+
+# Multiple plot function
+#
+# ggplot objects can be passed in ..., or to plotlist (as a list of ggplot objects)
+# - cols:   Number of columns in layout
+# - layout: A matrix specifying the layout. If present, 'cols' is ignored.
+#
+# If the layout is something like matrix(c(1,2,3,3), nrow=2, byrow=TRUE),
+# then plot 1 will go in the upper left, 2 will go in the upper right, and
+# 3 will go all the way across the bottom.
+#
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+    require(grid)
+    
+    # Make a list from the ... arguments and plotlist
+    plots <- c(list(...), plotlist)
+    
+    numPlots = length(plots)
+    
+    # If layout is NULL, then use 'cols' to determine layout
+    if (is.null(layout)) {
+        # Make the panel
+        # ncol: Number of columns of plots
+        # nrow: Number of rows needed, calculated from # of cols
+        layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                         ncol = cols, nrow = ceiling(numPlots/cols))
+    }
+    
+    if (numPlots==1) {
+        print(plots[[1]])
+        
+    } else {
+        # Set up the page
+        grid.newpage()
+        pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+        
+        # Make each plot, in the correct location
+        for (i in 1:numPlots) {
+            # Get the i,j matrix positions of the regions that contain this subplot
+            matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+            
+            print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                            layout.pos.col = matchidx$col))
+        }
+    }
+}

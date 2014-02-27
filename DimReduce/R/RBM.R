@@ -152,8 +152,8 @@ RBM <- setRefClass("RBM",
             gradients$grad_v <- gradients$grad_v + momentum * (gradients$grad_v)
 
             weights <<- weights + learning_rate * gradients$grad_W
-            hidden_bias <<- hidden_bias + learning_rate * gradients$grad_v
-            visible_bias <<- visible_bias + learning_rate * gradients$grad_h
+            hidden_bias <<- hidden_bias + learning_rate * gradients$grad_h
+            visible_bias <<- visible_bias + learning_rate * gradients$grad_v
         },
         learn = function(X, learning_rate = 0.1, momentum = 0, l2_regularizer = 0, sparsity = NULL)
         {
