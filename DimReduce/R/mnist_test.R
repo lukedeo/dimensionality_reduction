@@ -98,7 +98,7 @@ for(i in 1:10)
                                                                                                               panel.grid.minor=element_blank(),
                                                                                                               plot.background=element_blank())
     
-    orig <- orig + labs(title = "Original Digit")
+    learned <- learned + labs(title = "Reconstructed/Learned Digit")
     
     multiplot(orig, learned, cols=2)
 }
