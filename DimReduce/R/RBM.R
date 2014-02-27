@@ -66,11 +66,27 @@ RBM <- setRefClass("RBM",
         },
         expected_hidden = function(visible, bias = 0)
         {
-            return(t(sigmoid(weights %*% t(visible))) + hidden_bias + bias)
+            # matrix(m$hidden_bias, 10, 3)
+            if(nrow(visible) > 1)
+            {
+                return(t(sigmoid(weights %*% t(visible))) + t(matrix(hidden_bias, num_hidden, nrow(visible))) + bias)
+            }
+            else
+            {
+                return(t(sigmoid(weights %*% t(visible))) + hidden_bias + bias)    
+            }
+            
         },
         expected_visible = function(hidden, bias = 0)
         {
-            return(visible_form((hidden %*% weights) + visible_bias + bias))
+            if(nrow(hidden) > 1)
+            {
+                return(visible_form((hidden %*% weights) + t(matrix(visible_bias, num_visible, nrow(hidden))) + bias))
+            }
+            else
+            {
+                return(visible_form((hidden %*% weights) + visible_bias + bias))
+            }
         }
         # train = function(X, learning_rate = 0.1) 
         # {
