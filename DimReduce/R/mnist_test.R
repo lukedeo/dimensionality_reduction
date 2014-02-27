@@ -13,6 +13,7 @@ im <- as.matrix((matrix(mnist[1, ], 28, 28)))
 image(im)
 
 library(ggplot2)
+library(ggthemes)
 library(reshape2)
 library(scales)
 library(RColorBrewer)
@@ -68,10 +69,36 @@ reconstructions <- myrbm$reconstruct(mnist, 2)
 for(i in 1:10)
 {
     orig <- ggplot(melt((image_gen(i, data = mnist))), aes(x=Var1,y=Var2))
-    orig <- orig + geom_tile(aes(fill=value))+scale_fill_gradient(low = "white", high = "black")
+    orig <- orig + geom_tile(aes(fill=value))+scale_fill_gradient(low = "white", high = "black") +theme(axis.line=element_blank(),
+          axis.text.x=element_blank(),
+          axis.text.y=element_blank(),
+          axis.ticks=element_blank(),
+          axis.title.x=element_blank(),
+          axis.title.y=element_blank(),
+          legend.position="none",
+          panel.background=element_blank(),
+          panel.border=element_blank(),
+          panel.grid.major=element_blank(),
+          panel.grid.minor=element_blank(),
+          plot.background=element_blank())
+    
+    orig <- orig + labs(title = "Original Digit")
     
     learned <- ggplot(melt((image_gen(i, data = reconstructions$visible))), aes(x=Var1,y=Var2))
-    learned <- learned + geom_tile(aes(fill=value))+scale_fill_gradient(low = "white", high = "black")
+    learned <- learned + geom_tile(aes(fill=value))+scale_fill_gradient(low = "white", high = "black") +theme(axis.line=element_blank(),
+                                                                                                              axis.text.x=element_blank(),
+                                                                                                              axis.text.y=element_blank(),
+                                                                                                              axis.ticks=element_blank(),
+                                                                                                              axis.title.x=element_blank(),
+                                                                                                              axis.title.y=element_blank(),
+                                                                                                              legend.position="none",
+                                                                                                              panel.background=element_blank(),
+                                                                                                              panel.border=element_blank(),
+                                                                                                              panel.grid.major=element_blank(),
+                                                                                                              panel.grid.minor=element_blank(),
+                                                                                                              plot.background=element_blank())
+    
+    orig <- orig + labs(title = "Original Digit")
     
     multiplot(orig, learned, cols=2)
 }
