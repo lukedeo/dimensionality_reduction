@@ -101,7 +101,7 @@ RBM <- setRefClass("RBM",
             {
                 hidden <- expected_hidden(visible)
                 visible <- expected_visible(bernoulli(hidden))
-                sampling_sequence <<- append(sampling_sequence, c(hidden = hidden, visible = visible))
+                sampling_sequence[[passes]] <<- list(hidden = hidden, visible = visible)
                 passes <- passes + 1
             }
         }
