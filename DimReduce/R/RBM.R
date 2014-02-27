@@ -71,7 +71,6 @@ RBM <- setRefClass("RBM",
         },
         expected_hidden = function(visible, bias = 0)
         {
-            # matrix(m$hidden_bias, 10, 3)
             if(!is.null(nrow(visible)))
             {
                 return(t(sigmoid(weights %*% t(visible))) + t(matrix(hidden_bias, num_hidden, nrow(visible))) + bias)
@@ -147,7 +146,7 @@ RBM <- setRefClass("RBM",
 
             gradients$grad_W <- gradients$grad_W + momentum * (gradients$grad_W - l2_regularizer * weights)
 
-            # dont apply l2 regularizer to biases
+            # don't apply l2 regularizer to biases
             gradients$grad_h <- gradients$grad_h + momentum * (gradients$grad_h)
             gradients$grad_v <- gradients$grad_v + momentum * (gradients$grad_v)
 
@@ -159,37 +158,5 @@ RBM <- setRefClass("RBM",
         {
             apply_gradients(calculate_gradients(X, sparsity), learning_rate, momentum, l2_regularizer)
         }
-        # train = function(X, learning_rate = 0.1) 
-        # {
-        #     'Replaces the range [i, j] of the
-        #     object by value.
-        #     '
-        #     backup <- list(i, j, data[i,j])
-        #     data[i,j] <<- value
-        #     edits <<- c(edits, list(backup))
-        #     invisible(value)
-        # },
-        # undo = function() 
-        # {
-        #     'Undoes the last edit() operation
-        #     and update the edits field accordingly.
-        #     '
-        #     prev <- edits
-        #     if(length(prev)) prev <- prev[[length(prev)]]
-        #     else stop("No more edits to undo")
-        #     edit(prev[[1]], prev[[2]], prev[[3]])
-        #     ## trim the edits list
-        #     length(edits) <<- length(edits) - 2
-        #     invisible(prev)
-        # },
-        # show = function() 
-        # {
-        #     'Method for automatically printing matrix editors'
-        #     cat("Reference matrix editor object of class",
-        #     classLabel(class(.self)), "\n")
-        #     cat("Data: \n")
-        #     methods::show(data)
-        #     cat("Undo list is of length", length(edits), "\n")
-        # }
     )
 )
