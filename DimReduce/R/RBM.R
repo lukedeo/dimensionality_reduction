@@ -15,18 +15,58 @@ bernoulli <- function(x)
     return(runif(length(x)) < x)
 }
 
-RBM <- setRefClass("RBM", 
-    fields = list(weights = "matrix", 
-                  hidden_bias = "matrix", 
-                  visible_bias = "matrix", 
-                  visible_form = "function"),
+RBM <- setRefClass(class = "RBM", 
+    fields = list(
+        weights = "matrix", 
+        hidden_bias = "matrix", 
+        visible_bias = "matrix", 
+        visible_form = "function",
+        num_hidden = "numeric",
+        num_visible = "numeric"
+    ),
     methods = list(
         initialize = function(visible, hidden, binary = TRUE, scale = 0.01)
         {
+            num_hidden <<- hidden
+            num_visible <<- visible
+
             weights <<- matrix(rnorm(visible * hidden, 0, scale), hidden, visible)
             hidden_bias <<- matrix(rnorm(hidden, 0, scale), hidden, 1)
             visible_bias <<- matrix(rnorm(visible, 0, scale), visible, 1)
-            visible_form <<- ifelse(binary == TRUE, sigmoid, identity)
+            if(binary)
+            {
+                visible_form <<- sigmoid
+            }
+            else
+            {
+                visible_form <<- identity
+            }
+        }
+        reset = function(visible = NULL, hidden = NULL, binary = TRUE, scale = 0.01)
+        {
+            if(is.null(visible)) visible <- num_visible
+            if(is.null(hidden)) hidden <- num_hidden
+
+            if(!is.numeric(hidden) | !is.numeric(visible)) error("Dimensions have to be integers.")
+
+            num_hidden <<- hidden
+            num_visible <<- visible
+
+            weights <<- matrix(rnorm(visible * hidden, 0, scale), hidden, visible)
+            hidden_bias <<- matrix(rnorm(hidden, 0, scale), hidden, 1)
+            visible_bias <<- matrix(rnorm(visible, 0, scale), visible, 1)
+            if(binary)
+            {
+                visible_form <<- sigmoid
+            }
+            else
+            {
+                visible_form <<- identity
+            }
+        }
+        expectation_hidden = function(visible, bias = 0)
+        {
+            return(t(sigmoid(weights %*% t(visible))) + hidden_bias + bias)
         }
         # train = function(X, learning_rate = 0.1) 
         # {
