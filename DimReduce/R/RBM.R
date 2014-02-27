@@ -12,7 +12,11 @@ identity <- function(x)
 
 bernoulli <- function(x) 
 {
-    return(runif(length(x)) < x)
+    if(is.matrix(x))
+    {
+        return(matrix(runif(length(x)), nrow(x), ncol(x)) < x)
+    }
+    return(runif(length(x), nrow(x), ncol(x)) < x)   
 }
 
 RBM <- setRefClass("RBM", 
@@ -22,7 +26,8 @@ RBM <- setRefClass("RBM",
         visible_bias = "matrix", 
         visible_form = "function",
         num_hidden = "numeric",
-        num_visible = "numeric"
+        num_visible = "numeric",
+        sampling_sequence = "list"
     ),
     methods = list(
         initialize = function(visible, hidden, binary = TRUE, scale = 0.01)
@@ -91,10 +96,14 @@ RBM <- setRefClass("RBM",
         pass_between = function(visible, num_passes = 1)
         {
             passes <- 1
+            sampling_sequence <<- list()
             while(passes <= num_passes)
-            hidden = self.hidden_expectation(visible)
-            yield visible, hidden
-            visible = self.visible_expectation(bernoulli(hidden))
+            {
+                hidden <- expected_hidden(visible)
+                visible <- expected_visible(bernoulli(hidden))
+                sampling_sequence <<- append(sampling_sequence, c(hidden = hidden, visible = visible))
+                passes <- passes + 1
+            }
         }
         # train = function(X, learning_rate = 0.1) 
         # {
