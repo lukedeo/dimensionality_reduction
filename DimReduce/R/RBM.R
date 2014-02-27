@@ -100,10 +100,15 @@ RBM <- setRefClass("RBM",
             while(passes <= num_passes)
             {
                 hidden <- expected_hidden(visible)
-                visible <- expected_visible(bernoulli(hidden))
                 sampling_sequence[[passes]] <<- list(hidden = hidden, visible = visible)
+                visible <- expected_visible(bernoulli(hidden))
                 passes <- passes + 1
             }
+        },
+        reconstruct = function(visible, num_passes = 1)
+        {
+            pass_between(visible, num_passes)
+            return(sampling_sequence[[num_passes]])
         }
         # train = function(X, learning_rate = 0.1) 
         # {
