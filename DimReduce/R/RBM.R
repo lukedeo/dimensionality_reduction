@@ -137,10 +137,27 @@ RBM <- setRefClass("RBM",
         },
         apply_gradients = function(gradients, learning_rate = 0.1, momentum = 0.0, l2_regularizer = 0)
         {
-            gradients <- gradients * (1 - momentum)
+            gradients$grad_W <- gradients$grad_W * (1 - momentum)
+            gradients$grad_h <- gradients$grad_h * (1 - momentum)
+            gradients$grad_v <- gradients$grad_v * (1 - momentum)
+
+
+
+
 
             gradients$grad_W <- gradients$grad_W + momentum * (gradients$grad_W - l2_regularizer * weights)
 
+            # dont apply l2 regularizer to biases
+            gradients$grad_h <- gradients$grad_h + momentum * (gradients$grad_h)
+            gradients$grad_v <- gradients$grad_v + momentum * (gradients$grad_v)
+
+            weights <<- weights + learning_rate * gradients$grad_W
+            hidden_bias <<- hidden_bias + learning_rate * gradients$grad_v
+            visible_bias <<- visible_bias + learning_rate * gradients$grad_h
+        },
+        learn = function(X, learning_rate = 0.1, momentum = 0, l2_regularizer = 0, sparsity = NULL)
+        {
+            apply_gradients(calculate_gradients(X, sparsity), learning_rate, momentum, l2_regularizer)
         }
         # train = function(X, learning_rate = 0.1) 
         # {
