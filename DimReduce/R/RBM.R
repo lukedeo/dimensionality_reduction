@@ -79,7 +79,7 @@ RBM <- setRefClass("RBM",
             else
             {
                 return(t(sigmoid(weights %*% (visible))) + hidden_bias + bias)    
-            }  #transpose (technically) here ~~~~^
+            } #transpose (technically) here ~~~~^
             
         },
         expected_visible = function(hidden, bias = 0)
@@ -110,7 +110,7 @@ RBM <- setRefClass("RBM",
             pass_between(visible, num_passes)
             return(sampling_sequence[[num_passes]])
         },
-        calculate_gradients = function(visible_batch)
+        calculate_gradients = function(visible_batch, sparsity = NULL)
         {
             gradients <- list()
             pass_between(visible_batch, 2)
@@ -121,10 +121,26 @@ RBM <- setRefClass("RBM",
             v_1 <- sampling_sequence[[2]]$visible
             h_1 <- sampling_sequence[[2]]$hidden
 
-            gradients$grad_W <- ((t(h_0) %*% v_0) - (t(h_1) %*% v_1)) / length(visible_batch[, 1])
+            n_samples <- ifelse(is.matrix(visible_batch), nrow(visible_batch), 1)
+
+            gradients$grad_W <- ((t(h_0) %*% v_0) - (t(h_1) %*% v_1)) / n_samples
             gradients$grad_v <- colMeans(v_0 - v_1)
-            gradients$grad_h <- colMeans(h_0 - h_1)
+            if(is.null(sparsity))
+            {
+                gradients$grad_h <- colMeans(h_0 - h_1)
+            }
+            else
+            {
+                gradients$grad_h <- sparsity - colMeans(h_0)
+            }
             return(gradients)
+        },
+        apply_gradients = function(gradients, learning_rate = 0.1, momentum = 0.0, l2_regularizer = 0)
+        {
+            gradients <- gradients * (1 - momentum)
+
+            gradients$grad_W <- gradients$grad_W + momentum * (gradients$grad_W - l2_regularizer * weights)
+
         }
         # train = function(X, learning_rate = 0.1) 
         # {
