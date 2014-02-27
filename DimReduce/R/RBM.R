@@ -78,8 +78,8 @@ RBM <- setRefClass("RBM",
             }
             else
             {
-                return(t(sigmoid(weights %*% t(visible))) + hidden_bias + bias)    
-            }
+                return(t(sigmoid(weights %*% (visible))) + hidden_bias + bias)    
+            }  #transpose (technically) here ~~~~^
             
         },
         expected_visible = function(hidden, bias = 0)
@@ -100,10 +100,31 @@ RBM <- setRefClass("RBM",
             while(passes <= num_passes)
             {
                 hidden <- expected_hidden(visible)
-                visible <- expected_visible(bernoulli(hidden))
                 sampling_sequence[[passes]] <<- list(hidden = hidden, visible = visible)
+                visible <- expected_visible(bernoulli(hidden))
                 passes <- passes + 1
             }
+        },
+        reconstruct = function(visible, num_passes = 1)
+        {
+            pass_between(visible, num_passes)
+            return(sampling_sequence[[num_passes]])
+        },
+        calculate_gradients = function(visible_batch)
+        {
+            gradients <- list()
+            pass_between(visible_batch, 2)
+
+            v_0 <- sampling_sequence[[1]]$visible
+            h_0 <- sampling_sequence[[1]]$hidden
+
+            v_1 <- sampling_sequence[[2]]$visible
+            h_1 <- sampling_sequence[[2]]$hidden
+
+            gradients$grad_W <- ((t(h_0) %*% v_0) - (t(h_1) %*% v_1)) / length(visible_batch[, 1])
+            gradients$grad_v <- colMeans(v_0 - v_1)
+            gradients$grad_h <- colMeans(h_0 - h_1)
+            return(gradients)
         }
         # train = function(X, learning_rate = 0.1) 
         # {
