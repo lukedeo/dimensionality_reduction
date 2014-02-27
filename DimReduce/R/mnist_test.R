@@ -46,101 +46,54 @@ image_gen <- function(idx, data = mnist)
     }
     return(im)
 }
+myrbm <- RBM(28^2, 400)
 
-
-
-p <- ggplot(melt((image_gen(1))), aes(x=Var1,y=Var2))
-
-p + geom_tile(aes(fill=value))+scale_fill_gradient(low = "white", high = "black")
-
-
-myrbm <- RBM(28^2, 300)
-
-for(i in 1:nrow(mnist))
+for(i in 1:(nrow(mnist) - 3))
 {
-    myrbm$learn(mnist[i, ])
+    myrbm$learn(ifelse(mnist[i:(1+3), ] > 0.2, 1, 0))
 }
 
 
-myrbm$calculate_gradients(mnist[1, ])
-
 reconstructions <- myrbm$reconstruct(mnist, 2)
 
-for(i in 1:10)
+for(i in 1:50)
 {
     orig <- ggplot(melt((image_gen(i, data = mnist))), aes(x=Var1,y=Var2))
-    orig <- orig + geom_tile(aes(fill=value))+scale_fill_gradient(low = "white", high = "black") +theme(axis.line=element_blank(),
-          axis.text.x=element_blank(),
-          axis.text.y=element_blank(),
-          axis.ticks=element_blank(),
-          axis.title.x=element_blank(),
-          axis.title.y=element_blank(),
-          legend.position="none",
-          panel.background=element_blank(),
-          panel.border=element_blank(),
-          panel.grid.major=element_blank(),
-          panel.grid.minor=element_blank(),
-          plot.background=element_blank())
-    
+    orig <- orig + geom_tile(aes(fill=value)) 
+                 + scale_fill_gradient(low = "white", high = "black") 
+                 + theme(axis.line=element_blank(),
+                         axis.text.x=element_blank(),
+                         axis.text.y=element_blank(),
+                         axis.ticks=element_blank(),
+                         axis.title.x=element_blank(),
+                         axis.title.y=element_blank(),
+                         legend.position="none",
+                         panel.background=element_blank(),panel.border=element_blank(),
+                         panel.grid.major=element_blank(),
+                         panel.grid.minor=element_blank(),
+                         plot.background=element_blank())  
     orig <- orig + labs(title = "Original Digit")
     
     learned <- ggplot(melt((image_gen(i, data = reconstructions$visible))), aes(x=Var1,y=Var2))
-    learned <- learned + geom_tile(aes(fill=value))+scale_fill_gradient(low = "white", high = "black") +theme(axis.line=element_blank(),
-                                                                                                              axis.text.x=element_blank(),
-                                                                                                              axis.text.y=element_blank(),
-                                                                                                              axis.ticks=element_blank(),
-                                                                                                              axis.title.x=element_blank(),
-                                                                                                              axis.title.y=element_blank(),
-                                                                                                              legend.position="none",
-                                                                                                              panel.background=element_blank(),
-                                                                                                              panel.border=element_blank(),
-                                                                                                              panel.grid.major=element_blank(),
-                                                                                                              panel.grid.minor=element_blank(),
-                                                                                                              plot.background=element_blank())
+    learned <- learned + geom_tile(aes(fill=value))
+                       + scale_fill_gradient(low = "white", high = "black") 
+                       + theme(axis.line=element_blank(),
+                               axis.text.x=element_blank(),
+                               axis.text.y=element_blank(),
+                               axis.ticks=element_blank(),
+                               axis.title.x=element_blank(),
+                               axis.title.y=element_blank(),
+                               legend.position="none",
+                               panel.background=element_blank(),
+                               panel.border=element_blank(),
+                               panel.grid.major=element_blank(),
+                               panel.grid.minor=element_blank(),
+                               plot.background=element_blank())
     
     learned <- learned + labs(title = "Reconstructed/Learned Digit")
     
     multiplot(orig, learned, cols=2)
 }
-
-
-
-
-
-
-ggplot(data = image_data, aes(x=x.idx, y=y.idx, fill=factor(value))) + geom_tile()
-myPalette <- colorRampPalette(rev(brewer.pal(11, "Spectral")))
-p <- qplot(x=Var1, y=Var2, data=melt((im)), fill=value, geom="tile") + scale_fill_gradientn(colours = myPalette(100), name = "Value of Correlation Coefficient")
-p <- p + theme(axis.text.y=element_blank(), axis.title.y=element_blank())
-p <- p + theme(axis.text.x=element_blank(), axis.title.x=element_blank())
-p <- p + theme(axis.ticks = element_blank())
-p + labs(title = "Heatmap of Correlation Coefficients", cex = 1.3)
-
-
-
-
-
-library(reshape2) 
-library(ggplot2) 
-tdm <- melt(matrix(im))
-
-ggplot(tdm, aes(x = Var2, y = Var1, fill = value))) + 
-    labs(x = "MHz", y = "Threshold", fill = "Value") + 
-    geom_raster() + 
-    scale_fill_manual(breaks = levels(factor(tdm$value)), 
-                      values = c("white", "black")) + 
-    theme(plot.background = element_rect(fill = "grey90"), 
-          legend.background = element_rect(fill = "grey90")) + 
-    scale_x_continuous(expand = c(0, 0)) + 
-    scale_y_continuous(expand = c(0, 0)) 
-
-
-
-
-
-
-
-
 
 
 
