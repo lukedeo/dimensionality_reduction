@@ -15,7 +15,7 @@ bernoulli <- function(x)
     return(runif(length(x)) < x)
 }
 
-RBM <- setRefClass(class = "RBM", 
+RBM <- setRefClass("RBM", 
     fields = list(
         weights = "matrix", 
         hidden_bias = "matrix", 
@@ -31,8 +31,8 @@ RBM <- setRefClass(class = "RBM",
             num_visible <<- visible
 
             weights <<- matrix(rnorm(visible * hidden, 0, scale), hidden, visible)
-            hidden_bias <<- matrix(rnorm(hidden, 0, scale), hidden, 1)
-            visible_bias <<- matrix(rnorm(visible, 0, scale), visible, 1)
+            hidden_bias <<- matrix(rnorm(hidden, 0, scale), 1, hidden)
+            visible_bias <<- matrix(rnorm(visible, 0, scale), 1, visible)
             if(binary)
             {
                 visible_form <<- sigmoid
@@ -41,7 +41,7 @@ RBM <- setRefClass(class = "RBM",
             {
                 visible_form <<- identity
             }
-        }
+        },
         reset = function(visible = NULL, hidden = NULL, binary = TRUE, scale = 0.01)
         {
             if(is.null(visible)) visible <- num_visible
@@ -53,8 +53,8 @@ RBM <- setRefClass(class = "RBM",
             num_visible <<- visible
 
             weights <<- matrix(rnorm(visible * hidden, 0, scale), hidden, visible)
-            hidden_bias <<- matrix(rnorm(hidden, 0, scale), hidden, 1)
-            visible_bias <<- matrix(rnorm(visible, 0, scale), visible, 1)
+            hidden_bias <<- matrix(rnorm(hidden, 0, scale), 1, hidden)
+            visible_bias <<- matrix(rnorm(visible, 0, scale), 1, visible)
             if(binary)
             {
                 visible_form <<- sigmoid
@@ -63,10 +63,14 @@ RBM <- setRefClass(class = "RBM",
             {
                 visible_form <<- identity
             }
-        }
-        expectation_hidden = function(visible, bias = 0)
+        },
+        expected_hidden = function(visible, bias = 0)
         {
             return(t(sigmoid(weights %*% t(visible))) + hidden_bias + bias)
+        },
+        expected_visible = function(hidden, bias = 0)
+        {
+            return(visible_form((hidden %*% weights) + visible_bias + bias))
         }
         # train = function(X, learning_rate = 0.1) 
         # {
