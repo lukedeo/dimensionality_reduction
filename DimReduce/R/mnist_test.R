@@ -176,11 +176,34 @@ image_gen <- function(idx, data = mnist)
 }
 
 mnist_bin <- ifelse(mnist > 0.2, 1, 0)
-myrbm <- RBM(28^2, 1000, binary = FALSE)
+myrbm <- RBM(28^2, 600, binary = TRUE)
 
 for(i in 1:(nrow(mnist)))
 {
-    myrbm$learn(mnist_bin[sample(1:nrow(mnist), 5, replace=T), ])
+    myrbm$learn(mnist_bin[sample(1:nrow(mnist), 5, replace=T), ], 0.2, 0.1, 0.0001)
+    if(i %% 10 == 0)
+    {
+        cat(sprintf("%i is done.\n", i))
+    }
+}
+myrbm_2 <- RBM(600, 200, binary = T)
+layer_2 <- (myrbm$expected_hidden(mnist_bin))
+
+for(i in 1:(nrow(mnist)))
+{
+    myrbm_2$learn(layer_2[sample(1:nrow(mnist), 5, replace=T), ], 0.2, 0.1, 0.0001)
+    if(i %% 10 == 0)
+    {
+        cat(sprintf("%i is done.\n", i))
+    }
+}
+
+myrbm_3 <- RBM(200, 10, binary = T)
+layer_3 <- (myrbm_2$expected_hidden(layer_2))
+
+for(i in 1:(nrow(mnist)))
+{
+    myrbm_3$learn(layer_3[sample(1:nrow(mnist), 5, replace=T), ], 0.2, 0.1, 0.0001)
     if(i %% 10 == 0)
     {
         cat(sprintf("%i is done.\n", i))
@@ -188,10 +211,13 @@ for(i in 1:(nrow(mnist)))
 }
 
 
-reconstructions <- myrbm$reconstruct(mnist, 2)
+twolayers <- (myrbm_2$reconstruct(myrbm$expected_hidden(mnist_bin), 2))
+
+reconstructions <- myrbm$reconstruct(mnist_bin, 2)
+reconstructions <- myrbm$reconstruct(mnist_bin, 2)
 reconstructions <- list(visible = myrbm$expected_visible(myrbm$expected_hidden(mnist)))
 
-for(i in 100:110)
+for(i in seq(1, 600, 20))
 {
     orig <- ggplot(melt((image_gen(i, data = mnist))), aes(x=Var1,y=Var2))
     orig <- orig + geom_tile(aes(fill=value)) + 
@@ -229,6 +255,257 @@ for(i in 100:110)
     
     multiplot(orig, learned, cols=2)
 }
+
+
+randomat <-  myrbm_3$expected_hidden(myrbm_2$expected_hidden(myrbm$expected_hidden(mnist_bin[100, ])))
+
+
+randim <- myrbm$expected_visible(myrbm_2$expected_visible(myrbm_3$expected_visible(randomat)))
+orig <- ggplot(melt((image_gen(100, data = mnist))), aes(x=Var1,y=Var2))
+orig <- orig + geom_tile(aes(fill=value)) + 
+    scale_fill_gradient(low = "white", high = "black") + 
+    theme(axis.line=element_blank(),
+          axis.text.x=element_blank(),
+          axis.text.y=element_blank(),
+          axis.ticks=element_blank(),
+          axis.title.x=element_blank(),
+          axis.title.y=element_blank(),
+          legend.position="none",
+          panel.background=element_blank(),panel.border=element_blank(),
+          panel.grid.major=element_blank(),
+          panel.grid.minor=element_blank(),
+          plot.background=element_blank())  
+orig <- orig + labs(title = "Random Sampled Digit")
+orig
+
+
+randomat <-  myrbm_3$expected_hidden(myrbm_2$expected_hidden(myrbm$expected_hidden(mnist_bin)))
+
+
+randim <- myrbm$expected_visible(myrbm_2$expected_visible(myrbm_3$expected_visible(randomat)))
+
+for(i in seq(12, 60, 2))
+{
+    orig <- ggplot(melt((image_gen(i, data = mnist))), aes(x=Var1,y=Var2))
+    orig <- orig + geom_tile(aes(fill=value)) + 
+        scale_fill_gradient(low = "white", high = "black") + 
+        theme(axis.line=element_blank(),
+              axis.text.x=element_blank(),
+              axis.text.y=element_blank(),
+              axis.ticks=element_blank(),
+              axis.title.x=element_blank(),
+              axis.title.y=element_blank(),
+              legend.position="none",
+              panel.background=element_blank(),panel.border=element_blank(),
+              panel.grid.major=element_blank(),
+              panel.grid.minor=element_blank(),
+              plot.background=element_blank())  
+    orig <- orig + labs(title = "Original Digit")
+    
+    learned <- ggplot(melt((image_gen(i, data = randim))), aes(x=Var1,y=Var2))
+    learned <- learned + geom_tile(aes(fill=value))+ 
+        scale_fill_gradient(low = "white", high = "black") + 
+        theme(axis.line=element_blank(),
+              axis.text.x=element_blank(),
+              axis.text.y=element_blank(),
+              axis.ticks=element_blank(),
+              axis.title.x=element_blank(),
+              axis.title.y=element_blank(),
+              legend.position="none",
+              panel.background=element_blank(),
+              panel.border=element_blank(),
+              panel.grid.major=element_blank(),
+              panel.grid.minor=element_blank(),
+              plot.background=element_blank())
+    
+    learned <- learned + labs(title = "Reconstructed/Learned Digit")
+    
+    multiplot(orig, learned, cols=2)
+}
+
+
+
+# Digits dataset ----------------------------------------------------------
+
+data(digits)
+digits <- t(digits)
+
+labels <- cbind(rep("1", 1100), rep("2", 1100), rep("3", 1100)
+                , rep("4", 1100), rep("5", 1100), rep("6", 1100), rep("7", 1100)
+                , rep("8", 1100), rep("9", 1100), rep("0", 1100))
+color_vec <- cbind(rep("blue", 1100), rep("red", 1100), rep("green", 1100), rep("black", 1100)
+                   , rep("purple", 1100), rep("grey", 1100), rep("pink", 1100), rep("yellow", 1100)
+                   , rep("orange", 1100), rep("brown", 1100))
+
+digits <- digits / max(digits)
+
+N <- 600
+samp <- sort(sample(x=1:nrow(digits), size=N, replace=F))
+X <- (digits[samp, ]) / max(digits[samp, ])
+labs <- labels[samp]
+
+image_gen <- function(idx, data = digits)
+{
+    im <- matrix(0, 16, 16)
+    for(i in 0:15)
+    {
+        for(j in 0:15)
+        {
+            im[i+1, 16 - j] <- data[idx, (i *16 + (j)) + 1 ]
+        }
+    }
+    return(im)
+}
+orig <- ggplot(melt((image_gen(200, data = mnist_bin))), aes(x=Var1,y=Var2))
+orig <- orig + geom_tile(aes(fill=value)) + 
+    scale_fill_gradient(low = "white", high = "black") + 
+    theme(axis.line=element_blank(),
+          axis.text.x=element_blank(),
+          axis.text.y=element_blank(),
+          axis.ticks=element_blank(),
+          axis.title.x=element_blank(),
+          axis.title.y=element_blank(),
+          legend.position="none",
+          panel.background=element_blank(),panel.border=element_blank(),
+          panel.grid.major=element_blank(),
+          panel.grid.minor=element_blank(),
+          plot.background=element_blank())  
+orig <- orig + labs(title = "Original Digit")
+orig
+
+mnist_bin <- ifelse(mnist > 0.2, 1, 0)
+mnist_bin <- mnist
+myrbm <- RBM(16^2,150, binary = T)
+
+for(k in 1:30){
+for(i in 1:(nrow(mnist)))
+{
+    myrbm$learn(mnist_bin[sample(1:nrow(mnist), 5, replace=T), ], 0.2, 0.1, 0.0001)
+    if(i %% 10 == 0)
+    {
+        cat(sprintf("%i is done.\n", i))
+    }
+}
+}
+myrbm_2 <- RBM(150, 70, binary = F)
+layer_2 <- (myrbm$expected_hidden(mnist_bin))
+
+for(k in 1:30){
+for(i in 1:(nrow(mnist)))
+{
+    myrbm_2$learn(layer_2[sample(1:nrow(mnist), 5, replace=T), ], 0.2, 0.1, 0.0001)
+    if(i %% 10 == 0)
+    {
+        cat(sprintf("%i is done.\n", i))
+    }
+}
+}
+myrbm_3 <- RBM(70, 20, binary = T)
+layer_3 <- (myrbm_2$expected_hidden(layer_2))
+
+for(k in 1:30){
+for(i in 1:(nrow(mnist)))
+{
+    myrbm_3$learn(layer_3[sample(1:nrow(mnist), 5, replace=T), ], 0.2, 0.15, 0.00001)
+    if(i %% 10 == 0)
+    {
+        cat(sprintf("%i is done.\n", i))
+    }
+}
+}
+myrbm_4 <- RBM(20, 10, binary = T)
+layer_4 <- (myrbm_3$expected_hidden(layer_3))
+
+for(k in 1:30){
+for(i in 1:(nrow(mnist)))
+{
+    myrbm_4$learn(layer_4[sample(1:nrow(mnist), 5, replace=T), ], 0.1, 0.1, 0.0001)
+    if(i %% 10 == 0)
+    {
+        cat(sprintf("%i is done.\n", i))
+    }
+}
+}
+myrbm_5 <- RBM(10, 2, binary = F)
+layer_5 <- (myrbm_4$expected_hidden(layer_4))
+
+for(k in 1:10){
+for(i in 1:(nrow(mnist)))
+{
+    myrbm_5$learn(layer_5[sample(1:nrow(mnist), 5, replace=T), ], 0.1, 0.1, 0.0001)
+    if(i %% 10 == 0)
+    {
+        cat(sprintf("%i is done.\n", i))
+    }
+}
+}
+randomat <- myrbm_5$expected_hidden(myrbm_4$expected_hidden(myrbm_3$expected_hidden(myrbm_2$expected_hidden(myrbm$expected_hidden(mnist_bin)))))
+
+reduced_data <- data.frame(digit = labs, DIM_1 = randomat[, 1], DIM_2 = randomat[, 2])
+
+qplot(data=reduced_data,x=DIM_1,y=DIM_2,color=digit)
+
+randomat <-  myrbm_3$expected_hidden(myrbm_2$expected_hidden(myrbm$expected_hidden(mnist_bin)))
+
+
+
+randomat <-  myrbm_4$expected_hidden(myrbm_3$expected_hidden(myrbm_2$expected_hidden(myrbm$expected_hidden(mnist_bin))))
+
+
+randim <- myrbm$expected_visible(myrbm_2$expected_visible(myrbm_3$expected_visible(myrbm_4$expected_visible(randomat))))
+
+for(i in seq(1, 600, 50))
+{
+    orig <- ggplot(melt((image_gen(i, data = mnist))), aes(x=Var1,y=Var2))
+    orig <- orig + geom_tile(aes(fill=value)) + 
+        scale_fill_gradient(low = "white", high = "black") + 
+        theme(axis.line=element_blank(),
+              axis.text.x=element_blank(),
+              axis.text.y=element_blank(),
+              axis.ticks=element_blank(),
+              axis.title.x=element_blank(),
+              axis.title.y=element_blank(),
+              legend.position="none",
+              panel.background=element_blank(),panel.border=element_blank(),
+              panel.grid.major=element_blank(),
+              panel.grid.minor=element_blank(),
+              plot.background=element_blank())  
+    orig <- orig + labs(title = "Original Digit")
+    
+    learned <- ggplot(melt((image_gen(i, data = randim))), aes(x=Var1,y=Var2))
+    learned <- learned + geom_tile(aes(fill=value))+ 
+        scale_fill_gradient(low = "white", high = "black") + 
+        theme(axis.line=element_blank(),
+              axis.text.x=element_blank(),
+              axis.text.y=element_blank(),
+              axis.ticks=element_blank(),
+              axis.title.x=element_blank(),
+              axis.title.y=element_blank(),
+              legend.position="none",
+              panel.background=element_blank(),
+              panel.border=element_blank(),
+              panel.grid.major=element_blank(),
+              panel.grid.minor=element_blank(),
+              plot.background=element_blank())
+    
+    learned <- learned + labs(title = "Reconstructed/Learned Digit")
+    
+    multiplot(orig, learned, cols=2)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
