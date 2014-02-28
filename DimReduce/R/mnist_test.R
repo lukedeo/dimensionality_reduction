@@ -18,6 +18,134 @@ library(reshape2)
 library(scales)
 library(RColorBrewer)
 
+
+
+# faces stuff -------------------------------------------------------------
+
+
+data(faces)
+
+faces <- as.matrix(t(faces))
+
+faces <- faces / max(faces)
+
+face_gen <- function(idx, data = faces)
+{
+    im <- matrix(0, 64, 64)
+    for(i in 0:63)
+    {
+        for(j in 0:63)
+        {
+            im[i+1, 64 - j] <- data[idx, (i *64 + (j)) + 1 ]
+        }
+    }
+    return(im)
+}
+
+a <- faces_rbm$expected_visible(faces_rbm$expected_hidden(faces[2, ]))
+
+a <- faces_rbm$reconstruct(faces[2, ], 20)$visible
+
+orig <- ggplot(melt(face_gen(1, a)), aes(x=Var1,y=Var2))
+orig <- orig + geom_tile(aes(fill=value)) + 
+    scale_fill_gradient(low = "black", high = "white") + 
+    theme(axis.line=element_blank(),
+          axis.text.x=element_blank(),
+          axis.text.y=element_blank(),
+          axis.ticks=element_blank(),
+          axis.title.x=element_blank(),
+          axis.title.y=element_blank(),
+          legend.position="none",
+          panel.background=element_blank(),panel.border=element_blank(),
+          panel.grid.major=element_blank(),
+          panel.grid.minor=element_blank(),
+          plot.background=element_blank())  
+orig <- orig + labs(title = "Original Face")
+orig
+
+for(i in seq(1, 200, by=10))
+{
+    orig <- ggplot(melt(face_gen(i, data = faces_rbm$reconstruct(faces[i:(i+1), ], 3)$visible)), aes(x=Var1,y=Var2))
+    orig <- orig + geom_tile(aes(fill=value)) + 
+        scale_fill_gradient(low = "black", high = "white") + 
+        theme(axis.line=element_blank(),
+              axis.text.x=element_blank(),
+              axis.text.y=element_blank(),
+              axis.ticks=element_blank(),
+              axis.title.x=element_blank(),
+              axis.title.y=element_blank(),
+              legend.position="none",
+              panel.background=element_blank(),panel.border=element_blank(),
+              panel.grid.major=element_blank(),
+              panel.grid.minor=element_blank(),
+              plot.background=element_blank())  
+    orig <- orig + labs(title = "Original Face")
+    multiplot(orig)
+}
+
+faces_rbm <- RBM(64^2, 4000, TRUE)
+
+faces_rbm$learn(faces[1:5, ])
+
+for(i in 1:(nrow(faces)))
+{
+    faces_rbm$learn(faces[sample(x=c(1:nrow(faces)), 15, replace=T), ], 0.06, momentum = 0.1)
+    if(i %% 5 == 0){
+        cat(sprintf("%i is done.\n", i))
+    }
+}
+
+
+reconstructions <- faces_rbm$reconstruct(faces[c(1:100), ], 2)
+reconstructions <- faces_rbm$expected_visible(faces_rbm$expected_hidden(faces[1:100, ])))
+
+for(i in c(1:30)))
+{
+    orig <- ggplot(melt((face_gen(i))), aes(x=Var1,y=Var2))
+    orig <- orig + geom_tile(aes(fill=value)) + 
+        scale_fill_gradient(low = "black", high = "white") + 
+        theme(axis.line=element_blank(),
+              axis.text.x=element_blank(),
+              axis.text.y=element_blank(),
+              axis.ticks=element_blank(),
+              axis.title.x=element_blank(),
+              axis.title.y=element_blank(),
+              legend.position="none",
+              panel.background=element_blank(),panel.border=element_blank(),
+              panel.grid.major=element_blank(),
+              panel.grid.minor=element_blank(),
+              plot.background=element_blank())  
+    orig <- orig + labs(title = "Original Face")
+    
+    learned <- ggplot(melt((face_gen(i, data = reconstructions$visible))), aes(x=Var1,y=Var2))
+    learned <- learned + geom_tile(aes(fill=value))+ 
+        scale_fill_gradient(low = "black", high = "white") + 
+        theme(axis.line=element_blank(),
+              axis.text.x=element_blank(),
+              axis.text.y=element_blank(),
+              axis.ticks=element_blank(),
+              axis.title.x=element_blank(),
+              axis.title.y=element_blank(),
+              legend.position="none",
+              panel.background=element_blank(),
+              panel.border=element_blank(),
+              panel.grid.major=element_blank(),
+              panel.grid.minor=element_blank(),
+              plot.background=element_blank())
+    
+    learned <- learned + labs(title = "Reconstructed/Learned Face")
+    
+    multiplot(orig, learned, cols=2)
+}
+
+
+
+
+
+
+# mnist stuff -------------------------------------------------------------
+
+
 image_data <- data.frame(x.idx = rep(c(1:28), 28), y.idx = rep(c(1:28), 28), value = rep(0, 784))
 ctr <- 1
 for(i in 1:28)
@@ -46,22 +174,29 @@ image_gen <- function(idx, data = mnist)
     }
     return(im)
 }
-myrbm <- RBM(28^2, 400)
 
-for(i in 1:(nrow(mnist) - 3))
+mnist_bin <- ifelse(mnist > 0.2, 1, 0)
+myrbm <- RBM(28^2, 1000, binary = FALSE)
+
+for(i in 1:(nrow(mnist)))
 {
-    myrbm$learn(ifelse(mnist[i:(1+3), ] > 0.2, 1, 0))
+    myrbm$learn(mnist_bin[sample(1:nrow(mnist), 5, replace=T), ])
+    if(i %% 10 == 0)
+    {
+        cat(sprintf("%i is done.\n", i))
+    }
 }
 
 
 reconstructions <- myrbm$reconstruct(mnist, 2)
+reconstructions <- list(visible = myrbm$expected_visible(myrbm$expected_hidden(mnist)))
 
-for(i in 1:50)
+for(i in 100:110)
 {
     orig <- ggplot(melt((image_gen(i, data = mnist))), aes(x=Var1,y=Var2))
-    orig <- orig + geom_tile(aes(fill=value)) 
-                 + scale_fill_gradient(low = "white", high = "black") 
-                 + theme(axis.line=element_blank(),
+    orig <- orig + geom_tile(aes(fill=value)) + 
+                   scale_fill_gradient(low = "white", high = "black") + 
+                   theme(axis.line=element_blank(),
                          axis.text.x=element_blank(),
                          axis.text.y=element_blank(),
                          axis.ticks=element_blank(),
@@ -75,9 +210,9 @@ for(i in 1:50)
     orig <- orig + labs(title = "Original Digit")
     
     learned <- ggplot(melt((image_gen(i, data = reconstructions$visible))), aes(x=Var1,y=Var2))
-    learned <- learned + geom_tile(aes(fill=value))
-                       + scale_fill_gradient(low = "white", high = "black") 
-                       + theme(axis.line=element_blank(),
+    learned <- learned + geom_tile(aes(fill=value))+ 
+                         scale_fill_gradient(low = "white", high = "black") + 
+                         theme(axis.line=element_blank(),
                                axis.text.x=element_blank(),
                                axis.text.y=element_blank(),
                                axis.ticks=element_blank(),

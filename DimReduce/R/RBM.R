@@ -73,11 +73,11 @@ RBM <- setRefClass("RBM",
         {
             if(!is.null(nrow(visible)))
             {
-                return(t(sigmoid(weights %*% t(visible))) + t(matrix(hidden_bias, num_hidden, nrow(visible))) + bias)
+                return(sigmoid(t(weights %*% t(visible)) + t(matrix(hidden_bias, num_hidden, nrow(visible))) + bias))
             }
             else
             {
-                return(t(sigmoid(weights %*% (visible))) + hidden_bias + bias)    
+                return(sigmoid(t(weights %*% (visible)) + hidden_bias + bias))  
             } #transpose (technically) here ~~~~^
             
         },
@@ -96,11 +96,12 @@ RBM <- setRefClass("RBM",
         {
             passes <- 1
             sampling_sequence <<- list()
+            internal_visible <- visible
             while(passes <= num_passes)
             {
-                hidden <- expected_hidden(visible)
-                sampling_sequence[[passes]] <<- list(hidden = hidden, visible = visible)
-                visible <- expected_visible(bernoulli(hidden))
+                hidden <- expected_hidden(internal_visible)
+                sampling_sequence[[passes]] <<- list(hidden = hidden, visible = internal_visible)
+                internal_visible <- expected_visible(bernoulli(hidden))
                 passes <- passes + 1
             }
         },
