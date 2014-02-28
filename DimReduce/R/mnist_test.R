@@ -440,7 +440,6 @@ for(i in 1:(nrow(mnist)))
 }
 }
 randomat <- myrbm_5$expected_hidden(myrbm_4$expected_hidden(myrbm_3$expected_hidden(myrbm_2$expected_hidden(myrbm$expected_hidden(mnist_bin)))))
-
 reduced_data <- data.frame(digit = labs, DIM_1 = randomat[, 1], DIM_2 = randomat[, 2])
 
 qplot(data=reduced_data,x=DIM_1,y=DIM_2,color=digit)
