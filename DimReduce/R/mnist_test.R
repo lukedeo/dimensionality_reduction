@@ -25,6 +25,7 @@ library(RColorBrewer)
 
 data(faces)
 
+
 faces <- as.matrix(t(faces))
 
 faces <- faces / max(faces)
@@ -42,13 +43,16 @@ face_gen <- function(idx, data = faces)
     return(im)
 }
 
-a <- faces_rbm$expected_visible(faces_rbm$expected_hidden(faces[2, ]))
+faces <- 1 - faces
 
-a <- faces_rbm$reconstruct(faces[2, ], 20)$visible
+face_cut <- faces
+# a <- faces_rbm$expected_visible(faces_rbm$expected_hidden(faces[2, ]))
+# 
+# a <- faces_rbm$reconstruct(faces[2, ], 20)$visible
 
-orig <- ggplot(melt(face_gen(1, a)), aes(x=Var1,y=Var2))
+orig <- ggplot(melt(face_gen(10)), aes(x=Var1,y=Var2))
 orig <- orig + geom_tile(aes(fill=value)) + 
-    scale_fill_gradient(low = "black", high = "white") + 
+    scale_fill_gradient(low = "white", high = "black") + 
     theme(axis.line=element_blank(),
           axis.text.x=element_blank(),
           axis.text.y=element_blank(),
@@ -83,27 +87,27 @@ for(i in seq(1, 200, by=10))
     multiplot(orig)
 }
 
-faces_rbm <- RBM(64^2, 4000, TRUE)
+faces_rbm <- RBM(64^2, 4000)
 
-faces_rbm$learn(faces[1:5, ])
+faces_rbm$learn(faces[1:10, ])
 
-for(i in 1:(nrow(faces)))
+for(i in 1:100)
 {
-    faces_rbm$learn(faces[sample(x=c(1:nrow(faces)), 15, replace=T), ], 0.06, momentum = 0.1)
+    faces_rbm$learn(faces[sample(x=c(1:nrow(faces)), 2, replace=T), ], 0.06, momentum = 0.1)
     if(i %% 5 == 0){
         cat(sprintf("%i is done.\n", i))
     }
 }
 
 
-reconstructions <- faces_rbm$reconstruct(faces[c(1:100), ], 2)
+reconstructions <- faces_rbm$reconstruct(faces[1:10, ], 4)
 reconstructions <- faces_rbm$expected_visible(faces_rbm$expected_hidden(faces[1:100, ])))
 
-for(i in c(1:30)))
+for(i in c(1:10))
 {
     orig <- ggplot(melt((face_gen(i))), aes(x=Var1,y=Var2))
     orig <- orig + geom_tile(aes(fill=value)) + 
-        scale_fill_gradient(low = "black", high = "white") + 
+        scale_fill_gradient(low = "white", high = "black") + 
         theme(axis.line=element_blank(),
               axis.text.x=element_blank(),
               axis.text.y=element_blank(),
@@ -119,7 +123,7 @@ for(i in c(1:30)))
     
     learned <- ggplot(melt((face_gen(i, data = reconstructions$visible))), aes(x=Var1,y=Var2))
     learned <- learned + geom_tile(aes(fill=value))+ 
-        scale_fill_gradient(low = "black", high = "white") + 
+        scale_fill_gradient(low = "white", high = "black") + 
         theme(axis.line=element_blank(),
               axis.text.x=element_blank(),
               axis.text.y=element_blank(),
