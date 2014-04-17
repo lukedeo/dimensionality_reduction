@@ -58,6 +58,7 @@ data(digits)
 
 X <- swiss_roll(n=N)
 
+data(frey)
 
 
 digits <- t(digits)
@@ -102,11 +103,14 @@ plot3d(Xnew[, 1], Xnew[, 2], Xnew[, 3], col = rainbow(N, start=0, end = .7), pch
 
 
 frey_lle <- local_linear_embedding(X, k = 10, d = 2, verbose = TRUE)
+
 plot(frey_lle$Y, pch=19, col=rainbow(N, start=0, end = .7), xlab = "Feature 1", ylab = "Feature 2",main = frey_lle$description)
 locle10 <- local_linear_embedding(X, k = 10, d = 2, verbose = TRUE)
 locle15 <- local_linear_embedding(X, k = 15, d = 2, verbose = TRUE)
 locle20 <- local_linear_embedding(X, k = 20, d = 2, verbose = TRUE)
 compare_reductions(X_orig=X, locle10, locle15, locle20)
+
+plot(locle15$Y, pch=19, col=rainbow(N, start=0, end = .7), xlab = "Feature 1", ylab = "Feature 2",main = locle15$description)
 
 
 
@@ -129,11 +133,12 @@ plot3d(X[, 1], X[, 2], X[, 3], col = rainbow(N, start=0, end = .7), pch=19)
 
 # Isomap ------------------------------------------------------------------
 iso <- embedding(X=X, k = 10, d = 2, verbose=TRUE, method="isomap", mode = "classical", weighted = FALSE)
+
 iso10 <- isomap(X=X, k = 10,  d = 2, verbose=TRUE, weighted=TRUE)
 iso15 <- isomap(X=X, k = 15,  d = 2, verbose=TRUE, weighted=TRUE)
 iso20 <- isomap(X=X, k = 20,  d = 2, verbose=TRUE, weighted=TRUE)
 compare_reductions(X_orig=X, iso10, iso15, iso20)
-plot(lle4$Y, col=rainbow(N, start=0, end = .7), main = lle4$description, pch = 19)
+plot(iso15$Y, col=rainbow(N, start=0, end = .7), main = iso15$description, pch = 19)
 Y=iso$Y
 plot3d(Y[, 1], Y[, 2], Y[, 3], col = rainbow(N, start=0, end = .7), pch=19, main = frey_lle$description)
 
@@ -159,8 +164,8 @@ Do <- fastPdist(X, X)
 k = 10
 Daux <- apply(Do,2,sort)[k+1,]
 Inb <- ifelse(Do>Daux, 0, 1)
-lmds <- boxcox(D=Do, A=Inb, d = 2, tau = 1, lambda=1, sample_rate = 10, niter = 200, cmds_start=F, verbose = T,scale_out=F)
-plot(lmds$Y, col=rainbow(N, start=0, end = .7), main = lmds$description, pch = 19)
+lmds <- boxcox(D=Do, A=Inb, d = 2, sample_rate = 10, niter = 500, cmds_start=T, verbose = T,scale_out=F)
+plot(lmds$best, col=rainbow(N, start=0, end = .7), main = lmds$description, pch = 19)
 
 
 
