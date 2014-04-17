@@ -17,6 +17,10 @@ fastPdist <- function(A, B) {
     .Call('DimReduce_fastPdist', PACKAGE = 'DimReduce', A, B)
 }
 
+getEigenValues <- function(M) {
+    .Call('DimReduce_getEigenValues', PACKAGE = 'DimReduce', M)
+}
+
 laplacian_eigenmap <- function(X, d, k, heat = 2.0, verbose = FALSE) {
     .Call('DimReduce_laplacian_eigenmap', PACKAGE = 'DimReduce', X, d, k, heat, verbose)
 }

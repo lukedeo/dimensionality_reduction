@@ -2,6 +2,7 @@
 // Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #include <RcppArmadillo.h>
+#include <RcppEigen.h>
 #include <Rcpp.h>
 
 using namespace Rcpp;
@@ -83,6 +84,21 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< arma::mat >::type A(ASEXP );
         Rcpp::traits::input_parameter< arma::mat >::type B(BSEXP );
         arma::mat __result = fastPdist(A, B);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// getEigenValues
+using Eigen::Map;               	    // 'maps' rather than copies  using Eigen::MatrixXd;                  // variable size matrix, double precision using Eigen::VectorXd;     Eigen::VectorXd getEigenValues(<Eigen::MatrixXd> M);
+RcppExport SEXP DimReduce_getEigenValues(SEXP MSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< <Eigen::MatrixXd> >::type M(MSEXP );
+        using Eigen::Map;               	    // 'maps' rather than copies  using Eigen::MatrixXd;                  // variable size matrix, double precision using Eigen::VectorXd;     Eigen::VectorXd __result = getEigenValues(M);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
