@@ -7,6 +7,22 @@
 
 using namespace Rcpp;
 
+// softmax
+arma::mat softmax(arma::mat A, unsigned int axis = 1);
+RcppExport SEXP DimReduce_softmax(SEXP ASEXP, SEXP axisSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< arma::mat >::type A(ASEXP );
+        Rcpp::traits::input_parameter< unsigned int >::type axis(axisSEXP );
+        arma::mat __result = softmax(A, axis);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // INTERNAL_BOXCOX
 SEXP INTERNAL_BOXCOX(arma::mat D, arma::umat A, arma::mat X1, int cmds_start = 1, int random_start = 0, int d = 3, double lambda = 1, double mu = 1, double nu = 0, double tau = 1, int niter = 1000, int sample_rate = 100, bool bfgs = 0, bool adaptive = 1, bool scale_out = 1, bool verbose = false);
 RcppExport SEXP DimReduce_INTERNAL_BOXCOX(SEXP DSEXP, SEXP ASEXP, SEXP X1SEXP, SEXP cmds_startSEXP, SEXP random_startSEXP, SEXP dSEXP, SEXP lambdaSEXP, SEXP muSEXP, SEXP nuSEXP, SEXP tauSEXP, SEXP niterSEXP, SEXP sample_rateSEXP, SEXP bfgsSEXP, SEXP adaptiveSEXP, SEXP scale_outSEXP, SEXP verboseSEXP) {
@@ -84,21 +100,6 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< arma::mat >::type A(ASEXP );
         Rcpp::traits::input_parameter< arma::mat >::type B(BSEXP );
         arma::mat __result = fastPdist(A, B);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
-END_RCPP
-}
-// getEigenValues
-using Eigen::Map;               	    // 'maps' rather than copies  using Eigen::MatrixXd;                  // variable size matrix, double precision using Eigen::VectorXd;     Eigen::VectorXd getEigenValues(<Eigen::MatrixXd> M);
-RcppExport SEXP DimReduce_getEigenValues(SEXP MSEXP) {
-BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< <Eigen::MatrixXd> >::type M(MSEXP );
-        using Eigen::Map;               	    // 'maps' rather than copies  using Eigen::MatrixXd;                  // variable size matrix, double precision using Eigen::VectorXd;     Eigen::VectorXd __result = getEigenValues(M);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
