@@ -1,6 +1,7 @@
 #ifndef __LAYER__H__
 #define __LAYER__H__ 
 
+#include <RcppArmadillo.h>
 #include "activation_functions.h"
 #include <stdexcept>
 
@@ -16,12 +17,28 @@ public:
 
 	~layer() = default;
 
-	template <class T>
-	T predict(const T &M);
+	arma::mat predict(const arma::mat &M);
 
 	// arma::mat correct(const arma::mat &M);
 
 	arma::mat backpropagate(const arma::mat &V);
+
+	virtual learn_encoding(const arma::mat &X)
+	{
+		throw std::logic_error("standar layer cannot learn encoding.");
+	}
+
+	virtual encode(const arma::mat &X)
+	{
+		throw std::logic_error("standar layer cannot encode.");
+	}
+
+	arma::mat get_W(){return W;}
+	arma::mat get_b(){return b;}
+
+	Rcpp:List to_list();
+
+
 
 private:
 	arma::mat W, W_old, W_change, m_out, m_in;
@@ -44,18 +61,10 @@ learning(learning), momentum(momentum), regularization(regularizer), layer_type(
 	W_change.fill(0.0);
 
 }
-
-//----------------------------------------------------------------------------
-inline template <class T>
-T layer::predict(const T &M)
-{
-	throw std::invalid_argument("unrecognized input type.");
-}
-//----------------------------------------------------------------------------
-template <>
+//---------------------------------------------------------------------------
 arma::mat layer::predict(const arma::mat &M)
 {
-	m_in = M;
+	m_in = M.t();
 	m_out = W * M.t();
 	m_out.each_col() += b;
 	switch(layer_type)
@@ -75,6 +84,19 @@ arma::mat layer::backpropagate(const arma::mat &V)
 	{
 		delta = delta % _sigmoid_derivative(_sigmoid(m_out));
 	}
+	W_change = delta * m_in.t() / V.n_rows;
+	b_change = arma::sum(delta, 1) / V.n_rows;
+	W_old = momentum * W_old - learning * (W_change + regularization * W);
+	b_old = momentum * b_old - learning * b_change;
+	W += W_old;
+	b += b_old;
+
+	return W.t() * delta;
+}
+
+//----------------------------------------------------------------------------
+Rcpp:List layer::to_list()
+{
 
 }
 

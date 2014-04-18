@@ -21,6 +21,10 @@ laplacian_eigenmap <- function(X, d, k, heat = 2.0, verbose = FALSE) {
     .Call('DimReduce_laplacian_eigenmap', PACKAGE = 'DimReduce', X, d, k, heat, verbose)
 }
 
+learn_layer <- function(X, Y) {
+    .Call('DimReduce_learn_layer', PACKAGE = 'DimReduce', X, Y)
+}
+
 local_linear_embedding <- function(X, k = 6L, d = 2L, verbose = FALSE) {
     .Call('DimReduce_local_linear_embedding', PACKAGE = 'DimReduce', X, k, d, verbose)
 }

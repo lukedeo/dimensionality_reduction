@@ -109,6 +109,22 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
+// learn_layer
+SEXP learn_layer(arma::mat X, arma::mat Y);
+RcppExport SEXP DimReduce_learn_layer(SEXP XSEXP, SEXP YSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP );
+        Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP );
+        SEXP __result = learn_layer(X, Y);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // local_linear_embedding
 SEXP local_linear_embedding(arma::mat X, int k = 6, int d = 2, bool verbose = false);
 RcppExport SEXP DimReduce_local_linear_embedding(SEXP XSEXP, SEXP kSEXP, SEXP dSEXP, SEXP verboseSEXP) {
