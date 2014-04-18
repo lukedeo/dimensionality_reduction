@@ -7,22 +7,6 @@
 
 using namespace Rcpp;
 
-// pred
-arma::mat pred(arma::mat A, int num_outs = 2);
-RcppExport SEXP DimReduce_pred(SEXP ASEXP, SEXP num_outsSEXP) {
-BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< arma::mat >::type A(ASEXP );
-        Rcpp::traits::input_parameter< int >::type num_outs(num_outsSEXP );
-        arma::mat __result = pred(A, num_outs);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
-END_RCPP
-}
 // INTERNAL_BOXCOX
 SEXP INTERNAL_BOXCOX(arma::mat D, arma::umat A, arma::mat X1, int cmds_start = 1, int random_start = 0, int d = 3, double lambda = 1, double mu = 1, double nu = 0, double tau = 1, int niter = 1000, int sample_rate = 100, bool bfgs = 0, bool adaptive = 1, bool scale_out = 1, bool verbose = false);
 RcppExport SEXP DimReduce_INTERNAL_BOXCOX(SEXP DSEXP, SEXP ASEXP, SEXP X1SEXP, SEXP cmds_startSEXP, SEXP random_startSEXP, SEXP dSEXP, SEXP lambdaSEXP, SEXP muSEXP, SEXP nuSEXP, SEXP tauSEXP, SEXP niterSEXP, SEXP sample_rateSEXP, SEXP bfgsSEXP, SEXP adaptiveSEXP, SEXP scale_outSEXP, SEXP verboseSEXP) {
@@ -119,6 +103,22 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< double >::type heat(heatSEXP );
         Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP );
         SEXP __result = laplacian_eigenmap(X, d, k, heat, verbose);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// learn_layer
+SEXP learn_layer(arma::mat X, arma::mat Y);
+RcppExport SEXP DimReduce_learn_layer(SEXP XSEXP, SEXP YSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP );
+        Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP );
+        SEXP __result = learn_layer(X, Y);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
