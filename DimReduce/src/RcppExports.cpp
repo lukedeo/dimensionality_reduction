@@ -7,16 +7,16 @@
 
 using namespace Rcpp;
 
-// softmax
-arma::mat softmax(arma::mat A, unsigned int axis = 1);
-RcppExport SEXP DimReduce_softmax(SEXP ASEXP, SEXP axisSEXP) {
+// pred
+arma::mat pred(arma::mat A, int num_outs = 2);
+RcppExport SEXP DimReduce_pred(SEXP ASEXP, SEXP num_outsSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
         Rcpp::traits::input_parameter< arma::mat >::type A(ASEXP );
-        Rcpp::traits::input_parameter< unsigned int >::type axis(axisSEXP );
-        arma::mat __result = softmax(A, axis);
+        Rcpp::traits::input_parameter< int >::type num_outs(num_outsSEXP );
+        arma::mat __result = pred(A, num_outs);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
