@@ -37,6 +37,7 @@ public:
     arma::mat get_b(){return b;}
 
     Rcpp:List to_list();
+    void from_list();
 
 
 
@@ -97,8 +98,27 @@ arma::mat layer::backpropagate(const arma::mat &V)
 //----------------------------------------------------------------------------
 Rcpp:List layer::to_list()
 {
+    std::string type;
+    switch(layer_type)
+    {
+        case linear: type = "linear"; 
+        case sigmoid: type = "sigmoid"; 
+        case softmax: type = "softmax"; 
+        default: throw std::logic_error("invalid layer type.");
+    }
+
     return Rcpp::List::create(Rcpp::Named("W") = L.get_W(), 
-                              Rcpp::Named("b") = L.get_b());
+                              Rcpp::Named("b") = L.get_b(),
+                              Rcpp::Named("activation") = type,
+                              Rcpp::Named("learning") = learning,
+                              Rcpp::Named("momentum") = momentum,
+                              Rcpp::Named("regularization") = regularization);
+}
+//----------------------------------------------------------------------------
+
+void layer::from_list()
+{
+    
 }
 
 
