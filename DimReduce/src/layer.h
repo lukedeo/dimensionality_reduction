@@ -35,11 +35,11 @@ regularization(regularizer), layer_type(type)
 {
 	W = arma::randn<arma::mat>(outputs, inputs) * 0.1;
 	b = arma::randn<arma::colvec>(outputs) * 0.1;
-	b_old(;
-		b_change;
-	m_out;
-	m_in;
-	delta;
+	b_old.fill(0.0);
+	b_change.fill(0.0);
+	m_out.fill(0.0);
+	m_in.fill(0.0);
+	delta.fill(0.0))
 
 }
 
