@@ -32,7 +32,7 @@ public:
     }
     arma::mat get_b()
     {
-        return params.subvec(m_divide - 1, m_total);
+        return params.subvec(m_divide + 1, m_total);
     }
 
     Rcpp::List to_list();
@@ -138,7 +138,9 @@ Rcpp::List layer::to_list()
                               Rcpp::Named("activation") = type,
                               Rcpp::Named("learning") = learning,
                               Rcpp::Named("momentum") = momentum,
-                              Rcpp::Named("regularization") = regularization);
+                              Rcpp::Named("regularization") = regularization,
+                              Rcpp::Named("inputs") = m_inputs,
+                              Rcpp::Named("outputs") = m_outputs);
 }
 //----------------------------------------------------------------------------
 
@@ -148,15 +150,13 @@ void layer::from_list(Rcpp::List list)
 
     if (type == "linear") layer_type = linear;
     else if (type == "sigmoid") layer_type = sigmoid;
-    else if (type == "softmax") layer_type = linear;
+    else if (type == "softmax") layer_type = sigmoid;
 
-    arma::mat W = list["W"];
-    arma::vec b = list["b"];
 
-    int inputs = W.n_cols, outputs = W.n_rows;
+    int inputs = list["inputs"], outputs = list["outputs"];
 
     grad_params.set_size(inputs * outputs + outputs);
-
+    params.set_size(inputs * outputs + outputs);
     old_params.set_size(inputs * outputs + outputs);
     m_inputs = (inputs);
     m_outputs = (outputs);
@@ -166,11 +166,11 @@ void layer::from_list(Rcpp::List list)
     momentum = (list["momentum"]);
     regularization = (list["regularization"]);
 
+    arma::mat W = list["W"];
+    arma::mat b = list["b"];
 
-
-    params.set_size(inputs * outputs + outputs);
-    grad_params.subvec(0, m_divide) = arma::vectorise(W);
-    params.subvec(m_divide - 1, m_total) = b;
+    params.subvec(0, m_divide) = arma::vectorise(W);
+    params.subvec(m_divide + 1, m_total) = ;
 
     old_params.fill(0.0);
     grad_params.fill(0.0);
