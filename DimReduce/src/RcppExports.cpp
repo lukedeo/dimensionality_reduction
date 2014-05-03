@@ -125,6 +125,21 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
+// pass_layer
+SEXP pass_layer(Rcpp::List list);
+RcppExport SEXP DimReduce_pass_layer(SEXP listSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< Rcpp::List >::type list(listSEXP );
+        SEXP __result = pass_layer(list);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // local_linear_embedding
 SEXP local_linear_embedding(arma::mat X, int k = 6, int d = 2, bool verbose = false);
 RcppExport SEXP DimReduce_local_linear_embedding(SEXP XSEXP, SEXP kSEXP, SEXP dSEXP, SEXP verboseSEXP) {

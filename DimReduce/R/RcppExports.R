@@ -25,6 +25,10 @@ learn_layer <- function(X, Y) {
     .Call('DimReduce_learn_layer', PACKAGE = 'DimReduce', X, Y)
 }
 
+pass_layer <- function(list) {
+    .Call('DimReduce_pass_layer', PACKAGE = 'DimReduce', list)
+}
+
 local_linear_embedding <- function(X, k = 6L, d = 2L, verbose = FALSE) {
     .Call('DimReduce_local_linear_embedding', PACKAGE = 'DimReduce', X, k, d, verbose)
 }
