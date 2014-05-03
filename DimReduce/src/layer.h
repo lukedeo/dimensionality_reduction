@@ -16,7 +16,7 @@ public:
         double learning = 0.05, double momentum = 0.5, 
         double regularizer = 0.00001);
 
-    ~layer() = default;
+    ~layer( ) { }
 
     arma::mat predict(const arma::mat &M);
 
@@ -37,7 +37,7 @@ public:
 
     Rcpp::List to_list();
 
-    void from_list(Rcpp::List list);
+    void from_list(const Rcpp::List &list);
 
 private:
     friend class autoencoder;
@@ -138,13 +138,11 @@ Rcpp::List layer::to_list()
                               Rcpp::Named("activation") = type,
                               Rcpp::Named("learning") = learning,
                               Rcpp::Named("momentum") = momentum,
-                              Rcpp::Named("regularization") = regularization,
-                              Rcpp::Named("inputs") = m_inputs,
-                              Rcpp::Named("outputs") = m_outputs);
+                              Rcpp::Named("regularization") = regularization);
 }
 //----------------------------------------------------------------------------
 
-void layer::from_list(Rcpp::List list)
+void layer::from_list(const Rcpp::List &list)
 {
     std::string type = list["activation"];
 
@@ -153,11 +151,16 @@ void layer::from_list(Rcpp::List list)
     else if (type == "softmax") layer_type = sigmoid;
 
 
-    int inputs = list["inputs"], outputs = list["outputs"];
+    arma::mat W = list["W"];
+    arma::mat b = list["b"];
+
+    int inputs = W.n_cols;
+    int outputs = W.n_rows;
 
     grad_params.set_size(inputs * outputs + outputs);
     params.set_size(inputs * outputs + outputs);
     old_params.set_size(inputs * outputs + outputs);
+
     m_inputs = (inputs);
     m_outputs = (outputs);
     m_divide = (inputs * outputs - 1);
@@ -166,11 +169,9 @@ void layer::from_list(Rcpp::List list)
     momentum = (list["momentum"]);
     regularization = (list["regularization"]);
 
-    arma::mat W = list["W"];
-    arma::mat b = list["b"];
-
     params.subvec(0, m_divide) = arma::vectorise(W);
-    params.subvec(m_divide + 1, m_total) = ;
+
+    params.subvec(m_divide + 1, m_total) = b;
 
     old_params.fill(0.0);
     grad_params.fill(0.0);
