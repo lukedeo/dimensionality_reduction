@@ -3,9 +3,6 @@
 #include "neighbor_graph.h"
 
 
-
-
-
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 

@@ -1,72 +1,78 @@
 #ifndef __LAYER__H__
 #define __LAYER__H__ 
 
-#include <RcppArmadillo.h>
 #include "activation_functions.h"
 #include <stdexcept>
 
 enum activ_func { linear, sigmoid, softmax };
 
+class autoencoder;
+
 //----------------------------------------------------------------------------
 class layer
 {
 public:
-    explicit layer(int inputs, int outputs, activ_func type, 
-        double learning = 0.01, double momentum = 0.7, 
+    explicit layer(int inputs = 1, int outputs = 1, activ_func type = linear, 
+        double learning = 0.05, double momentum = 0.5, 
         double regularizer = 0.00001);
 
     ~layer() = default;
 
     arma::mat predict(const arma::mat &M);
 
-    // arma::mat correct(const arma::mat &M);
+    void backpropagate(const arma::mat &V);
 
-    arma::mat backpropagate(const arma::mat &V);
+    void calculate_derivatives(const arma::mat &V);
 
-    virtual learn_encoding(const arma::mat &X)
+    arma::mat pass_down();
+
+    arma::mat get_W()
     {
-        throw std::logic_error("standar layer cannot learn encoding.");
+        return arma::reshape(params.subvec(0, m_divide), m_outputs, m_inputs);
+    }
+    arma::mat get_b()
+    {
+        return params.subvec(m_divide - 1, m_total);
     }
 
-    virtual encode(const arma::mat &X)
-    {
-        throw std::logic_error("standar layer cannot encode.");
-    }
+    Rcpp::List to_list();
 
-    arma::mat get_W(){return W;}
-    arma::mat get_b(){return b;}
-
-    Rcpp:List to_list();
-
-
+    void from_list(Rcpp::List list);
 
 private:
-    arma::mat W, W_old, W_change, m_out, m_in;
-    arma::colvec b, b_old, b_change;
-    int m_batch_size, m_inputs, m_outputs;
+    friend class autoencoder;
+
+    arma::vec params, grad_params, old_params;
+
+    arma::mat m_out, m_in, B;
+    int m_batch_size, m_inputs, m_outputs, m_divide, m_total;
     double learning, momentum, regularization;
     activ_func layer_type;
+    arma::mat to_pass_down;
 };
 
-inline layer::layer(int inputs, int outputs, activ_func type, 
+//----------------------------------------------------------------------------
+layer::layer(int inputs, int outputs, activ_func type, 
     double learning, double momentum, double regularizer):
-W_old(outputs, inputs), W_change(outputs, inputs), b_old(outputs), b_change(outputs), 
-learning(learning), momentum(momentum), regularization(regularizer), layer_type(type)
+grad_params(inputs * outputs + outputs), 
+old_params(inputs * outputs + outputs), m_inputs(inputs), m_outputs(outputs), 
+m_divide(inputs * outputs - 1), m_total(inputs * outputs + outputs - 1)
+,learning(learning), momentum(momentum), regularization(regularizer), layer_type(type)
 {
-    W = arma::randn<arma::mat>(outputs, inputs) * 0.1;
-    b = arma::randn<arma::colvec>(outputs) * 0.1;
-    b_old.fill(0.0);
-    b_change.fill(0.0);
-    W_old.fill(0.0);
-    W_change.fill(0.0);
-
+    params = arma::randn<arma::vec>(inputs * outputs + outputs) * 0.1;
+    old_params.fill(0.0);
+    grad_params.fill(0.0);
 }
 //---------------------------------------------------------------------------
 arma::mat layer::predict(const arma::mat &M)
 {
     m_in = M.t();
-    m_out = W * M.t();
-    m_out.each_col() += b;
+    // m_out = W * M.t();
+    // arma::mat W = arma::reshape(params.subvec(0, m_divide), m_outputs, m_inputs);
+    // arma::colvec b = params.subvec(m_divide + 1, m_total);
+    m_out = arma::reshape(params.subvec(0, m_divide), m_outputs, m_inputs) * M.t();
+    m_out.each_col() += params.subvec(m_divide + 1, m_total);
+
     switch(layer_type)
     {
         case linear: return m_out.t();
@@ -75,34 +81,102 @@ arma::mat layer::predict(const arma::mat &M)
         default: throw std::logic_error("invalid layer type.");
     }
 }
-//----------------------------------------------------------------------------
+// //----------------------------------------------------------------------------
 
-arma::mat layer::backpropagate(const arma::mat &V)
+void layer::backpropagate(const arma::mat &V)
 {
     arma::mat delta = V.t();
     if (layer_type == sigmoid)
     {
         delta = delta % _sigmoid_derivative(_sigmoid(m_out));
     }
-    W_change = delta * m_in.t() / V.n_rows;
-    b_change = arma::sum(delta, 1) / V.n_rows;
-    W_old = momentum * W_old - learning * (W_change + regularization * W);
-    b_old = momentum * b_old - learning * b_change;
-    W += W_old;
-    b += b_old;
+    // std::cout << "here" << std::endl;
+    arma::mat W = arma::reshape(params.subvec(0, m_divide), m_outputs, m_inputs);
+    grad_params.subvec(0, m_divide) = arma::vectorise(delta * m_in.t() / V.n_rows + regularization * W);
+    grad_params.subvec(m_divide + 1, m_total) = arma::sum(delta, 1) / V.n_rows;
 
-    return W.t() * delta;
+    old_params *= momentum;
+    old_params -= learning * grad_params;
+    old_params.subvec(0, m_divide) -= learning * regularization * params.subvec(0, m_divide);
+
+    params += old_params;
+
+    to_pass_down = W.t() * delta;
+
 }
 
-//----------------------------------------------------------------------------
-Rcpp:List layer::to_list()
+
+void layer::calculate_derivatives(const arma::mat &V)
 {
-    return Rcpp::List::create(Rcpp::Named("W") = L.get_W(), 
-                              Rcpp::Named("b") = L.get_b());
+    arma::mat delta = V.t();
+    if (layer_type == sigmoid)
+    {
+        delta = delta % _sigmoid_derivative(_sigmoid(m_out));
+    }
+    arma::mat W = arma::reshape(params.subvec(0, m_divide), m_outputs, m_inputs);
+    grad_params.subvec(0, m_divide) = arma::vectorise(delta * m_in.t() / V.n_rows + regularization * W);
+    grad_params.subvec(m_divide + 1, m_total) = arma::sum(delta, 1) / V.n_rows;
+    to_pass_down = W.t() * delta;
+}
+
+arma::mat layer::pass_down()
+{
+    return to_pass_down;
 }
 
 
+Rcpp::List layer::to_list()
+{
+    std::string type;
+
+    if (layer_type == linear) type = "linear"; 
+    else if (layer_type == sigmoid) type = "sigmoid"; 
+    else if (layer_type == softmax) type = "softmax"; 
+
+    return Rcpp::List::create(Rcpp::Named("W") = get_W(), 
+                              Rcpp::Named("b") = get_b(),
+                              Rcpp::Named("activation") = type,
+                              Rcpp::Named("learning") = learning,
+                              Rcpp::Named("momentum") = momentum,
+                              Rcpp::Named("regularization") = regularization);
+}
+//----------------------------------------------------------------------------
+
+void layer::from_list(Rcpp::List list)
+{
+    std::string type = list["activation"];
+
+    if (type == "linear") layer_type = linear;
+    else if (type == "sigmoid") layer_type = sigmoid;
+    else if (type == "softmax") layer_type = linear;
+
+    arma::mat W = list["W"];
+    arma::vec b = list["b"];
+
+    int inputs = W.n_cols, outputs = W.n_rows;
+
+    grad_params.set_size(inputs * outputs + outputs);
+
+    old_params.set_size(inputs * outputs + outputs);
+    m_inputs = (inputs);
+    m_outputs = (outputs);
+    m_divide = (inputs * outputs - 1);
+    m_total = (inputs * outputs + outputs - 1);
+    learning = (list["learning"]);
+    momentum = (list["momentum"]);
+    regularization = (list["regularization"]);
 
 
+
+    params.set_size(inputs * outputs + outputs);
+    grad_params.subvec(0, m_divide) = arma::vectorise(W);
+    params.subvec(m_divide - 1, m_total) = b;
+
+    old_params.fill(0.0);
+    grad_params.fill(0.0);
+
+
+    // std::cout << "the type is " << type << std::endl;
+}
 
 #endif
