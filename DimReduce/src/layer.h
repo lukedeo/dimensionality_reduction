@@ -128,12 +128,10 @@ arma::mat layer::pass_down()
 Rcpp::List layer::to_list()
 {
     std::string type;
-    switch(layer_type)
-    {
-        case linear: type = "linear"; 
-        case sigmoid: type = "sigmoid"; 
-        case softmax: type = "softmax"; 
-    }
+
+    if (layer_type == linear) type = "linear"; 
+    else if (layer_type == sigmoid) type = "sigmoid"; 
+    else if (layer_type == softmax) type = "softmax"; 
 
     return Rcpp::List::create(Rcpp::Named("W") = get_W(), 
                               Rcpp::Named("b") = get_b(),
@@ -164,22 +162,18 @@ void layer::from_list(Rcpp::List list)
     m_outputs = (outputs);
     m_divide = (inputs * outputs - 1);
     m_total = (inputs * outputs + outputs - 1);
-    learning = (learning);
-    momentum = (momentum);
-    regularization = (regularization);
+    learning = (list["learning"]);
+    momentum = (list["momentum"]);
+    regularization = (list["regularization"]);
 
 
 
     params.set_size(inputs * outputs + outputs);
-    grad_params.subvec(0, m_divide) = 
+    grad_params.subvec(0, m_divide) = arma::vectorise(W);
     params.subvec(m_divide - 1, m_total) = b;
 
     old_params.fill(0.0);
     grad_params.fill(0.0);
-
-
-
-
 
 
     // std::cout << "the type is " << type << std::endl;
