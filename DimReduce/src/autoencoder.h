@@ -51,6 +51,18 @@ public:
 		return *this;
 	}
 
+	Rcpp::List to_list()
+	{
+		return Rcpp::List::create(Rcpp::Named("encoder") = encoder.to_list(),
+								  Rcpp::Named("decoder") = decoder.to_list());
+	}
+
+	void from_list(const Rcpp::List &list)
+	{
+		encoder.from_list(list["encoder"]);
+		decoder.from_list(list["decoder"]);
+	}
+
 private:
 	layer encoder, decoder;
 	arma::mat B;

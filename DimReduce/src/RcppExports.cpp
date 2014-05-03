@@ -125,6 +125,22 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
+// learn_autoencoder
+SEXP learn_autoencoder(arma::mat X, int n_hidden);
+RcppExport SEXP DimReduce_learn_autoencoder(SEXP XSEXP, SEXP n_hiddenSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP );
+        Rcpp::traits::input_parameter< int >::type n_hidden(n_hiddenSEXP );
+        SEXP __result = learn_autoencoder(X, n_hidden);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // layer_predict
 arma::mat layer_predict(Rcpp::List list, arma::mat X);
 RcppExport SEXP DimReduce_layer_predict(SEXP listSEXP, SEXP XSEXP) {

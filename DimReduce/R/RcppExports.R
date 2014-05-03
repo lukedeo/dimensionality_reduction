@@ -25,6 +25,10 @@ learn_layer <- function(X, Y) {
     .Call('DimReduce_learn_layer', PACKAGE = 'DimReduce', X, Y)
 }
 
+learn_autoencoder <- function(X, n_hidden) {
+    .Call('DimReduce_learn_autoencoder', PACKAGE = 'DimReduce', X, n_hidden)
+}
+
 layer_predict <- function(list, X) {
     .Call('DimReduce_layer_predict', PACKAGE = 'DimReduce', list, X)
 }
