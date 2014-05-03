@@ -16,7 +16,7 @@ public:
         double learning = 0.05, double momentum = 0.5, 
         double regularizer = 0.00001);
 
-    ~layer() = default;
+    ~layer( ) { }
 
     arma::mat predict(const arma::mat &M);
 
@@ -32,12 +32,12 @@ public:
     }
     arma::mat get_b()
     {
-        return params.subvec(m_divide - 1, m_total);
+        return params.subvec(m_divide + 1, m_total);
     }
 
     Rcpp::List to_list();
 
-    void from_list(Rcpp::List list);
+    void from_list(const Rcpp::List &list);
 
 private:
     friend class autoencoder;
@@ -142,22 +142,25 @@ Rcpp::List layer::to_list()
 }
 //----------------------------------------------------------------------------
 
-void layer::from_list(Rcpp::List list)
+void layer::from_list(const Rcpp::List &list)
 {
     std::string type = list["activation"];
 
     if (type == "linear") layer_type = linear;
     else if (type == "sigmoid") layer_type = sigmoid;
-    else if (type == "softmax") layer_type = linear;
+    else if (type == "softmax") layer_type = sigmoid;
+
 
     arma::mat W = list["W"];
-    arma::vec b = list["b"];
+    arma::mat b = list["b"];
 
-    int inputs = W.n_cols, outputs = W.n_rows;
+    int inputs = W.n_cols;
+    int outputs = W.n_rows;
 
     grad_params.set_size(inputs * outputs + outputs);
-
+    params.set_size(inputs * outputs + outputs);
     old_params.set_size(inputs * outputs + outputs);
+
     m_inputs = (inputs);
     m_outputs = (outputs);
     m_divide = (inputs * outputs - 1);
@@ -166,11 +169,9 @@ void layer::from_list(Rcpp::List list)
     momentum = (list["momentum"]);
     regularization = (list["regularization"]);
 
+    params.subvec(0, m_divide) = arma::vectorise(W);
 
-
-    params.set_size(inputs * outputs + outputs);
-    grad_params.subvec(0, m_divide) = arma::vectorise(W);
-    params.subvec(m_divide - 1, m_total) = b;
+    params.subvec(m_divide + 1, m_total) = b;
 
     old_params.fill(0.0);
     grad_params.fill(0.0);
