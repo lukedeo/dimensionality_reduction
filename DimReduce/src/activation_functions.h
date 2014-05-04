@@ -1,3 +1,4 @@
+#define ARMA_64BIT_WORD
 #ifndef __ACTIV_FUNC__
 #define __ACTIV_FUNC__ 
 #include <RcppArmadillo.h>

@@ -25,8 +25,24 @@ learn_layer <- function(X, Y) {
     .Call('DimReduce_learn_layer', PACKAGE = 'DimReduce', X, Y)
 }
 
-learn_autoencoder <- function(X, n_hidden) {
-    .Call('DimReduce_learn_autoencoder', PACKAGE = 'DimReduce', X, n_hidden)
+learn_autoencoder <- function(X, n_hidden, epochs = 10L, batch = 2L) {
+    .Call('DimReduce_learn_autoencoder', PACKAGE = 'DimReduce', X, n_hidden, epochs, batch)
+}
+
+learn_bfgs_autoencoder <- function(X, n_hidden, epochs = 1L, batch = 10L) {
+    .Call('DimReduce_learn_bfgs_autoencoder', PACKAGE = 'DimReduce', X, n_hidden, epochs, batch)
+}
+
+learn_denoising_autoencoder <- function(X, n_hidden, activation_type, epochs = 10L, batch = 2L) {
+    .Call('DimReduce_learn_denoising_autoencoder', PACKAGE = 'DimReduce', X, n_hidden, activation_type, epochs, batch)
+}
+
+reconstruct_autoencoder <- function(autoenc, X) {
+    .Call('DimReduce_reconstruct_autoencoder', PACKAGE = 'DimReduce', autoenc, X)
+}
+
+encode_autoencoder <- function(autoenc, X) {
+    .Call('DimReduce_encode_autoencoder', PACKAGE = 'DimReduce', autoenc, X)
 }
 
 layer_predict <- function(list, X) {
