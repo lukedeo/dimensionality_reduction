@@ -11,13 +11,13 @@
 class autoencoder
 {
 public:
-	autoencoder(int n_visible, int n_hidden, activ_func enc_func = sigmoid, activ_func dec_func = linear);
+	autoencoder(int n_visible = 1, int n_hidden = 1, activ_func enc_func = sigmoid, activ_func dec_func = linear);
 	~autoencoder() = default;
 	arma::mat encode(const arma::mat &X);
 	arma::mat decode(const arma::mat &R);
 	arma::mat reconstruct(const arma::mat &X);
 
-	void sgd_update(const arma::mat &X);
+	void sgd_update(const arma::mat &X, bool denoising = false);
 	void bfgs_update(const arma::mat &X);
 	void lbfgs_update(const arma::mat &X);
 
@@ -89,8 +89,12 @@ autoencoder::autoencoder(int n_visible, int n_hidden, activ_func enc_func, activ
 : encoder(n_visible, n_hidden, enc_func), decoder(n_hidden, n_visible, dec_func)
 {
 	int n_parm = 2 * n_visible * n_hidden + n_hidden + n_visible;
-	B.eye(n_parm, n_parm);
-	B.diag() *= 1e-10;
+	if (n_parm < ARMA_MAX_UWORD)
+	{
+			// B.eye(n_parm, n_parm);
+			// B.diag() *= 1e-10;
+	}
+
 
 	t = 0;
 	n_above_thresh = 0;
@@ -119,9 +123,20 @@ arma::mat autoencoder::reconstruct(const arma::mat &X)
 	return decoder.predict(encoder.predict(X));
 }
 //----------------------------------------------------------------------------
-void autoencoder::sgd_update(const arma::mat &X)
+void autoencoder::sgd_update(const arma::mat &X, bool denoising)
 {
-	arma::mat X_tilde = reconstruct(X);
+	arma::mat X_tilde;
+	if (!denoising)
+	{
+		X_tilde = reconstruct(X);
+	}
+	else
+	{
+		arma::mat X_plus_noise = X;
+		X_plus_noise += arma::randn<arma::mat>(X.n_rows, X.n_cols) * 0.02;
+		X_tilde = reconstruct(X_plus_noise);
+	}
+	 
 	arma::mat error = X_tilde - X;
 
 	decoder.backpropagate(error);
