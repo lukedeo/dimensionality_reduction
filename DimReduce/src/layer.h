@@ -13,8 +13,8 @@ class layer
 {
 public:
     explicit layer(int inputs = 1, int outputs = 1, activ_func type = linear, 
-        double learning = 0.02, double momentum = 0.7, 
-        double regularizer = 0.0001);
+        double learning = 0.02, double momentum = 0.9, 
+        double regularizer = 0.001);
 
     ~layer( ) { }
 
