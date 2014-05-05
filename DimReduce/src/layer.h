@@ -13,8 +13,8 @@ class layer
 {
 public:
     explicit layer(int inputs = 1, int outputs = 1, activ_func type = linear, 
-        double learning = 0.02, double momentum = 0.7, 
-        double regularizer = 0.0001);
+        double learning = 0.02, double momentum = 0.9, 
+        double regularizer = 0.001);
 
     ~layer( ) { }
 
@@ -38,6 +38,19 @@ public:
     Rcpp::List to_list();
 
     void from_list(const Rcpp::List &list);
+
+    void set_learning(double x)
+    {
+        learning = x;
+    }
+    void set_momentum(double x)
+    {
+        momentum = x;
+    }
+    void set_regularization(double x)
+    {
+        regularization = x;
+    }
 
 private:
     friend class autoencoder;
@@ -64,7 +77,7 @@ m_divide(inputs * outputs - 1), m_total(inputs * outputs + outputs - 1)
     grad_params.fill(0.0);
 }
 //---------------------------------------------------------------------------
-arma::mat layer::predict(const arma::mat &M)
+inline arma::mat layer::predict(const arma::mat &M)
 {
     m_in = M.t();
     // m_out = W * M.t();
@@ -83,7 +96,7 @@ arma::mat layer::predict(const arma::mat &M)
 }
 // //----------------------------------------------------------------------------
 
-void layer::backpropagate(const arma::mat &V)
+inline void layer::backpropagate(const arma::mat &V)
 {
     arma::mat delta = V.t();
     if (layer_type == sigmoid)
@@ -106,7 +119,7 @@ void layer::backpropagate(const arma::mat &V)
 }
 
 
-void layer::calculate_derivatives(const arma::mat &V)
+inline void layer::calculate_derivatives(const arma::mat &V)
 {
     arma::mat delta = V.t();
     if (layer_type == sigmoid)
@@ -119,13 +132,13 @@ void layer::calculate_derivatives(const arma::mat &V)
     to_pass_down = W.t() * delta;
 }
 
-arma::mat layer::pass_down()
+inline arma::mat layer::pass_down()
 {
     return to_pass_down;
 }
 
 
-Rcpp::List layer::to_list()
+inline Rcpp::List layer::to_list()
 {
     std::string type;
 
@@ -142,7 +155,7 @@ Rcpp::List layer::to_list()
 }
 //----------------------------------------------------------------------------
 
-void layer::from_list(const Rcpp::List &list)
+inline void layer::from_list(const Rcpp::List &list)
 {
     std::string type = list["activation"];
 

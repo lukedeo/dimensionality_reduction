@@ -1,4 +1,5 @@
 #define ARMA_64BIT_WORD
+
 #ifndef __ACTIV_FUNC__
 #define __ACTIV_FUNC__ 
 #include <RcppArmadillo.h>
@@ -7,7 +8,7 @@
 
 
 //----------------------------------------------------------------------------
-arma::mat _sigmoid(arma::mat A)
+inline arma::mat _sigmoid(arma::mat A)
 {
     A = arma::exp(-A);
     for (arma::mat::iterator elem = A.begin(); elem != A.end(); ++elem)
@@ -17,13 +18,13 @@ arma::mat _sigmoid(arma::mat A)
     return A;
 }
 //----------------------------------------------------------------------------
-template <typename T>
+inline template <typename T>
 T _sigmoid_derivative(T A)
 {
     return A % (1 - A);
 }
 //----------------------------------------------------------------------------
-arma::mat _softmax(arma::mat A, unsigned int axis = 1)
+inline arma::mat _softmax(arma::mat A, unsigned int axis = 1)
 {
     A = arma::exp(A);
     if (axis == 1)
@@ -47,13 +48,13 @@ arma::mat _softmax(arma::mat A, unsigned int axis = 1)
     throw std::runtime_error("axis for softmax can only be 1 or 0");
 }
 //----------------------------------------------------------------------------
-template <class T>
+inline template <class T>
 T _identity(T &O)
 {
     return O;
 }
 //----------------------------------------------------------------------------
-template <class T>
+inline template <class T>
 double _identity_derivative(const T &O)
 {
     return 1.0;
