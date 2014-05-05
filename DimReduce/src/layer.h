@@ -39,6 +39,19 @@ public:
 
     void from_list(const Rcpp::List &list);
 
+    void set_learning(double x)
+    {
+        learning = x;
+    }
+    void set_momentum(double x)
+    {
+        momentum = x;
+    }
+    void set_regularization(double x)
+    {
+        regularization = x;
+    }
+
 private:
     friend class autoencoder;
 

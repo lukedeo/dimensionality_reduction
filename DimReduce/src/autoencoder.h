@@ -30,9 +30,29 @@ public:
 		mem = v;
 		return *this;
 	}
+	autoencoder& set_momentum(const double &v)
+	{
+		encoder.set_momentum(v);
+		decoder.set_momentum(v);
+		return *this;
+	}
 	autoencoder& set_learning(const double &v)
 	{
 		learning = v;
+		encoder.set_learning(v);
+		decoder.set_momentum(v);
+		return *this;
+	}
+	autoencoder& set_regularization(const double &v)
+	{
+		encoder.set_regularization(v);
+		decoder.set_momentum(v);
+		return *this;
+	}
+
+	autoencoder& set_noise(const double &v)
+	{
+		noise = v;
 		return *this;
 	}
 	autoencoder& set_tau(const double &v)
@@ -79,6 +99,7 @@ private:
 	double c;
 	double thresh;
 	int k;
+	double noise;
 
 	arma::vec s;
 	arma::vec y;
@@ -106,6 +127,7 @@ autoencoder::autoencoder(int n_visible, int n_hidden, activ_func enc_func, activ
 	c = 0.1;
 	thresh = 1e-4;
 	k = 5;
+	noise = 0.02;
 }
 //----------------------------------------------------------------------------
 arma::mat autoencoder::encode(const arma::mat &X)
@@ -133,7 +155,7 @@ void autoencoder::sgd_update(const arma::mat &X, bool denoising)
 	else
 	{
 		arma::mat X_plus_noise = X;
-		X_plus_noise += arma::randn<arma::mat>(X.n_rows, X.n_cols) * 0.02;
+		X_plus_noise += arma::randn<arma::mat>(X.n_rows, X.n_cols) * noise;
 		X_tilde = reconstruct(X_plus_noise);
 	}
 	 

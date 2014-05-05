@@ -109,61 +109,9 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
-// learn_layer
-SEXP learn_layer(arma::mat X, arma::mat Y);
-RcppExport SEXP DimReduce_learn_layer(SEXP XSEXP, SEXP YSEXP) {
-BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP );
-        Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP );
-        SEXP __result = learn_layer(X, Y);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
-END_RCPP
-}
 // learn_autoencoder
-SEXP learn_autoencoder(arma::mat X, int n_hidden, int epochs = 10, int batch = 2);
-RcppExport SEXP DimReduce_learn_autoencoder(SEXP XSEXP, SEXP n_hiddenSEXP, SEXP epochsSEXP, SEXP batchSEXP) {
-BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP );
-        Rcpp::traits::input_parameter< int >::type n_hidden(n_hiddenSEXP );
-        Rcpp::traits::input_parameter< int >::type epochs(epochsSEXP );
-        Rcpp::traits::input_parameter< int >::type batch(batchSEXP );
-        SEXP __result = learn_autoencoder(X, n_hidden, epochs, batch);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
-END_RCPP
-}
-// learn_bfgs_autoencoder
-SEXP learn_bfgs_autoencoder(arma::mat X, int n_hidden, int epochs = 1, int batch = 10);
-RcppExport SEXP DimReduce_learn_bfgs_autoencoder(SEXP XSEXP, SEXP n_hiddenSEXP, SEXP epochsSEXP, SEXP batchSEXP) {
-BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP );
-        Rcpp::traits::input_parameter< int >::type n_hidden(n_hiddenSEXP );
-        Rcpp::traits::input_parameter< int >::type epochs(epochsSEXP );
-        Rcpp::traits::input_parameter< int >::type batch(batchSEXP );
-        SEXP __result = learn_bfgs_autoencoder(X, n_hidden, epochs, batch);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
-END_RCPP
-}
-// learn_denoising_autoencoder
-SEXP learn_denoising_autoencoder(arma::mat X, int n_hidden, std::string activation_type, int epochs = 10, int batch = 2);
-RcppExport SEXP DimReduce_learn_denoising_autoencoder(SEXP XSEXP, SEXP n_hiddenSEXP, SEXP activation_typeSEXP, SEXP epochsSEXP, SEXP batchSEXP) {
+SEXP learn_autoencoder(arma::mat X, int n_hidden, std::string activation_type, int epochs = 10, int batch = 2, double learning = 0.02, double momentum = 0.9, double regularization = 0.001);
+RcppExport SEXP DimReduce_learn_autoencoder(SEXP XSEXP, SEXP n_hiddenSEXP, SEXP activation_typeSEXP, SEXP epochsSEXP, SEXP batchSEXP, SEXP learningSEXP, SEXP momentumSEXP, SEXP regularizationSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -173,7 +121,55 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< std::string >::type activation_type(activation_typeSEXP );
         Rcpp::traits::input_parameter< int >::type epochs(epochsSEXP );
         Rcpp::traits::input_parameter< int >::type batch(batchSEXP );
-        SEXP __result = learn_denoising_autoencoder(X, n_hidden, activation_type, epochs, batch);
+        Rcpp::traits::input_parameter< double >::type learning(learningSEXP );
+        Rcpp::traits::input_parameter< double >::type momentum(momentumSEXP );
+        Rcpp::traits::input_parameter< double >::type regularization(regularizationSEXP );
+        SEXP __result = learn_autoencoder(X, n_hidden, activation_type, epochs, batch, learning, momentum, regularization);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// learn_bfgs_autoencoder
+SEXP learn_bfgs_autoencoder(arma::mat X, int n_hidden, std::string activation_type, int epochs = 1, int batch = 10, double learning = 0.02, double momentum = 0.9, double regularization = 0.001);
+RcppExport SEXP DimReduce_learn_bfgs_autoencoder(SEXP XSEXP, SEXP n_hiddenSEXP, SEXP activation_typeSEXP, SEXP epochsSEXP, SEXP batchSEXP, SEXP learningSEXP, SEXP momentumSEXP, SEXP regularizationSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP );
+        Rcpp::traits::input_parameter< int >::type n_hidden(n_hiddenSEXP );
+        Rcpp::traits::input_parameter< std::string >::type activation_type(activation_typeSEXP );
+        Rcpp::traits::input_parameter< int >::type epochs(epochsSEXP );
+        Rcpp::traits::input_parameter< int >::type batch(batchSEXP );
+        Rcpp::traits::input_parameter< double >::type learning(learningSEXP );
+        Rcpp::traits::input_parameter< double >::type momentum(momentumSEXP );
+        Rcpp::traits::input_parameter< double >::type regularization(regularizationSEXP );
+        SEXP __result = learn_bfgs_autoencoder(X, n_hidden, activation_type, epochs, batch, learning, momentum, regularization);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// learn_denoising_autoencoder
+SEXP learn_denoising_autoencoder(arma::mat X, int n_hidden, std::string activation_type, int epochs = 10, int batch = 2, double learning = 0.02, double momentum = 0.9, double regularization = 0.001, double noise = 0.02);
+RcppExport SEXP DimReduce_learn_denoising_autoencoder(SEXP XSEXP, SEXP n_hiddenSEXP, SEXP activation_typeSEXP, SEXP epochsSEXP, SEXP batchSEXP, SEXP learningSEXP, SEXP momentumSEXP, SEXP regularizationSEXP, SEXP noiseSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP );
+        Rcpp::traits::input_parameter< int >::type n_hidden(n_hiddenSEXP );
+        Rcpp::traits::input_parameter< std::string >::type activation_type(activation_typeSEXP );
+        Rcpp::traits::input_parameter< int >::type epochs(epochsSEXP );
+        Rcpp::traits::input_parameter< int >::type batch(batchSEXP );
+        Rcpp::traits::input_parameter< double >::type learning(learningSEXP );
+        Rcpp::traits::input_parameter< double >::type momentum(momentumSEXP );
+        Rcpp::traits::input_parameter< double >::type regularization(regularizationSEXP );
+        Rcpp::traits::input_parameter< double >::type noise(noiseSEXP );
+        SEXP __result = learn_denoising_autoencoder(X, n_hidden, activation_type, epochs, batch, learning, momentum, regularization, noise);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
@@ -212,16 +208,80 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
-// layer_predict
-arma::mat layer_predict(Rcpp::List list, arma::mat X);
-RcppExport SEXP DimReduce_layer_predict(SEXP listSEXP, SEXP XSEXP) {
+// decode_autoencoder
+arma::mat decode_autoencoder(Rcpp::List autoenc, arma::mat X);
+RcppExport SEXP DimReduce_decode_autoencoder(SEXP autoencSEXP, SEXP XSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< Rcpp::List >::type list(listSEXP );
+        Rcpp::traits::input_parameter< Rcpp::List >::type autoenc(autoencSEXP );
         Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP );
-        arma::mat __result = layer_predict(list, X);
+        arma::mat __result = decode_autoencoder(autoenc, X);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// continue_learn_autoencoder
+SEXP continue_learn_autoencoder(Rcpp::List autoenc, arma::mat X, int epochs = 10, int batch = 2, double learning = 0.02, double momentum = 0.9, double regularization = 0.001);
+RcppExport SEXP DimReduce_continue_learn_autoencoder(SEXP autoencSEXP, SEXP XSEXP, SEXP epochsSEXP, SEXP batchSEXP, SEXP learningSEXP, SEXP momentumSEXP, SEXP regularizationSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< Rcpp::List >::type autoenc(autoencSEXP );
+        Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP );
+        Rcpp::traits::input_parameter< int >::type epochs(epochsSEXP );
+        Rcpp::traits::input_parameter< int >::type batch(batchSEXP );
+        Rcpp::traits::input_parameter< double >::type learning(learningSEXP );
+        Rcpp::traits::input_parameter< double >::type momentum(momentumSEXP );
+        Rcpp::traits::input_parameter< double >::type regularization(regularizationSEXP );
+        SEXP __result = continue_learn_autoencoder(autoenc, X, epochs, batch, learning, momentum, regularization);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// continue_learn_bfgs_autoencoder
+SEXP continue_learn_bfgs_autoencoder(Rcpp::List autoenc, arma::mat X, int epochs = 1, int batch = 10, double learning = 0.02, double momentum = 0.9, double regularization = 0.001);
+RcppExport SEXP DimReduce_continue_learn_bfgs_autoencoder(SEXP autoencSEXP, SEXP XSEXP, SEXP epochsSEXP, SEXP batchSEXP, SEXP learningSEXP, SEXP momentumSEXP, SEXP regularizationSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< Rcpp::List >::type autoenc(autoencSEXP );
+        Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP );
+        Rcpp::traits::input_parameter< int >::type epochs(epochsSEXP );
+        Rcpp::traits::input_parameter< int >::type batch(batchSEXP );
+        Rcpp::traits::input_parameter< double >::type learning(learningSEXP );
+        Rcpp::traits::input_parameter< double >::type momentum(momentumSEXP );
+        Rcpp::traits::input_parameter< double >::type regularization(regularizationSEXP );
+        SEXP __result = continue_learn_bfgs_autoencoder(autoenc, X, epochs, batch, learning, momentum, regularization);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// continue_learn_denoising_autoencoder
+SEXP continue_learn_denoising_autoencoder(Rcpp::List autoenc, arma::mat X, int epochs = 10, int batch = 2, double learning = 0.02, double momentum = 0.9, double regularization = 0.001, double noise = 0.02);
+RcppExport SEXP DimReduce_continue_learn_denoising_autoencoder(SEXP autoencSEXP, SEXP XSEXP, SEXP epochsSEXP, SEXP batchSEXP, SEXP learningSEXP, SEXP momentumSEXP, SEXP regularizationSEXP, SEXP noiseSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< Rcpp::List >::type autoenc(autoencSEXP );
+        Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP );
+        Rcpp::traits::input_parameter< int >::type epochs(epochsSEXP );
+        Rcpp::traits::input_parameter< int >::type batch(batchSEXP );
+        Rcpp::traits::input_parameter< double >::type learning(learningSEXP );
+        Rcpp::traits::input_parameter< double >::type momentum(momentumSEXP );
+        Rcpp::traits::input_parameter< double >::type regularization(regularizationSEXP );
+        Rcpp::traits::input_parameter< double >::type noise(noiseSEXP );
+        SEXP __result = continue_learn_denoising_autoencoder(autoenc, X, epochs, batch, learning, momentum, regularization, noise);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);

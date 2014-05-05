@@ -21,20 +21,16 @@ laplacian_eigenmap <- function(X, d, k, heat = 2.0, verbose = FALSE) {
     .Call('DimReduce_laplacian_eigenmap', PACKAGE = 'DimReduce', X, d, k, heat, verbose)
 }
 
-learn_layer <- function(X, Y) {
-    .Call('DimReduce_learn_layer', PACKAGE = 'DimReduce', X, Y)
+learn_autoencoder <- function(X, n_hidden, activation_type, epochs = 10L, batch = 2L, learning = 0.02, momentum = 0.9, regularization = 0.001) {
+    .Call('DimReduce_learn_autoencoder', PACKAGE = 'DimReduce', X, n_hidden, activation_type, epochs, batch, learning, momentum, regularization)
 }
 
-learn_autoencoder <- function(X, n_hidden, epochs = 10L, batch = 2L) {
-    .Call('DimReduce_learn_autoencoder', PACKAGE = 'DimReduce', X, n_hidden, epochs, batch)
+learn_bfgs_autoencoder <- function(X, n_hidden, activation_type, epochs = 1L, batch = 10L, learning = 0.02, momentum = 0.9, regularization = 0.001) {
+    .Call('DimReduce_learn_bfgs_autoencoder', PACKAGE = 'DimReduce', X, n_hidden, activation_type, epochs, batch, learning, momentum, regularization)
 }
 
-learn_bfgs_autoencoder <- function(X, n_hidden, epochs = 1L, batch = 10L) {
-    .Call('DimReduce_learn_bfgs_autoencoder', PACKAGE = 'DimReduce', X, n_hidden, epochs, batch)
-}
-
-learn_denoising_autoencoder <- function(X, n_hidden, activation_type, epochs = 10L, batch = 2L) {
-    .Call('DimReduce_learn_denoising_autoencoder', PACKAGE = 'DimReduce', X, n_hidden, activation_type, epochs, batch)
+learn_denoising_autoencoder <- function(X, n_hidden, activation_type, epochs = 10L, batch = 2L, learning = 0.02, momentum = 0.9, regularization = 0.001, noise = 0.02) {
+    .Call('DimReduce_learn_denoising_autoencoder', PACKAGE = 'DimReduce', X, n_hidden, activation_type, epochs, batch, learning, momentum, regularization, noise)
 }
 
 reconstruct_autoencoder <- function(autoenc, X) {
@@ -45,8 +41,20 @@ encode_autoencoder <- function(autoenc, X) {
     .Call('DimReduce_encode_autoencoder', PACKAGE = 'DimReduce', autoenc, X)
 }
 
-layer_predict <- function(list, X) {
-    .Call('DimReduce_layer_predict', PACKAGE = 'DimReduce', list, X)
+decode_autoencoder <- function(autoenc, X) {
+    .Call('DimReduce_decode_autoencoder', PACKAGE = 'DimReduce', autoenc, X)
+}
+
+continue_learn_autoencoder <- function(autoenc, X, epochs = 10L, batch = 2L, learning = 0.02, momentum = 0.9, regularization = 0.001) {
+    .Call('DimReduce_continue_learn_autoencoder', PACKAGE = 'DimReduce', autoenc, X, epochs, batch, learning, momentum, regularization)
+}
+
+continue_learn_bfgs_autoencoder <- function(autoenc, X, epochs = 1L, batch = 10L, learning = 0.02, momentum = 0.9, regularization = 0.001) {
+    .Call('DimReduce_continue_learn_bfgs_autoencoder', PACKAGE = 'DimReduce', autoenc, X, epochs, batch, learning, momentum, regularization)
+}
+
+continue_learn_denoising_autoencoder <- function(autoenc, X, epochs = 10L, batch = 2L, learning = 0.02, momentum = 0.9, regularization = 0.001, noise = 0.02) {
+    .Call('DimReduce_continue_learn_denoising_autoencoder', PACKAGE = 'DimReduce', autoenc, X, epochs, batch, learning, momentum, regularization, noise)
 }
 
 local_linear_embedding <- function(X, k = 6L, d = 2L, verbose = FALSE) {
