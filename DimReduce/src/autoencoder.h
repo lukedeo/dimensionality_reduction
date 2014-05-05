@@ -130,22 +130,22 @@ autoencoder::autoencoder(int n_visible, int n_hidden, activ_func enc_func, activ
 	noise = 0.02;
 }
 //----------------------------------------------------------------------------
-arma::mat autoencoder::encode(const arma::mat &X)
+inline arma::mat autoencoder::encode(const arma::mat &X)
 {
 	return encoder.predict(X);
 }
 //----------------------------------------------------------------------------
-arma::mat autoencoder::decode(const arma::mat &R)
+inline arma::mat autoencoder::decode(const arma::mat &R)
 {
 	return decoder.predict(R);
 }
 //----------------------------------------------------------------------------
-arma::mat autoencoder::reconstruct(const arma::mat &X)
+inline arma::mat autoencoder::reconstruct(const arma::mat &X)
 {
 	return decoder.predict(encoder.predict(X));
 }
 //----------------------------------------------------------------------------
-void autoencoder::sgd_update(const arma::mat &X, bool denoising)
+inline void autoencoder::sgd_update(const arma::mat &X, bool denoising)
 {
 	arma::mat X_tilde;
 	if (!denoising)
@@ -177,14 +177,14 @@ double autoencoder::gradient_magnitude(const arma::mat &X, const T &type)
 	return arma::norm(gradient, type);
 }
 //----------------------------------------------------------------------------
-double autoencoder::reconstruction_error(const arma::mat &X)
+inline double autoencoder::reconstruction_error(const arma::mat &X)
 {
 	arma::mat X_tilde = reconstruct(X);
 	arma::mat error = X_tilde - X;
 	return arma::norm(error, "fro") / X.n_rows;
 }
 //----------------------------------------------------------------------------
-void autoencoder::bfgs_update(const arma::mat &X)
+inline void autoencoder::bfgs_update(const arma::mat &X)
 {
 	arma::mat X_tilde = reconstruct(X);
 	arma::mat error = X_tilde - X;
@@ -244,7 +244,7 @@ void autoencoder::bfgs_update(const arma::mat &X)
 	++t;
 }
 //----------------------------------------------------------------------------
-void autoencoder::lbfgs_update(const arma::mat &X)
+inline void autoencoder::lbfgs_update(const arma::mat &X)
 {
 	arma::mat X_tilde = reconstruct(X);
 	arma::mat error = X_tilde - X;
